@@ -1,0 +1,46 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Maven
+target/
+.m2/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+.classpath
+.project
+.settings/
+
+# Build
+node_modules/
+dist/
+build/
+
+# Tests
+src/test/
+
+# Documentation
+README.md
+docs/
+
+# Docker/Compose
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Node (if present)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+Thumbs.db
+.DS_Store
