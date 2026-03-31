@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Build artifacts
+target
+*.class
+*.jar
+*.war
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+QUICK_START.md
+TROUBLESHOOTING.md
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose*.yml
+
+# Environment
+.env
+.env.example
+.env.production

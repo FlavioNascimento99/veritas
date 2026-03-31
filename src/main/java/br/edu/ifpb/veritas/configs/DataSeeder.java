@@ -61,15 +61,18 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("ℹ️  O DataSeeder é IDEMPOTENTE - pode ser executado múltiplas vezes\n");
 
         try {
+            // ✅ Apenas administradores ativados para testes
             seedAdministrators();
-            seedSubjects();
-            seedProfessors();
-            seedStudents();
-            seedCollegiates();
-            seedProcesses();
-            seedDistributeProcesses();
-            seedRapporteurVotes();
-            seedMeetings();
+            
+            // ❌ COMENTADO: Todas as outras seeds sendo debugadas
+            // seedSubjects();
+            // seedProfessors();
+            // seedStudents();
+            // seedCollegiates();
+            // seedProcesses();
+            // seedDistributeProcesses();
+            // seedRapporteurVotes();
+            // seedMeetings();
 
             System.out.println("\n====== BANCO DE DADOS POPULADO COM SUCESSO ======\n");
         } catch (Exception e) {
@@ -117,7 +120,9 @@ public class DataSeeder implements CommandLineRunner {
     /**
      * SEED 2: Assuntos de Processos
      * Cria os tipos de assuntos que podem ser solicitados pelos alunos.
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedSubjects() {
         System.out.println("\n📋 Populando assuntos de processos...");
 
@@ -151,11 +156,14 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao popular assuntos: " + e.getMessage());
         }
     }
+    */
 
     /**
      * SEED 3: Professores
      * Cria professores (alguns como coordenadores).
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedProfessors() {
         System.out.println("\n📋 Populando professores...");
 
@@ -224,11 +232,14 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao popular professores: " + e.getMessage());
         }
     }
+    */
 
     /**
      * SEED 4: Estudantes
      * Cria alunos que podem criar processos.
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedStudents() {
         System.out.println("\n📋 Populando estudantes...");
 
@@ -278,11 +289,14 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao popular estudantes: " + e.getMessage());
         }
     }
+    */
 
     /**
      * SEED 5: Colegiados
      * Cria colegiados com membros (professores).
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedCollegiates() {
         System.out.println("\n📋 Populando colegiados...");
 
@@ -309,11 +323,14 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao popular colegiados: " + e.getMessage());
         }
     }
+    */
 
     /**
      * SEED 6: Processos
      * Cria processos de alunos em estado WAITING (aguardando distribuição).
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedProcesses() {
         System.out.println("\n📋 Populando processos...");
 
@@ -374,11 +391,14 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao popular processos: " + e.getMessage());
         }
     }
+    */
 
     /**
      * SEED 7: Distribuição de Processos
      * Coordenador distribui processos para professores relatores.
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedDistributeProcesses() {
         System.out.println("\n📋 Distribuindo processos para relatores...");
 
@@ -443,11 +463,14 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao distribuir processos: " + e.getMessage());
         }
     }
+    */
 
     /**
      * SEED 8: Votos dos Relatores
      * Professor relator vota pelo DEFERIMENTO ou INDEFERIMENTO do processo.
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedRapporteurVotes() {
         System.out.println("\n📋 Populando votos dos relatores (DecisionType: DEFERIMENTO/INDEFERIMENTO)...");
 
@@ -528,11 +551,14 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao popular votos dos relatores: " + e.getMessage());
         }
     }
+    */
 
     /**
      * SEED 9: Reuniões
      * Coordenador cria reuniões e define pauta com processos elegíveis.
+     * ❌ COMENTADO - Debugando problemas de autenticação
      */
+    /*
     private void seedMeetings() {
         System.out.println("\n📋 Populando reuniões...");
 
@@ -626,4 +652,5 @@ public class DataSeeder implements CommandLineRunner {
             System.err.println("   ❌ Erro ao criar reuniões: " + e.getMessage());
         }
     }
+    */
 }

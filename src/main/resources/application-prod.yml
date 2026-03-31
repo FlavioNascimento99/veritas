@@ -1,7 +1,7 @@
 # ============================================================
 # PRODUCTION PROFILE - Supabase (Cloud)
 # ============================================================
-# This profile is used for production deployment on Kubernetes.
+# This profile is used for production deployment.
 # PostgreSQL is hosted on Supabase (managed database).
 # All credentials must be provided via environment variables.
 # ============================================================
@@ -16,9 +16,9 @@ spring:
   datasource:
     # Supabase PostgreSQL connection
     # Format: jdbc:postgresql://host:port/database?sslmode=require
-    url: jdbc:postgresql://${SUPABASE_DB_HOST}:${SUPABASE_DB_PORT:5432}/${SUPABASE_DB_NAME:postgres}?sslmode=require
-    username: ${SUPABASE_DB_USER}
-    password: ${SUPABASE_DB_PASSWORD}
+    url: jdbc:postgresql://${PGHOST}:${PGPORT:5432}/${PGDATABASE:postgres}?sslmode=require
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
     
     # Connection Pool Settings

@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  veritas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: veritas-app
+    ports:
+      - "8080:8080"
+    environment:
+      # Spring Boot Configuration
+      SPRING_PROFILES_ACTIVE: prod
+      
+      # Supabase PostgreSQL Connection
+      # Get these credentials from your Supabase project settings
+      PGHOST: ${PGHOST:-db.XXXXXXXXXXXX.supabase.co}
+      PGPORT: ${PGPORT:-5432}
+      PGDATABASE: ${PGDATABASE:-postgres}
+      PGUSER: ${PGUSER:-postgres}
+      PGPASSWORD: ${PGPASSWORD:-your_supabase_password}
+      
+      # Optional: JVM Configuration
+      JAVA_OPTS: "-Xmx512m -Xms256m -XX:+UseG1GC"
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

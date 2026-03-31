@@ -47,32 +47,108 @@ PGPASSWORD=sua-senha-aqui
 PGDATABASE=postgres
 ```
 
-**Para obter as credenciais:**
-1. Acesse [Supabase Dashboard](https://supabase.com)
-2. Selecione seu projeto
-3. Vá em **Settings** → **Database** → **Connection Info**
-
 ---
 
 ## ▶️ Executar a Aplicação
 
-### Via Maven (Recomendado)
+### Via Script Helper (Recomendado ⭐)
 
 ```bash
-# Opção 1: Rodar direto
-./mvnw spring-boot:run
+# Tornar executável (primeira vez)
+chmod +x run.sh
 
-# Opção 2: Build + Execute
-./mvnw clean install
-java -jar target/veritas-0.0.1-SNAPSHOT.jar
+# Rodar com profile dev (padrão)
+./run.sh
+
+# Ou especificar o profile
+./run.sh dev      # desenvolvimento
+./run.sh prod     # produção
 ```
+
+**Isto automaticamente:**
+1. Carrega variáveis do `.env`
+2. Inicia Maven com o perfil correto
+3. Conecta ao Supabase
+
+---
+
+### Via Maven + Exportar Variáveis (Manual)
+
+**Bash/Zsh:**
+```bash
+# Carregar variáveis do .env
+set -a
+source .env
+set +a
+
+# Executar
+./mvnw spring-boot:run
+```
+
+**PowerShell (Windows):**
+```powershell
+# Carregar .env manualmente ou usar:
+$env:PGHOST="seu-projeto.supabase.co"
+$env:PGPORT="5432"
+$env:PGUSER="postgres"
+$env:PGPASSWORD="sua-senha"
+$env:PGDATABASE="postgres"
+$env:SPRING_PROFILES_ACTIVE="dev"
+
+./mvnw spring-boot:run
+```
+
+---
+
+### Via Build + JAR
+
+```bash
+# Build
+./mvnw clean install
+
+# Run (com variáveis de ambiente definidas)
+SPRING_PROFILES_ACTIVE=dev java -jar target/veritas-0.0.1-SNAPSHOT.jar
+```
+
+---
 
 ### Via IDE (IntelliJ, VSCode, Eclipse)
 
+**IntelliJ IDEA:**
 1. Abra o projeto
-2. Configure as variáveis de ambiente em `Run → Edit Configurations`
-   - Adicione as variáveis do `.env`
-3. Click em **Run** ou **Debug**
+2. `Run → Edit Configurations`
+3. Selecione **Spring Boot → VeritasApplication**
+4. Em **Environment variables**, adicione:
+   ```
+   PGHOST=seu-projeto.supabase.co;PGPORT=5432;PGUSER=postgres;PGPASSWORD=sua-senha;PGDATABASE=postgres;SPRING_PROFILES_ACTIVE=dev
+   ```
+5. Click **Run** ou **Debug**
+
+**VSCode:**
+1. Instale a extensão "Extension Pack for Java"
+2. Crie `.vscode/launch.json`:
+   ```json
+   {
+     "version": "0.2.0",
+     "configurations": [
+       {
+         "type": "java",
+         "name": "Spring Boot",
+         "request": "launch",
+         "mainClass": "br.edu.ifpb.veritas.VeritasApplication",
+         "projectName": "veritas",
+         "env": {
+           "PGHOST": "seu-projeto.supabase.co",
+           "PGPORT": "5432",
+           "PGUSER": "postgres",
+           "PGPASSWORD": "sua-senha",
+           "PGDATABASE": "postgres",
+           "SPRING_PROFILES_ACTIVE": "dev"
+         }
+       }
+     ]
+   }
+   ```
 
 ---
 
@@ -94,7 +170,7 @@ Após iniciar:
 tail -f logs/spring.log
 
 # Se rodando em background
-./mvnw spring-boot:run > app.log 2>&1 &
+./run.sh dev > app.log 2>&1 &
 ```
 
 ### Acessar Banco de Dados
@@ -131,16 +207,27 @@ pkill -f "veritas"
 
 ## 🆘 Troubleshooting
 
-**Erro: "Cannot connect to database"**
+### Erro: "Cannot connect to database"
 ```bash
 # Verifique o .env
 cat .env
 
-# Teste a conexão Supabase
+# Teste as variáveis foram exportadas
+echo $PGHOST
+echo $PGUSER
+
+# Verifique a conexão manualmente
 psql -h seu-projeto.supabase.co -U postgres -d postgres
 ```
 
-**Erro: "Spring Boot not found"**
+### Erro: "UnknownHostException: ${PGHOST}"
+As variáveis não foram exportadas. Use o script `./run.sh` ou exporte manualmente:
+```bash
+set -a && source .env && set +a
+./mvnw spring-boot:run
+```
+
+### Erro: "Spring Boot not found"
 ```bash
 # Certifique-se que está no diretório correto
 pwd  # deve ser /home/nascimento/veritas
@@ -149,9 +236,12 @@ pwd  # deve ser /home/nascimento/veritas
 java -version  # deve ser 21+
 ```
 
-**Porta 8080 já em uso**
+### Porta 8080 já em uso
 ```bash
-# Mude a porta no application.properties ou via CLI
+# Encontre qual processo está usando
+lsof -i :8080
+
+# Mude a porta
 ./mvnw spring-boot:run -Dspring-boot.run.arguments='--server.port=8081'
 ```
 
@@ -167,12 +257,20 @@ Spring Boot inclui DevTools por padrão. Para ativar "Reload" automático em Int
 ### Executar com Diferentes Perfis
 ```bash
 # Testar em produção localmente (sem create-drop)
-SPRING_PROFILES_ACTIVE=prod ./mvnw spring-boot:run
+./run.sh prod
 
 # Volta para dev
-SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+./run.sh dev
+```
+
+### Ver Configuração Carregada
+```bash
+# Adicione isto ao application-dev.yml
+logging:
+  level:
+    org.springframework.core.env: DEBUG
 ```
 
 ---
 
-**Pronto para começar? Execute: `./mvnw spring-boot:run`**
+**Pronto para começar? Execute: `./run.sh`**
