@@ -1,49 +1,117 @@
 version: '3.8'
 
+#####################################################################
+# DEVELOPMENT ENVIRONMENT - docker-compose.yml
+#
+# Services:
+#   - postgres-local: PostgreSQL 16 database for development/testing
+#   - veritas-app: Spring Boot application (profile: dev)
+#
+# Usage:
+#   docker-compose up -d          # Start services in background
+#   docker-compose logs -f app    # View application logs
+#   docker-compose down           # Stop and remove containers
+#   docker-compose down -v        # Stop and remove volumes (clean DB)
+#
+# Environment:
+#   - SPRING_PROFILES_ACTIVE=dev  (uses application-dev.yml)
+#   - Database: PostgreSQL local with development credentials
+#   - Development data can be safely lost between restarts
+#####################################################################
+
 services:
-  postgres:
+  # ========================================
+  # PostgreSQL Database (Local Development)
+  # ========================================
+  postgres-local:
     image: postgres:16-alpine
-    container_name: veritas-db
+    container_name: veritas-postgres-dev
+    
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: veritas_db
+      # Development credentials (non-production)
+      POSTGRES_USER: ${PGUSER:dev_user}
+      POSTGRES_PASSWORD: ${PGPASSWORD:dev_password}
+      POSTGRES_DB: ${PGDATABASE:veritas_dev}
+      # PostgreSQL configuration
+      POSTGRES_INITDB_ARGS: "-c shared_buffers=256MB -c effective_cache_size=1GB"
+    
     ports:
+      # PostgreSQL port (available locally for debugging)
       - "5432:5432"
+    
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # Named volume for data persistence between restarts
+      - postgres_dev_data:/var/lib/postgresql/data
+      # Optional: Initialize database with scripts
+      # - ./scripts/init-db:/docker-entrypoint-initdb.d
+    
     networks:
       - veritas-network
+    
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:dev_user}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    
+    restart: unless-stopped
 
-  veritas:
+  # ========================================
+  # Spring Boot Application (Development)
+  # ========================================
+  veritas-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: veritas-app
+    container_name: veritas-app-dev
+    
+    # Spring Boot Profile and Database Configuration
     environment:
-      PGHOST: postgres
-      PGPORT: 5432
-      PGUSER: postgres
-      PGPASSWORD: admin
-      PGDATABASE: veritas_db
-      JAVA_OPTS: "-Xmx512m -Xms256m"
+      # Profile: dev → uses application-dev.yml
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:dev}
+      
+      # PostgreSQL Connection (points to postgres-local service)
+      PGHOST: ${PGHOST:postgres-local}
+      PGPORT: ${PGPORT:5432}
+      PGUSER: ${PGUSER:dev_user}
+      PGPASSWORD: ${PGPASSWORD:dev_password}
+      PGDATABASE: ${PGDATABASE:veritas_dev}
+      
+      # JVM Memory (development)
+      JAVA_OPTS: "-Xmx512m -Xms256m -XX:+UseG1GC"
+    
     ports:
+      # Spring Boot port (http://localhost:8080)
       - "8080:8080"
+    
     depends_on:
-      postgres:
+      postgres-local:
+        # Wait for PostgreSQL to be healthy
         condition: service_healthy
+    
     networks:
       - veritas-network
+    
     restart: unless-stopped
+    
+    # View logs with: docker-compose logs -f veritas-app
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
+# ========================================
+# Volumes (Persistent Data)
+# ========================================
 volumes:
-  postgres_data:
+  postgres_dev_data:
+    driver: local
 
+# ========================================
+# Networks (Service Communication)
+# ========================================
 networks:
   veritas-network:
     driver: bridge

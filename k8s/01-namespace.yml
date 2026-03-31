@@ -1,0 +1,24 @@
+# ============================================================
+# Kubernetes Namespace - Isolamento da Aplicação
+# ============================================================
+# Cria um namespace "veritas" para melhor organização e segurança
+# no cluster Kubernetes.
+#
+# Benefícios:
+#  - Isolamento de recursos
+#  - Controle de acesso (RBAC)
+#  - Quotas de recursos
+#
+# Aplicar:
+#  kubectl apply -f 01-namespace.yml
+# ============================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: veritas
+  labels:
+    app: veritas
+    environment: production
+  annotations:
+    description: "Veritas Application - Production Namespace"

@@ -1,0 +1,24 @@
+#! veritas-network-network-policy.yaml
+# Generated code, do not edit
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    name: veritas-network-network-policy
+    namespace: veritas
+spec:
+    podSelector:
+        matchLabels:
+            com.docker.compose.network.veritas-network: "true"
+    policyTypes:
+        - Ingress
+        - Egress
+    ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                    com.docker.compose.network.veritas-network: "true"
+    egress:
+        - to:
+            - podSelector:
+                matchLabels:
+                    com.docker.compose.network.veritas-network: "true"

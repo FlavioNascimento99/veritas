@@ -1,0 +1,213 @@
+# ============================================================
+# Kubernetes Deployment - Spring Boot Application
+# ============================================================
+# Define como rodar a aplicação Veritas no Kubernetes.
+# - Imagem Docker
+# - Número de replicas
+# - Recursos (CPU/Memória)
+# - Health checks
+# - Update strategy
+#
+# Aplicar:
+#  kubectl apply -f 04-deployment.yml
+# ============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: veritas-app
+  namespace: veritas
+  labels:
+    app: veritas
+    version: "1.0.0"
+  annotations:
+    description: "Veritas Spring Boot Application Deployment"
+spec:
+  # ========================================
+  # Replicas (instâncias da aplicação)
+  # ========================================
+  replicas: 3  # 3 instâncias para alta disponibilidade
+  
+  # ========================================
+  # Strategy de Update
+  # ========================================
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1          # +1 pod durante update
+      maxUnavailable: 0    # 0 pods unavailable durante update (zero downtime)
+  
+  # ========================================
+  # Seletor de Pods
+  # ========================================
+  selector:
+    matchLabels:
+      app: veritas
+      tier: backend
+  
+  # ========================================
+  # Template dos Pods
+  # ========================================
+  template:
+    metadata:
+      labels:
+        app: veritas
+        tier: backend
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    
+    spec:
+      # ========================================
+      # Segurança
+      # ========================================
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      # ========================================
+      # Affinity (distribuir entre nodes)
+      # ========================================
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - veritas
+                topologyKey: kubernetes.io/hostname
+      
+      # ========================================
+      # Containers
+      # ========================================
+      containers:
+        - name: veritas
+          
+          # Docker Image
+          image: seu-docker-registry/veritas:latest
+          imagePullPolicy: IfNotPresent  # ou Always em produção
+          
+          # Portas
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          
+          # ========================================
+          # Environment Variables (de ConfigMap + Secret)
+          # ========================================
+          envFrom:
+            # Carregar todo ConfigMap como env vars
+            - configMapRef:
+                name: veritas-config
+            # Carregar credenciais do Secret
+            - secretRef:
+                name: supabase-credentials
+          
+          # Variáveis individuais (override)
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          
+          # ========================================
+          # Recursos (CPU/Memória)
+          # ========================================
+          resources:
+            requests:
+              cpu: "250m"           # Mínimo garantido
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"          # Máximo permitido
+              memory: "1Gi"
+          
+          # ========================================
+          # Liveness Probe (reiniciar se morrer)
+          # ========================================
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          # ========================================
+          # Readiness Probe (receber tráfego)
+          # ========================================
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          
+          # ========================================
+          # Startup Probe (aplicação iniciando)
+          # ========================================
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 2
+          
+          # ========================================
+          # Volume Mounts
+          # ========================================
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: logs
+              mountPath: /app/logs
+      
+      # ========================================
+      # Volumes
+      # ========================================
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+      
+      # ========================================
+      # Tolerâncias e Node Selection
+      # ========================================
+      nodeSelector:
+        workload: apps
+      
+      # Tolerações para nodes com taints
+      tolerations:
+        - key: "workload"
+          operator: "Equal"
+          value: "apps"
+          effect: "NoSchedule"
+      
+      # ========================================
+      # Service Account
+      # ========================================
+      serviceAccountName: veritas
+      
+      # ========================================
+      # Termination Grace Period
+      # ========================================
+      terminationGracePeriodSeconds: 30

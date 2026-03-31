@@ -1,0 +1,19 @@
+#! veritas-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: veritas-published
+    namespace: veritas
+    labels:
+        com.docker.compose.project: veritas
+        com.docker.compose.service: veritas
+spec:
+    selector:
+        com.docker.compose.project: veritas
+        com.docker.compose.service: veritas
+    ports:
+        - name: veritas-8080
+          port: 8080
+          protocol: TCP
+          targetPort: veritas-8080

@@ -1,0 +1,104 @@
+# ============================================================
+# Kubernetes Service - Exposição da API
+# ============================================================
+# Define como a aplicação é acessada dentro e fora do cluster.
+# Tipos:
+#  - ClusterIP: acesso interno apenas (padrão)
+#  - NodePort: acesso externo via IP do node
+#  - LoadBalancer: acesso via load balancer externo
+#
+# Aplicar:
+#  kubectl apply -f 05-service.yml
+# ============================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: veritas-service
+  namespace: veritas
+  labels:
+    app: veritas
+    tier: backend
+  annotations:
+    description: "Veritas Backend Service"
+spec:
+  # ========================================
+  # Tipo de Service
+  # ========================================
+  type: ClusterIP  # Use ClusterIP + Ingress em produção
+  
+  # ========================================
+  # Seletor (qual pods expor)
+  # ========================================
+  selector:
+    app: veritas
+    tier: backend
+  
+  # ========================================
+  # Portas
+  # ========================================
+  ports:
+    - name: http
+      port: 80              # Porta do Service
+      targetPort: 8080      # Porta do container
+      protocol: TCP
+  
+  # ========================================
+  # Load Balancing
+  # ========================================
+  sessionAffinity: None     # ou ClientIP para sticky sessions
+  
+  # ========================================
+  # Publicação de IP
+  # ========================================
+  publishNotReadyAddresses: false  # Não expor pods que não estão ready
+
+---
+
+# ========================================
+# Service alternativo: NodePort (para teste)
+# ========================================
+# Descomente para expor diretamente nos nodes
+# (NÃO para produção!)
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: veritas-service-nodeport
+#   namespace: veritas
+#   labels:
+#     app: veritas
+# spec:
+#   type: NodePort
+#   selector:
+#     app: veritas
+#     tier: backend
+#   ports:
+#     - name: http
+#       port: 80
+#       targetPort: 8080
+#       nodePort: 30080  # Acesso via http://node-ip:30080
+
+---
+
+# ========================================
+# Service alternativo: LoadBalancer (AWS/GCP/Azure)
+# ========================================
+# Descomente se usar cloud provider com LB
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: veritas-service-lb
+#   namespace: veritas
+#   labels:
+#     app: veritas
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: veritas
+#     tier: backend
+#   ports:
+#     - name: http
+#       port: 80
+#       targetPort: 8080

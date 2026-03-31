@@ -1,0 +1,160 @@
+# ============================================================
+# Kubernetes RBAC - Service Account + Role + RoleBinding
+# ============================================================
+# Define permissões seguras para a aplicação Veritas.
+# Segue princípio do menor privilégio (least privilege).
+#
+# Aplicar:
+#  kubectl apply -f 09-rbac.yml
+# ============================================================
+
+# ========================================
+# Service Account
+# ========================================
+# Identidade da aplicação dentro do cluster
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: veritas
+  namespace: veritas
+  labels:
+    app: veritas
+
+---
+
+# ========================================
+# Role (permissões específicas)
+# ========================================
+# Define quais recursos a aplicação pode acessar
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: veritas-role
+  namespace: veritas
+  labels:
+    app: veritas
+rules:
+  # ===== ConfigMap: ler apenas =====
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  
+  # ===== Secret: ler apenas =====
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+  
+  # ===== Logs: criar se necessário =====
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  
+  # ===== (Opcional) Escalar pod para métricas =====
+  # - apiGroups: [""]
+  #   resources: ["pods"]
+  #   verbs: ["get", "list"]
+
+---
+
+# ========================================
+# RoleBinding (conectar ServiceAccount com Role)
+# ========================================
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: veritas-rolebinding
+  namespace: veritas
+  labels:
+    app: veritas
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: veritas-role
+subjects:
+  - kind: ServiceAccount
+    name: veritas
+    namespace: veritas
+
+---
+
+# ========================================
+# NetworkPolicy (opcional - segurança de rede)
+# ========================================
+# Controla tráfego de rede para os pods
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: veritas-network-policy
+  namespace: veritas
+  labels:
+    app: veritas
+spec:
+  # ========================================
+  # Pods afetados
+  # ========================================
+  podSelector:
+    matchLabels:
+      app: veritas
+      tier: backend
+  
+  # ========================================
+  # Políticas de Tráfego de Entrada
+  # ========================================
+  policyTypes:
+    - Ingress
+    - Egress
+  
+  # ========================================
+  # Ingress (tráfego entrando)
+  # ========================================
+  ingress:
+    # Permite do Ingress Controller (nginx)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+    
+    # Permite de pods no mesmo namespace
+    - from:
+        - podSelector:
+            matchLabels:
+              namespace: veritas
+      ports:
+        - protocol: TCP
+          port: 8080
+  
+  # ========================================
+  # Egress (tráfego saindo)
+  # ========================================
+  egress:
+    # Permite DNS (qualquer namespace)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+    
+    # Permite pra qualquer lugar (HTTPS/HTTP)
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 5432  # PostgreSQL/Supabase
+    
+    # Permite para fora do cluster (Supabase)
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443

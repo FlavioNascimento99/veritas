@@ -1,0 +1,79 @@
+# ============================================================
+# Kubernetes Kustomization - Aplicar tudo de uma vez
+# ============================================================
+# Facilita aplicar múltiplos manifestos em ordem correta.
+#
+# Aplicar tudo:
+#  kubectl apply -k k8s/
+#
+# Visualizar o que será aplicado:
+#  kubectl kustomize k8s/
+#
+# Deletar tudo:
+#  kubectl delete -k k8s/
+# ============================================================
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# ========================================
+# Namespace Padrão
+# ========================================
+namespace: veritas
+
+# ========================================
+# Resources (arquivos a aplicar)
+# ========================================
+# A ordem importa! Kubernetes aplica nesta sequência:
+resources:
+  - 01-namespace.yml
+  - 02-secret.yml
+  - 03-configmap.yml
+  - 04-deployment.yml
+  - 05-service.yml
+  - 06-ingress.yml
+  - 07-hpa.yml
+  - 08-pdb.yml
+  - 09-rbac.yml
+
+# ========================================
+# Common Labels (adicionar para todos)
+# ========================================
+commonLabels:
+  app: veritas
+  managed-by: kustomize
+  environment: production
+
+# ========================================
+# Common Annotations (adicionar para todos)
+# ========================================
+commonAnnotations:
+  deployment-date: "2026-03-28"
+  version: "1.0.0"
+
+# ========================================
+# Replicas Defaults (pode ser override)
+# ========================================
+# replicas:
+# - name: veritas-app
+#   count: 5
+
+# ========================================
+# Image Updates
+# ========================================
+# images:
+# - name: veritas
+#   newName: seu-registry.azurecr.io/veritas
+#   newTag: "v1.0.0"
+
+# ========================================
+# Vars (substituições customizadas)
+# ========================================
+vars:
+  - name: NAMESPACE
+    objref:
+      kind: Namespace
+      name: veritas
+      apiVersion: v1
+  - name: APP_NAME
+    literal: veritas
