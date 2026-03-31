@@ -1,6 +1,6 @@
 # 🎯 Planejamento de Implementação - Veritas
 
-> Roadmap visual para deploy em Docker + Kubernetes
+> Roadmap para desenvolvimento e deploy em produção
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### 1.1 Profiles Spring Boot
 - ✅ `application.properties` - Base configuration
-- ✅ `application-dev.yml` - Development (PostgreSQL local)
+- ✅ `application-dev.yml` - Development (Supabase PostgreSQL)
 - ✅ `application-prod.yml` - Production (Supabase)
 - ✅ `PROFILES_GUIDE.md` - Documentação
 
@@ -16,88 +16,46 @@
 
 ---
 
-## ✅ Fase 2: Docker Local (COMPLETO)
+## ✅ Fase 2: Desenvolvimento Local (COMPLETO)
 
-### 2.1 Docker Compose
-- ✅ `docker-compose.yml` - Dev environment com PostgreSQL local
-- ✅ `.env.example` - Template de variáveis
+### 2.1 Configuração de Desenvolvimento
+- ✅ `.env.example` - Template de variáveis de ambiente
 - ✅ `.gitignore` - Ignorar .env no git
-- ✅ `Dockerfile` - Build multi-stage otimizado
-- ✅ `DOCKER_DEVELOPMENT.md` - Guia completo
-- ✅ `Makefile` - Commands helpers
+- ✅ `PROFILES_GUIDE.md` - Documentação de perfis
+- ✅ Supabase PostgreSQL para dados de teste
 
 **Status:** Pronto para usar
 
 ### 2.2 Como Usar Localmente
 
 ```bash
-# 1. Iniciar Docker Compose
-docker-compose up -d
+# 1. Configurar variáveis de ambiente (.env)
+PGHOST=seu-projeto.supabase.co
+PGPORT=5432
+PGUSER=postgres
+PGPASSWORD=sua-senha
+PGDATABASE=postgres
+SPRING_PROFILES_ACTIVE=dev
 
-# 2. Acessar a aplicação
+# 2. Executar a aplicação Maven
+./mvnw spring-boot:run
+
+# 3. Acessar a aplicação
 http://localhost:8080
 
-# 3. Banco de dados (PostgreSQL)
-localhost:5432 (dev_user / dev_password)
-
-# 4. Ver logs
-docker-compose logs -f veritas-app
+# 4. Database
+Supabase PostgreSQL (configurado no .env)
 ```
 
 ---
 
-## ✅ Fase 3: Kubernetes (COMPLETO)
+## 📋 Próximas Fases: Deploy em Produção
 
-### 3.1 Manifests Criados
-
-| Arquivo | Descrição | Status |
-|---------|-----------|--------|
-| `01-namespace.yml` | Isolamento (namespace: veritas) | ✅ |
-| `02-secret.yml` | Credenciais Supabase | ✅ |
-| `03-configmap.yml` | Configurações (env vars) | ✅ |
-| `04-deployment.yml` | Spring Boot (3 replicas) | ✅ |
-| `05-service.yml` | ClusterIP + NodePort/LB | ✅ |
-| `06-ingress.yml` | HTTPS + cert-manager | ✅ |
-| `07-hpa.yml` | Auto-scaling (3-10 pods) | ✅ |
-| `08-pdb.yml` | Pod Disruption Budget | ✅ |
-| `09-rbac.yml` | ServiceAccount + RBAC | ✅ |
-| `kustomization.yml` | Aplicar tudo junto | ✅ |
-| `deploy.sh` | Script de deployment | ✅ |
-| `KUBERNETES.md` | Guia completo | ✅ |
-
-**Status:** Pronto para usar
-
-### 3.2 Arquitetura K8s
-
-```
-App (3 replicas) ──> Service ──> Ingress (HTTPS)
-    ↓
-HPA (auto-scale 3-10)
-    ↓
-Supabase (PostgreSQL)
-```
-
-### 3.3 Como Usar em Produção
-
-```bash
-# 1. Configurar Secrets
-kubectl create secret generic supabase-credentials \
-  --from-literal=SUPABASE_DB_HOST=db.supabase.co \
-  --from-literal=SUPABASE_DB_USER=postgres \
-  --from-literal=SUPABASE_DB_PASSWORD='SUA_SENHA' \
-  -n veritas
-
-# 2. Deploy com Kustomize
-kubectl apply -k k8s/
-
-# OU usar script
-./k8s/deploy.sh deploy
-
-# 3. Verificar status
-kubectl get pods -n veritas
-kubectl get ingress -n veritas
-
-# 4. Ver logs
+Quando estiver pronto para produção, será necessário:
+1. Configurar credenciais Supabase em variáveis de ambiente do servidor
+2. Configurar HTTPS e domínio
+3. Monitoramento e logs centralizados
+4. Backup automático de dados
 kubectl logs -f deployment/veritas-app -n veritas
 ```
 

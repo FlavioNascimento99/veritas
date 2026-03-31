@@ -7,18 +7,18 @@ Este projeto usa **Spring Boot profiles** para separar configurações entre amb
 ```
 src/main/resources/
 ├─ application.properties      # Base configuration (defaults)
-├─ application-dev.yml         # 🧪 Development (LOCAL Docker)
-└─ application-prod.yml        # 🚀 Production (SUPABASE)
+├─ application-dev.yml         # 🧪 Development (Supabase)
+└─ application-prod.yml        # 🚀 Production (Supabase)
 ```
 
 ---
 
 ## 📋 Profile: `dev` (Desenvolvimento Local)
 
-**Quando usar:** Durante desenvolvimento local com `docker-compose up`
+**Quando usar:** Durante desenvolvimento local
 
 **Configuração:**
-- 🐘 **Banco:** PostgreSQL local (em container Docker)
+- 🐘 **Banco:** Supabase PostgreSQL
 - 🔓 **DDL Auto:** `create-drop` (recria schema a cada restart)
 - 🔊 **Logs:** DEBUG + SQL queries visíveis
 - 📝 **SQL Init:** `always` (roda scripts de inicialização)
@@ -29,7 +29,7 @@ src/main/resources/
 export SPRING_PROFILES_ACTIVE=dev
 ./mvnw spring-boot:run
 
-# Opção 2: Arquivo .env (docker-compose)
+# Opção 2: Arquivo .env
 SPRING_PROFILES_ACTIVE=dev
 
 # Opção 3: VM Parameter (IDE)
@@ -38,18 +38,18 @@ SPRING_PROFILES_ACTIVE=dev
 
 **Variáveis de Ambiente Esperadas:**
 ```bash
-PGHOST=postgres-local        # Nome do serviço Docker
+PGHOST=seu-projeto.supabase.co
 PGPORT=5432
-PGDATABASE=veritas_dev
-PGUSER=dev_user
-PGPASSWORD=dev_password
+PGDATABASE=postgres
+PGUSER=postgres
+PGPASSWORD=sua-senha-aqui
 ```
 
 ---
 
-## 🚀 Profile: `prod` (Produção - Kubernetes)
+## 🚀 Profile: `prod` (Produção)
 
-**Quando usar:** Em produção no Kubernetes com Supabase
+**Quando usar:** Em produção
 
 **Configuração:**
 - ☁️ **Banco:** Supabase (PostgreSQL gerenciado)
@@ -63,13 +63,13 @@ PGPASSWORD=dev_password
 export SPRING_PROFILES_ACTIVE=prod
 ```
 
-**Variáveis de Ambiente Esperadas (Kubernetes Secret):**
+**Variáveis de Ambiente Esperadas:**
 ```bash
-SUPABASE_DB_HOST=db.supabase.co
-SUPABASE_DB_PORT=5432
-SUPABASE_DB_NAME=postgres
-SUPABASE_DB_USER=postgres
-SUPABASE_DB_PASSWORD=sua_senha_aqui
+PGHOST=seu-projeto.supabase.co
+PGPORT=5432
+PGDATABASE=postgres
+PGUSER=postgres
+PGPASSWORD=sua-senha-aqui
 ```
 
 ---
@@ -87,7 +87,7 @@ SPRING_PROFILES_ACTIVE=prod ./mvnw spring-boot:run
 
 ✅ **DDL validado** (não recria schema)
 ✅ **Logs reduzidos** (apenas WARN)
-✅ **Pool de conexão otimizado** (20 max connections)
+✅ **Pool de conexão otimizado**
 
 ---
 
@@ -105,35 +105,11 @@ Para futuro: considere adicionar **Flyway** para versionamento de schema.
 
 ---
 
-## ⚙️ Configuração no `docker-compose.yml`
-
-```yaml
-services:
-  veritas-app:
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      PGHOST: postgres-local
-      PGPORT: 5432
-      PGDATABASE: veritas_dev
-      PGUSER: dev_user
-      PGPASSWORD: dev_password
-```
-
----
-
-## 🧪 Arquivos Legados
-
-Os arquivos antigos abaixo **podem ser deletados** (migrados para YAML):
-- ~~`application-local.properties`~~
-- ~~`application-prod.properties`~~
-
----
-
 ## 📚 Referência Rápida
 
 | Ambiente | Profile | DDL | Logs | Banco |
 |----------|---------|-----|------|-------|
-| Dev | `dev` | create-drop | DEBUG | PostgreSQL local |
+| Dev | `dev` | create-drop | DEBUG | Supabase |
 | Prod | `prod` | validate | WARN | Supabase |
 
 ---
@@ -144,7 +120,7 @@ Os arquivos antigos abaixo **podem ser deletados** (migrados para YAML):
 → Verifique se `SPRING_PROFILES_ACTIVE` está correto
 
 **Erro: "Cannot connect to database"**
-→ Variaveis de ambiente não foram setadas
+→ Variáveis de ambiente não foram setadas corretamente
 
 **SQL queries não aparecem nos logs**
 → Você está em modo `prod`? Mude para `dev`
