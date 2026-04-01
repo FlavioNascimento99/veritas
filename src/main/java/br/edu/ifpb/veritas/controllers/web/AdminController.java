@@ -6,8 +6,10 @@ import br.edu.ifpb.veritas.models.Student;
 import br.edu.ifpb.veritas.models.Subject;
 import br.edu.ifpb.veritas.models.Collegiate;
 import br.edu.ifpb.veritas.models.Meeting;
+import br.edu.ifpb.veritas.models.Process;
 import br.edu.ifpb.veritas.dtos.CollegiateDTO;
 import br.edu.ifpb.veritas.dtos.CollegiateEditDTO;
+import br.edu.ifpb.veritas.enums.StatusProcess;
 import br.edu.ifpb.veritas.services.ProfessorService;
 import br.edu.ifpb.veritas.services.StudentService;
 import br.edu.ifpb.veritas.services.SubjectService;
@@ -158,7 +160,22 @@ public class AdminController {
     // --- GERENCIAMENTO DE PROCESSOS ---
     @GetMapping("/processes")
     public String listProcesses(Model model) {
-        model.addAttribute("processes", processService.findAllProcesses());
+        List<Process> processes = processService.findAllProcesses();
+        model.addAttribute("processes", processes);
+        
+        // Calculate process counts by status
+        long totalProcesses = processes.size();
+        long waitingProcesses = processes.stream().filter(p -> p.getStatus() == StatusProcess.WAITING).count();
+        long underAnalysisProcesses = processes.stream().filter(p -> p.getStatus() == StatusProcess.UNDER_ANALISYS).count();
+        long approvedProcesses = processes.stream().filter(p -> p.getStatus() == StatusProcess.APPROVED).count();
+        long rejectedProcesses = processes.stream().filter(p -> p.getStatus() == StatusProcess.REJECTED).count();
+        
+        model.addAttribute("totalProcesses", totalProcesses);
+        model.addAttribute("waitingProcesses", waitingProcesses);
+        model.addAttribute("underAnalysisProcesses", underAnalysisProcesses);
+        model.addAttribute("approvedProcesses", approvedProcesses);
+        model.addAttribute("rejectedProcesses", rejectedProcesses);
+        
         model.addAttribute("pageTitle", "Gerenciar Processos");
         model.addAttribute("mainContent", "pages/admin/processes :: content");
         return "home";

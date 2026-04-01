@@ -1,4 +1,4 @@
-package br.edu.ifpb.veritas.config;
+package br.edu.ifpb.veritas.configs;
 
 import br.edu.ifpb.veritas.enums.DecisionType;
 import jakarta.persistence.AttributeConverter;

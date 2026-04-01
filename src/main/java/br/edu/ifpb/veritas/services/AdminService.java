@@ -1,16 +1,27 @@
 package br.edu.ifpb.veritas.services;
 
-import br.edu.ifpb.veritas.exceptions.ResourceNotFoundException;
+import java.util.List;
+import java.util.Optional;
+
+import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import br.edu.ifpb.veritas.models.*;
 import br.edu.ifpb.veritas.repositories.AdminRepository;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import br.edu.ifpb.veritas.exceptions.ResourceNotFoundException;
 
-import java.util.List;
-
-// Fiz um CRUD básico, mas precisa rever
+/**
+ * Classe de serviço dos Administradores do Sistema.
+ * @author Flavio Nascimento
+ * @author Felipe Cartaxo
+ * 
+ * @see "Matricula" não deveria ser gerado manualmente pelo usuário, 
+ * mas sim, possuir uma determinada lógica para a geração do mesmo. 
+ * 
+ * @see "Listagem" de Administradores não faz sentido existir dentro 
+ * da ideia geral da aplicação.
+ */
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -22,42 +33,43 @@ public class AdminService {
     private final SubjectService subjectService;
     private final PasswordEncoder passwordEncoder;
 
-
-    /**
-     * Implementação de Password Encoder ao atualizar
-     * 
-     * Com o Spring Security é necessário trabalharmos com essa API 
-     * para criptografar nossas senhas de ponta-a-ponta, afim de manter
-     * dados esperados. 
-     */
-
-    // -------------------- CRUD da própria class admin --------------------
-    @Transactional
-    public Administrator create(Administrator admin) {
-        if (admin.getLogin() != null && adminRepository.findByLogin(admin.getLogin()).isPresent()) {
-            throw new ResourceNotFoundException("Login já cadastrado.");
-        }
-        if (admin.getRegister() != null && adminRepository.findByRegister(admin.getRegister()).isPresent()) {
-            throw new ResourceNotFoundException("Matrícula já cadastrada.");
-        }
-
-        // Criptografa a senha antes de salvar
-        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-        return adminRepository.save(admin);
-    }
-
-    public List<Administrator> listAdmins() {
-        return adminRepository.findAll();
-    }
-
-    public Administrator findAdminById(Long id) {
+/**
+ * Métodos de gerenciamento de Entidades Administrativas; 
+ * 
+ * @author Flavio Nascimento
+ */
+    public Administrator find(Long id) {
         return adminRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Administrador não encontrado."));
     }
 
+    public List<Administrator> list() {
+        return adminRepository.findAll();
+    }
+
+    public List<Administrator> findAll() {
+        return adminRepository.findAll();
+    }
+
+    public Optional<Administrator> findByLogin(String login) {
+        return adminRepository.findByLogin(login);
+    }
+
+    @Transactional
+    public Administrator create(Administrator admin) {
+        if (admin.getLogin() != null && adminRepository.findByLogin(admin.getLogin()).isPresent()) {
+            throw new ResourceNotFoundException("Nome de usuário não disponível.");
+        }
+        if (admin.getRegister() != null && adminRepository.findByRegister(admin.getRegister()).isPresent()) {
+            throw new ResourceNotFoundException("Esta matrícula já se encontra cadastrada.");
+        }
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        return adminRepository.save(admin);
+    }
+
     @Transactional
     public Administrator update(Long id, Administrator payload) {
-        Administrator current = findAdminById(id);
+        Administrator current = find(id);
         current.setName(payload.getName());
         current.setPhoneNumber(payload.getPhoneNumber());
         current.setLogin(payload.getLogin());
@@ -70,10 +82,9 @@ public class AdminService {
         return adminRepository.save(current);
     }
 
-    // Ao invés de excluir, apenas desativa o admin
     @Transactional
     public void deactivate(Long id) {
-        Administrator current = findAdminById(id);
+        Administrator current = find(id);
 
         if (!current.getIsActive()) {
             throw new ResourceNotFoundException("Administrador já está desativado.");
@@ -84,7 +95,7 @@ public class AdminService {
 
     @Transactional
     public void reactivate(Long id) {
-        Administrator current = findAdminById(id);
+        Administrator current = find(id);
 
         if (current.getIsActive()) {
             throw new ResourceNotFoundException("Administrador já está ativo.");
@@ -93,13 +104,12 @@ public class AdminService {
         adminRepository.save(current);
     }
 
-    // Requisito funcional #14
 
-    // -------------------- CRUD de alunos --------------------
-    public Student createStudent(Student student) {
-        return studentService.create(student);
-    }
-
+/**
+ * Métodos de gerenciamento de Entidades Estudantis;
+ * 
+ * @author Flavio Nascimento
+ */
     public List<Student> listStudents() {
         return studentService.findAll();
     }
@@ -107,7 +117,13 @@ public class AdminService {
     public Student findStudentById(Long id) {
         return studentService.findById(id);
     }
+    
+    @Transactional
+    public Student createStudent(Student student) {
+        return studentService.create(student);
+    }
 
+    @Transactional
     public Student updateStudent(Long id, Student payload) {
         return studentService.update(id, payload);
     }
@@ -122,11 +138,11 @@ public class AdminService {
         studentService.reactivate(id);
     }
 
-    // -------------------- CRUD de professores/coordenadores --------------------
-    public Professor createProfessor(Professor professor) {
-        return professorService.create(professor);
-    }
-
+/**
+ * Métodos de gerenciamento de Entidades Professores;
+ * 
+ * @author Flavio Nascimento 
+ */
     public List<Professor> listProfessors() {
         return professorService.findAll();
     }
@@ -134,7 +150,13 @@ public class AdminService {
     public Professor findProfessorById(Long id) {
         return professorService.findById(id);
     }
+    
+    @Transactional
+    public Professor createProfessor(Professor professor) {
+        return professorService.create(professor);
+    }
 
+    @Transactional
     public Professor updateProfessor(Long id, Professor payload) {
         return professorService.update(id, payload);
     }
@@ -144,16 +166,18 @@ public class AdminService {
         professorService.activeStateChanger(id);
     }
 
-    // Seta um professor como coordenador
-    // ou deixa-o como professor comum
     @Transactional
     public void toggleCoordinator(Long id) {
         professorService.coordinatorStateChanger(id);
     }
 
-    // Requisito funcional #13
 
-    // -------------------- CRUD de colegiados --------------------
+/**
+ * Métodos de gerenciamento de Entidade Colegiados;
+ * 
+ * @author Flavio Nascimento
+ */
+    @Transactional
     public Collegiate createCollegiate(Collegiate collegiate) {
         return collegiateService.create(collegiate);
     }
@@ -165,12 +189,12 @@ public class AdminService {
     public Collegiate findCollegiateById(Long id) {
         return collegiateService.findById(id);
     }
-
+    
+    @Transactional
     public Collegiate updateCollegiate(Long id, Collegiate payload) {
         return collegiateService.update(id, payload);
     }
 
-    // Creio que, no caso de colegiados, não há problema em exclui-los
     @Transactional
     public void deleteCollegiate(Long id) {
         collegiateService.unactivate(id);
@@ -180,8 +204,12 @@ public class AdminService {
         return collegiateService.findProfessorsByCollegiate(collegiateId);
     }
 
-    // Requisito funcional #15
-    // -------------------- CRUD de assuntos de processos --------------------
+/**
+ * Métodos de gerenciamento de Entidade Temas;
+ * 
+ * @author Flavio Nascimento
+ */
+    @Transactional
     public Subject createSubject(Subject subject) {
         return subjectService.create(subject);
     }
@@ -193,7 +221,8 @@ public class AdminService {
     public Subject findSubjectById(Long id) {
         return subjectService.findById(id);
     }
-
+    
+    @Transactional
     public Subject updateSubject(Long id, Subject payload) {
         return subjectService.update(id, payload);
     }

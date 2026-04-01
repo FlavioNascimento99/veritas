@@ -85,25 +85,25 @@
         <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-600">
                 <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Total de Processos</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2" th:text="${processes.size()}"></p>
+                <p class="text-3xl font-bold text-gray-900 mt-2" th:text="${totalProcesses}"></p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Processos Abertos</h3>
+                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Em Espera</h3>
                 <p class="text-3xl font-bold text-gray-900 mt-2" 
-                   th:text="${processes.stream().filter(p -> p.status.toString() == 'ABERTO').count()}"></p>
+                   th:text="${waitingProcesses}"></p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Processos Fechados</h3>
+                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Aprovados</h3>
                 <p class="text-3xl font-bold text-gray-900 mt-2" 
-                   th:text="${processes.stream().filter(p -> p.status.toString() == 'FECHADO').count()}"></p>
+                   th:text="${approvedProcesses}"></p>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Processos Suspensos</h3>
+                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Rejeitados</h3>
                 <p class="text-3xl font-bold text-gray-900 mt-2" 
-                   th:text="${processes.stream().filter(p -> p.status.toString() == 'SUSPENSO').count()}"></p>
+                   th:text="${rejectedProcesses}"></p>
             </div>
         </div>
     </div>

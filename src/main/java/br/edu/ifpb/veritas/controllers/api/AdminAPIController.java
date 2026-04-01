@@ -25,12 +25,12 @@ public class AdminAPIController {
 
     @GetMapping
     public ResponseEntity<List<Administrator>> findAll() {
-        return ResponseEntity.ok(adminService.listAdmins());
+        return ResponseEntity.ok(adminService.list());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Administrator> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(adminService.findAdminById(id));
+        return ResponseEntity.ok(adminService.find(id));
     }
 
     @PutMapping("/{id}")

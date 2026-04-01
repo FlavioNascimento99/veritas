@@ -179,6 +179,10 @@ public class ProcessService {
         return processRepository.findByProcessCreator_Id(studentId);
     }
 
+    public List<Process> findAll() {
+        return processRepository.findAll();
+    }
+
     public List<Process> findAllProcesses() {
         return processRepository.findAll();
     }

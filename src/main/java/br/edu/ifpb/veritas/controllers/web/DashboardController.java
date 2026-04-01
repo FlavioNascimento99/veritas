@@ -48,6 +48,7 @@ public class DashboardController {
     private final MeetingService meetingService;
     private final VoteService voteService;
     private final CollegiateService collegiateService;
+    private final AdminService adminService;
 
     // Número máximo de processos por página (REQNAOFUNC 9)
     private static final int PAGE_SIZE = 5;
@@ -63,6 +64,30 @@ public class DashboardController {
             Authentication authentication
     ) {
         String login = authentication.getName();
+
+        // ========== Verificar se é administrador ==========
+        var adminOpt = adminService.findByLogin(login);
+        if (adminOpt.isPresent()) {
+            var admin = adminOpt.get();
+            model.addAttribute("admin", admin);
+            model.addAttribute("colleges", collegiateService.findAll());
+            
+            // Add counts for dashboard
+            List<Professor> professors = professorService.findAll();
+            List<Student> students = studentService.findAll();
+            List<Process> processes = processService.findAll();
+            List<?> subjects = subjectService.findAll();
+            
+            model.addAttribute("professorsCount", professors.size());
+            model.addAttribute("studentsCount", students.size());
+            model.addAttribute("processesCount", processes.size());
+            model.addAttribute("subjectsCount", subjects.size());
+            
+            model.addAttribute("pageTitle", "Dashboard - Administrador");
+            model.addAttribute("activePage", "dashboard");
+            model.addAttribute("mainContent", "pages/dashboard-admin :: content");
+            return "home";
+        }
 
         // ========== Verificar tipo de usuário ==========
 

@@ -3,10 +3,9 @@ package br.edu.ifpb.veritas.models;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import br.edu.ifpb.veritas.config.DecisionTypeConverter;
+import br.edu.ifpb.veritas.configs.DecisionTypeConverter;
 import br.edu.ifpb.veritas.enums.DecisionType;
 import br.edu.ifpb.veritas.enums.ProcessRapporteurStatus;
-import br.edu.ifpb.veritas.enums.VoteType;
 import br.edu.ifpb.veritas.enums.StatusProcess;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;

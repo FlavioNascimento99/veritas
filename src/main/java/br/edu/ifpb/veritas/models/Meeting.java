@@ -63,7 +63,7 @@ public class Meeting {
   private LocalDateTime scheduledDate;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "status", columnDefinition = "VARCHAR(50) CHECK (status IN ('DISPONIVEL', 'EM_ANDAMENTO', 'FINALIZADA'))")
+  @Column(name = "status")
   private MeetingStatus status;
 
   // Acredito que a ata foi adiada foi adiada
