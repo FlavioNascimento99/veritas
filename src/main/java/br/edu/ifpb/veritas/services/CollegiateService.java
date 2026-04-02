@@ -10,6 +10,7 @@ import br.edu.ifpb.veritas.repositories.CollegiateRepository;
 import br.edu.ifpb.veritas.repositories.MeetingRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class CollegiateService {
 
     private final CollegiateRepository collegiateRepository;
@@ -65,9 +67,13 @@ public class CollegiateService {
         return collegiateRepository.findAllWithMembers();
     }
 
+    @Transactional
     public Collegiate findById(Long id) {
-        return collegiateRepository.findById(id)
+        Collegiate collegiate = collegiateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Colegiado não encontrado."));
+        log.debug("Loaded Collegiate ID {}: members count = {}", id, 
+            collegiate.getCollegiateMemberList() != null ? collegiate.getCollegiateMemberList().size() : 0);
+        return collegiate;
     }
 
     @Transactional
@@ -83,6 +89,9 @@ public class CollegiateService {
     public Collegiate updateFromDTO(Long id, CollegiateEditDTO dto) {
         Collegiate current = findById(id);
         
+        log.info("=== UPDATING COLLEGIATE ===");
+        log.info("ID: {}, Current members count: {}", id, current.getCollegiateMemberList() != null ? current.getCollegiateMemberList().size() : 0);
+        
         // Atualiza descrição
         current.setDescription(dto.getDescription());
         
@@ -96,14 +105,18 @@ public class CollegiateService {
         
         // Atualiza membros
         if (dto.getMemberIds() != null && !dto.getMemberIds().isEmpty()) {
+            log.info("Updating members with IDs: {}", dto.getMemberIds());
             List<Professor> members = dto.getMemberIds().stream()
                     .map(professorService::findById)
                     .toList();
+            log.info("Loaded {} professors", members.size());
             current.setCollegiateMemberList(new java.util.ArrayList<>(members));
         } else {
+            log.info("Clearing members list");
             current.setCollegiateMemberList(new java.util.ArrayList<>());
         }
         
+        log.info("Saving collegiate with {} members", current.getCollegiateMemberList() != null ? current.getCollegiateMemberList().size() : 0);
         return collegiateRepository.save(current);
     }
 
