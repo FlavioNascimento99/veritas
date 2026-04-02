@@ -35,7 +35,7 @@
             <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-yellow-600">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-600 text-sm font-semibold">Em Análise</p>
+                        <p class="text-gray-600 text-sm font-semibold">SOB ANÁLISE</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2" id="processingCount">0</p>
                     </div>
                     <i class="fas fa-hourglass text-yellow-600 text-4xl opacity-20"></i>
@@ -80,7 +80,7 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="">Todos os Status</option>
                             <option value="WAITING">Aguardando</option>
-                            <option value="UNDER_ANALISYS">Em Análise</option>
+                            <option value="UNDER_ANALISYS">SOB ANÁLISE</option>
                             <option value="APPROVED">Aprovado</option>
                             <option value="REJECTED">Rejeitado</option>
                         </select>
@@ -120,7 +120,7 @@
                                         <i class="fas fa-clock mr-1"></i>Aguardando
                                     </span>
                                 <span th:if="${proc.status.name() == 'UNDER_ANALISYS'}" class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                                        <i class="fas fa-spinner mr-1"></i>Em Análise
+                                        <i class="fas fa-spinner mr-1"></i>SOB ANÁLISE
                                     </span>
                                 <span th:if="${proc.status.name() == 'APPROVED'}" class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
                                         <i class="fas fa-check mr-1"></i>Aprovado

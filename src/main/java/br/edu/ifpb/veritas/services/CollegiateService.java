@@ -61,6 +61,10 @@ public class CollegiateService {
         return collegiateRepository.findAll();
     }
 
+    public List<Collegiate> findAllWithMembers() {
+        return collegiateRepository.findAllWithMembers();
+    }
+
     public Collegiate findById(Long id) {
         return collegiateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Colegiado não encontrado."));

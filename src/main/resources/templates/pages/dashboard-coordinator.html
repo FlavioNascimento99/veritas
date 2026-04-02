@@ -23,6 +23,10 @@
            class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 inline-flex items-center gap-2">
             <i class="fas fa-calendar-check"></i> Reuniões
         </a>
+        <a th:href="@{/dashboard/collegiates}"
+           class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 inline-flex items-center gap-2">
+            <i class="fas fa-graduation-cap"></i> Colegiados
+        </a>
     </div>
 
     <!-- PROCESSOS -->
@@ -43,7 +47,7 @@
                         <select name="status" class="rounded border px-2 py-1">
                             <option value="">Todos</option>
                             <option th:each="s : ${T(br.edu.ifpb.veritas.enums.StatusProcess).values()}"
-                                    th:value="${s.name()}" th:text="${s.name()}"
+                                    th:value="${s.name()}" th:text="${s.status}"
                                     th:selected="${filterStatus != null and filterStatus.equals(s.name())}">
                             </option>
                         </select>
@@ -101,7 +105,7 @@
                                               (process.status.name() == 'WAITING' ? 'bg-yellow-200 text-yellow-800' :
                                               process.status.name() == 'UNDER_ANALISYS' ? 'bg-blue-200 text-blue-800' :
                                               'bg-green-200 text-green-800')}"
-                                      th:text="${process.status}"></span>
+                                      th:text="${process.status.status}"></span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <!-- MANTIDO EXATAMENTE COMO ESTAVA ANTES -->

@@ -15,6 +15,7 @@ import br.edu.ifpb.veritas.repositories.ProfessorRepository;
 import br.edu.ifpb.veritas.repositories.VoteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ import java.util.Optional;
  * 2) Membros do colegiado votam: COM_RELATOR ou DIVERGENTE
  * 3) Sistema calcula resultado: maioria define se prevalece voto do relator ou não
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VoteService {
@@ -142,7 +144,20 @@ public class VoteService {
         process.setRapporteurVote(decision);
         process.setRapporteurJustification(justification);
 
-        return processRepository.save(process);
+        Process savedProcess = processRepository.save(process);
+        
+        // NOVO: Verifica se todos os membros já votaram (incluindo relator) e finaliza automaticamente
+        if (process.getMeeting() != null) {
+            log.info("Relator votou no processo {}. Verificando se todos votaram...", processId);
+            if (allMembersHaveVoted(processId, process.getMeeting().getId())) {
+                log.info("TODOS votaram (incluindo relator)! Finalizando processo {} automaticamente...", processId);
+                finalizeProcessAutomatically(processId);
+            } else {
+                log.info("Ainda faltam membros votarem no processo {}", processId);
+            }
+        }
+        
+        return savedProcess;
     }
 
     /**
@@ -234,7 +249,18 @@ public class VoteService {
         vote.setAway(false);
         vote.setVotedAt(LocalDateTime.now());
 
-        return voteRepository.save(vote);
+        Vote savedVote = voteRepository.save(vote);
+        
+        // NOVO: Verifica se todos os membros votaram e finaliza automaticamente
+        log.info("Voto registrado. Verificando se todos os membros votaram para o processo {}", processId);
+        if (allMembersHaveVoted(processId, activeMeeting.getId())) {
+            log.info("TODOS os membros votaram! Finalizando processo {} automaticamente...", processId);
+            finalizeProcessAutomatically(processId);
+        } else {
+            log.info("Ainda faltam membros votarem no processo {}", processId);
+        }
+        
+        return savedVote;
     }
 
     /**
@@ -244,6 +270,85 @@ public class VoteService {
     @Transactional
     public Vote registerMemberVote(Long processId, Long professorId, VoteType voteType) {
         return registerMemberVote(processId, professorId, voteType, "");
+    }
+    
+    /**
+     * Verifica se todos os membros do colegiado (excluindo o relator) votaram em um processo.
+     * O relator já votou via registerRapporteurDecision, então não é contado aqui.
+     * 
+     * Casos:
+     * 1. Se há membros além do relator: todos devem ter votado
+     * 2. Se só há o relator: considera completo assim que ele votar
+     */
+    private boolean allMembersHaveVoted(Long processId, Long meetingId) {
+        Process process = processRepository.findById(processId)
+                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado."));
+        
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reunião não encontrada."));
+        
+        // Total de participantes EXCLUINDO o relator
+        long totalParticipantsExcludingRapporteur = meeting.getParticipants().stream()
+                .filter(p -> !p.getId().equals(process.getProcessRapporteur().getId()))
+                .count();
+        
+        // Se não há outros participantes além do relator, basta o relator ter votado
+        if (totalParticipantsExcludingRapporteur == 0) {
+            boolean rapporteurVoted = process.getRapporteurVote() != null;
+            log.info("Processo {}: Relator é único participante. Voto do relator registrado: {}", processId, rapporteurVoted);
+            return rapporteurVoted;
+        }
+        
+        // Total de votos registrados de membros (presente)
+        Long totalMemberVotes = voteRepository.countVotesByProcessId(processId);
+        
+        log.info("Processo {}: {} votos de membros registrados / {} membros (excluindo relator)", 
+                processId, totalMemberVotes, totalParticipantsExcludingRapporteur);
+        
+        // Todos votaram quando votos >= membros (excluindo relator)
+        return totalMemberVotes >= totalParticipantsExcludingRapporteur;
+    }
+    
+    /**
+     * Finaliza um processo automaticamente quando todos os membros votam.
+     * Calcula o resultado e atualiza o status para APPROVED ou REJECTED.
+     * 
+     * NOTA: Este é um método PRIVATE, então não tem sua própria transação.
+     * Executa dentro da transação do método público que o chamou (registerRapporteurDecision, registerMemberVote, etc).
+     */
+    private void finalizeProcessAutomatically(Long processId) {
+        Process process = processRepository.findById(processId)
+                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado."));
+        
+        log.info("=== INICIANDO FINALIZACAO AUTOMATICA DO PROCESSO {} ===", processId);
+        log.info("Status atual do processo: {}", process.getStatus());
+        
+        // Só finaliza se ainda estiver em análise
+        if (process.getStatus() != StatusProcess.UNDER_ANALISYS) {
+            log.warn("Processo {} nao pode ser finalizado. Status ja alterado para: {}", processId, process.getStatus());
+            return;
+        }
+        
+        // Calcula o resultado
+        DecisionType result = calculateResult(processId);
+        log.info("Resultado da votacao calculado: {}", result);
+        
+        // Atualiza o status
+        StatusProcess novoStatus;
+        if (result == DecisionType.DEFERIMENTO) {
+            novoStatus = StatusProcess.APPROVED;
+        } else {
+            novoStatus = StatusProcess.REJECTED;
+        }
+        
+        process.setStatus(novoStatus);
+        process.setSolvedAt(LocalDateTime.now());
+        Process processoAtualizado = processRepository.save(process);
+        
+        log.info("=== PROCESSO {} FINALIZADO COM SUCESSO ===", processId);
+        log.info("Novo status: {}", novoStatus);
+        log.info("Resultado: {}", result);
+        log.info("Data de solucao: {}", processoAtualizado.getSolvedAt());
     }
 
     /**
@@ -482,45 +587,15 @@ public class VoteService {
 
         // LÓGICA: Verifica se todos os participantes votaram
         // Se sim, calcula o resultado final automaticamente
-        checkAndFinalizeMeetingIfAllVoted(meeting.getId(), processId);
+        log.info("Voto de professor registrado. Verificando se todos votaram para o processo {}", processId);
+        if (allMembersHaveVoted(processId, meeting.getId())) {
+            log.info("TODOS os membros votaram! Finalizando processo {} automaticamente...", processId);
+            finalizeProcessAutomatically(processId);
+        } else {
+            log.info("Ainda faltam membros votarem no processo {}", processId);
+        }
 
         return savedVote;
-    }
-
-    /**
-     * Verifica se todos os participantes da reunião votaram em todos os processos
-     * Se sim, finaliza a votação do processo e calcula o resultado
-     */
-    private void checkAndFinalizeMeetingIfAllVoted(Long meetingId, Long processId) {
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reunião não encontrada."));
-
-        Process process = processRepository.findById(processId)
-                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado."));
-
-        // Para cada processo da reunião, verifica se todos os participantes (exceto relator) votaram
-        int totalParticipants = meeting.getParticipants().size();
-        
-        // Conta votos para este processo (excluindo ausentes e relator)
-        List<Vote> votesForProcess = voteRepository.findByProcessId(processId);
-        long validVotes = votesForProcess.stream()
-                .filter(v -> !v.getAway() && !v.getProfessor().getId().equals(process.getProcessRapporteur().getId()))
-                .count();
-
-        // Se todos votaram (todos os participantes não relator votaram)
-        int nonRapporteurParticipants = totalParticipants - 1; // Todos menos relator
-        if (validVotes >= nonRapporteurParticipants) {
-            // Calcula resultado e finaliza
-            DecisionType result = calculateResult(processId);
-            
-            if (result == DecisionType.DEFERIMENTO) {
-                process.setStatus(StatusProcess.APPROVED);
-            } else {
-                process.setStatus(StatusProcess.REJECTED);
-            }
-            process.setSolvedAt(LocalDateTime.now());
-            processRepository.save(process);
-        }
     }
 
     /**

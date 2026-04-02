@@ -105,6 +105,92 @@ public class MeetingService {
         return meetingRepository.findByCollegiateIdAndParticipantsId(collegiateId, professorId);
     }
 
+    /**
+     * NOVO: Cria reunião usando TODOS os membros do colegiado automaticamente
+     * Parâmetros: collegiateId, scheduledDate, processIds, description
+     * Os participantes são automaticamente os membros do colegiado
+     */
+    @Transactional
+    public Meeting createMeetingWithCollegiate(Long collegiateId,
+                                               LocalDateTime scheduledDate,
+                                               List<Long> processIds,
+                                               String description) {
+        Collegiate collegiate = collegiateRepository.findById(collegiateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Colegiado não encontrado com ID: " + collegiateId));
+
+        // VALIDAÇÃO: Colegiado deve ter membros
+        if (collegiate.getCollegiateMemberList() == null || collegiate.getCollegiateMemberList().isEmpty()) {
+            throw new IllegalStateException("Colegiado não possui membros. Adicione membros antes de criar uma reunião.");
+        }
+
+        // VALIDAÇÃO: Número de membros do colegiado deve ser ÍMPAR para evitar empate
+        int memberCount = collegiate.getCollegiateMemberList().size();
+        if (memberCount % 2 == 0) {
+            throw new IllegalArgumentException("O colegiado deve ter um número ÍMPAR de membros para evitar empates. Atualmente tem: " + memberCount + " membros (par). Por favor, adicione ou remova um membro.");
+        }
+
+        log.info("Colegiado {} tem {} membros (ímpar - OK para votação)", collegiateId, memberCount);
+
+        // Usa os membros do colegiado como participantes automaticamente
+        List<Professor> participants = new ArrayList<>(collegiate.getCollegiateMemberList());
+
+        // Processa os processos
+        List<Process> processes = new ArrayList<>();
+        if (processIds != null && !processIds.isEmpty()) {
+            for (Long processId : processIds) {
+                Process process = processRepository.findById(processId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com ID: " + processId));
+
+                if (process.getStatus() != StatusProcess.UNDER_ANALISYS) {
+                    throw new IllegalStateException("Apenas processos em análise podem ser adicionados à pauta. Processo ID " + processId + " está com status: " + process.getStatus().getStatus());
+                }
+
+                if (process.getRapporteurVote() == null) {
+                    throw new IllegalStateException("Processo ID " + processId + " não pode ser adicionado pois o relator ainda não votou.");
+                }
+
+                if (process.getProcessRapporteur() == null) {
+                    throw new IllegalStateException("Processo ID " + processId + " não possui Relator designado.");
+                }
+
+                if (process.getMeeting() != null) {
+                    throw new IllegalStateException("Processo ID " + processId + " já está vinculado a outra reunião (ID: " + process.getMeeting().getId() + ").");
+                }
+
+                processes.add(process);
+            }
+        }
+
+        Meeting meeting = new Meeting();
+        meeting.setCollegiate(collegiate);
+        meeting.setScheduledDate(scheduledDate);
+        meeting.setCreatedAt(LocalDateTime.now());
+        meeting.setOpenedAt(LocalDateTime.now());
+        meeting.setStatus(MeetingStatus.DISPONIVEL);
+        meeting.setActive(false);
+        meeting.setParticipants(new ArrayList<>(participants));
+        
+        if (description != null && !description.isEmpty()) {
+            meeting.setDescription(description);
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            meeting.setDescription("Reunião do Colegiado " + collegiate.getDescription() + " - " + LocalDateTime.now().format(formatter));
+        }
+        
+        for (Process process : processes) {
+            process.setMeeting(meeting);
+        }
+        meeting.setProcesses(new ArrayList<>(processes));
+        
+        log.info("=== CRIANDO REUNIÃO COM COLEGIADO ===");
+        log.info("Colegiado: {}, Processos: {}, Participantes: {}", collegiateId, processes.size(), participants.size());
+        
+        Meeting savedMeeting = meetingRepository.save(meeting);
+        
+        log.info("Reunião ID {} criada com sucesso", savedMeeting.getId());
+        return savedMeeting;
+    }
+
     @Transactional
     public Meeting createMeetingWithAgenda(Long collegiateId,
                                            LocalDateTime scheduledDate,
@@ -129,22 +215,18 @@ public class MeetingService {
                 Process process = processRepository.findById(processId)
                         .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com ID: " + processId));
 
-                // VALIDAÇÃO: Processo deve estar EM_ANALISE
                 if (process.getStatus() != StatusProcess.UNDER_ANALISYS) {
                     throw new IllegalStateException("Apenas processos em análise podem ser adicionados à pauta. Processo ID " + processId + " está com status: " + process.getStatus().getStatus());
                 }
 
-                // VALIDAÇÃO: Relator deve ter votado
                 if (process.getRapporteurVote() == null) {
                     throw new IllegalStateException("Processo ID " + processId + " não pode ser adicionado à pauta pois o relator ainda não registrou sua decisão.");
                 }
 
-                // VALIDAÇÃO: Relator deve ser diferente de null
                 if (process.getProcessRapporteur() == null) {
                     throw new IllegalStateException("Processo ID " + processId + " não possui Relator designado.");
                 }
 
-                // VALIDAÇÃO: Processo não deve estar em nenhuma outra reunião
                 if (process.getMeeting() != null) {
                     throw new IllegalStateException("Processo ID " + processId + " já está vinculado a outra reunião (ID: " + process.getMeeting().getId() + ").");
                 }
@@ -155,6 +237,10 @@ public class MeetingService {
 
         List<Professor> participants = new ArrayList<>();
         if (participantIds != null && !participantIds.isEmpty()) {
+            if (participantIds.size() % 2 == 0) {
+                throw new IllegalArgumentException("O número de participantes deve ser ÍMPAR para evitar empates. Fornecido: " + participantIds.size() + " (par). Por favor, adicione ou remova um participante.");
+            }
+            
             for (Long professorId : participantIds) {
                 Professor professor = professorRepository.findById(professorId)
                         .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + professorId));

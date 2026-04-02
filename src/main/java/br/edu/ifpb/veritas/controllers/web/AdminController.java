@@ -184,7 +184,7 @@ public class AdminController {
     // --- GERENCIAMENTO DE COLEGIADOS ---
     @GetMapping("/collegiates")
     public String listCollegiates(Model model) {
-        model.addAttribute("collegiates", collegiateService.findAll());
+        model.addAttribute("collegiates", collegiateService.findAllWithMembers());
         model.addAttribute("professors", professorService.findAll());
         model.addAttribute("meetings", meetingService.findAll());
         model.addAttribute("pageTitle", "Gerenciar Colegiados");

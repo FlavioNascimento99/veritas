@@ -70,7 +70,7 @@ public class DashboardController {
         if (adminOpt.isPresent()) {
             var admin = adminOpt.get();
             model.addAttribute("admin", admin);
-            model.addAttribute("colleges", collegiateService.findAll());
+            model.addAttribute("colleges", collegiateService.findAllWithMembers());
             
             // Add counts for dashboard
             List<Professor> professors = professorService.findAll();
@@ -240,15 +240,15 @@ public class DashboardController {
      */
     @PostMapping("/create-meeting")
     public String createMeeting(Authentication authentication,
+                               @RequestParam(required = false) Long collegiateId,
                                @RequestParam(required = false) List<Long> processIds,
-                               @RequestParam(required = false) List<Long> participantIds,
                                @RequestParam(required = false) String description,
                                RedirectAttributes redirectAttributes) {
         try {
             log.info("=== INICIANDO CRIAÇÃO DE REUNIÃO ===");
+            log.info("Colegiado selecionado: {}", collegiateId);
             log.info("Processos selecionados: {}", processIds);
-            log.info("Participantes selecionados: {}", participantIds);
-            log.info("Descrição fornecida: {}", description != null && !description.isEmpty() ? "Sim" : "Não (será gerada automaticamente)");
+            log.info("Descrição fornecida: {}", description != null && !description.isEmpty() ? "Sim" : "Não");
 
             List<String> roles = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
@@ -260,58 +260,37 @@ public class DashboardController {
                 return "redirect:/dashboard";
             }
 
-            Professor coordinator = professorService.findByLogin(authentication.getName())
-                    .orElseThrow(() -> {
-                        log.error("Coordenador não encontrado para login: {}", authentication.getName());
-                        return new IllegalArgumentException("Coordenador não encontrado.");
-                    });
-
-            log.info("Coordenador autenticado: {} (ID: {})", coordinator.getName(), coordinator.getId());
-
-            // Usar data/hora atual para a reunião
-            LocalDateTime scheduledDateTime = LocalDateTime.now();
-
-            // Busca o colegiado do coordenador
-            Collegiate collegiate;
-            try {
-                collegiate = collegiateService.findByProfessorId(coordinator.getId());
-                log.info("Colegiado encontrado: {} (ID: {})", collegiate.getDescription(), collegiate.getId());
-            } catch (Exception e) {
-                log.error("Erro ao buscar colegiado do coordenador: {}", e.getMessage());
-                redirectAttributes.addFlashAttribute("errorMessage", 
-                    "Coordenador não pertence a nenhum colegiado. Entre em contato com um administrador.");
-                return "redirect:/dashboard";
+            // Validação: Colegiado é obrigatório
+            if (collegiateId == null) {
+                log.warn("Erro: Nenhum colegiado selecionado");
+                redirectAttributes.addFlashAttribute("errorMessage", "Selecione um colegiado.");
+                return "redirect:/dashboard/meetings/new";
             }
 
-            // Validação de processos e participantes
+            // Validação: Processos são obrigatórios
             if (processIds == null || processIds.isEmpty()) {
                 log.warn("Erro: Nenhum processo selecionado");
                 redirectAttributes.addFlashAttribute("errorMessage", "Selecione ao menos um processo.");
                 return "redirect:/dashboard/meetings/new";
             }
 
-            if (participantIds == null || participantIds.isEmpty()) {
-                log.warn("Erro: Nenhum participante selecionado");
-                redirectAttributes.addFlashAttribute("errorMessage", "Selecione ao menos um participante.");
-                return "redirect:/dashboard/meetings/new";
-            }
+            LocalDateTime scheduledDateTime = LocalDateTime.now();
 
-            log.info("Validações passadas. Criando reunião com {} processos e {} participantes", 
-                    processIds.size(), participantIds.size());
+            log.info("Validações passadas. Criando reunião com colegiado ID {} e {} processos", 
+                    collegiateId, processIds.size());
 
-            // Cria a reunião com descrição
-            Meeting meeting = meetingService.createMeetingWithAgenda(
-                    collegiate.getId(),
+            // Cria a reunião usando o novo método que automaticamente usa membros do colegiado
+            Meeting meeting = meetingService.createMeetingWithCollegiate(
+                    collegiateId,
                     scheduledDateTime,
                     processIds,
-                    participantIds,
                     description
             );
 
             log.info("=== REUNIÃO CRIADA COM SUCESSO ===");
-            log.info("Meeting ID: {} | Status: {} | Abertura: {} | Agendada: {}", 
-                meeting.getId(), meeting.getStatus(), meeting.getOpenedAt(), meeting.getScheduledDate());
-            log.info("Processos: {} | Participantes: {}", 
+            log.info("Meeting ID: {} | Colegiado: {} | Processos: {} | Participantes: {}", 
+                meeting.getId(), 
+                collegiateId,
                 meeting.getProcesses() != null ? meeting.getProcesses().size() : 0,
                 meeting.getParticipants() != null ? meeting.getParticipants().size() : 0);
 
@@ -430,8 +409,11 @@ public class DashboardController {
                 .filter(p -> p.getMeeting() == null)  // NÃO estar em outra reunião
                 .toList();
 
+        // Carregar todos os colegiados disponíveis com seus membros
+        List<Collegiate> collegiates = collegiateService.findAllWithMembers();
+
         model.addAttribute("allProcesses", eligibleProcesses);
-        model.addAttribute("professors", professorService.findAll());
+        model.addAttribute("collegiates", collegiates);
         model.addAttribute("mainContent", "pages/dashboard-coordinator-new-meeting :: content");
         return "home";
     }
@@ -799,6 +781,168 @@ public class DashboardController {
 
         return "redirect:/dashboard/meetings/" + meetingId + "/apregoar";
     }
+
+    // ========================================
+    // GERENCIAMENTO DE COLEGIADOS - COORDENADOR
+    // ========================================
+
+    /**
+     * GET: Listar colegiados (para coordenadores)
+     */
+    @GetMapping("/collegiates")
+    public String listCollegiates(Model model, Authentication authentication) {
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        if (!roles.contains("ROLE_COORDINATOR")) {
+            return "redirect:/dashboard";
+        }
+
+        List<Collegiate> collegiates = collegiateService.findAllWithMembers();
+        
+        model.addAttribute("collegiates", collegiates);
+        model.addAttribute("professors", professorService.findAll());
+        model.addAttribute("pageTitle", "Gerenciar Colegiados");
+        model.addAttribute("mainContent", "pages/dashboard/collegiates :: content");
+        return "home";
+    }
+
+    /**
+     * GET: Formulário para criar novo colegiado
+     */
+    @GetMapping("/collegiates/new")
+    public String newCollegiate(Model model, Authentication authentication) {
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        if (!roles.contains("ROLE_COORDINATOR")) {
+            return "redirect:/dashboard";
+        }
+
+        model.addAttribute("collegiateDTO", new br.edu.ifpb.veritas.dtos.CollegiateDTO());
+        model.addAttribute("professors", professorService.findAll());
+        model.addAttribute("pageTitle", "Criar Colegiado");
+        model.addAttribute("mainContent", "pages/dashboard/new-collegiate :: content");
+        return "home";
+    }
+
+    /**
+     * POST: Criar novo colegiado
+     */
+    @PostMapping("/collegiates")
+    public String createCollegiate(@org.springframework.web.bind.annotation.ModelAttribute br.edu.ifpb.veritas.dtos.CollegiateDTO collegiateDTO,
+                                   RedirectAttributes redirectAttributes,
+                                   Authentication authentication) {
+        try {
+            List<String> roles = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+
+            if (!roles.contains("ROLE_COORDINATOR")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Acesso negado.");
+                return "redirect:/dashboard";
+            }
+
+            collegiateService.create(collegiateDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Colegiado criado com sucesso!");
+            log.info("Colegiado criado: {}", collegiateDTO.getDescription());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao criar colegiado: " + e.getMessage());
+            log.error("Erro ao criar colegiado", e);
+            return "redirect:/dashboard/collegiates/new";
+        }
+        return "redirect:/dashboard/collegiates";
+    }
+
+    /**
+     * GET: Formulário para editar colegiado
+     */
+    @GetMapping("/collegiates/{id}/edit")
+    public String editCollegiate(@PathVariable Long id,
+                                Model model,
+                                Authentication authentication) {
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        if (!roles.contains("ROLE_COORDINATOR")) {
+            return "redirect:/dashboard";
+        }
+
+        try {
+            Collegiate collegiate = collegiateService.findById(id);
+            model.addAttribute("collegiate", collegiate);
+            model.addAttribute("professors", professorService.findAll());
+            model.addAttribute("pageTitle", "Editar Colegiado");
+            model.addAttribute("mainContent", "pages/dashboard/edit-collegiate :: content");
+            return "home";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Colegiado não encontrado.");
+            model.addAttribute("mainContent", "pages/error :: content");
+            return "home";
+        }
+    }
+
+    /**
+     * POST: Atualizar colegiado
+     */
+    @PostMapping("/collegiates/{id}")
+    public String updateCollegiate(@PathVariable Long id,
+                                   @org.springframework.web.bind.annotation.ModelAttribute br.edu.ifpb.veritas.dtos.CollegiateEditDTO collegiateDTO,
+                                   RedirectAttributes redirectAttributes,
+                                   Authentication authentication) {
+        try {
+            List<String> roles = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+
+            if (!roles.contains("ROLE_COORDINATOR")) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Acesso negado.");
+                return "redirect:/dashboard";
+            }
+
+            collegiateService.updateFromDTO(id, collegiateDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Colegiado atualizado com sucesso!");
+            log.info("Colegiado {} atualizado", id);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao atualizar colegiado: " + e.getMessage());
+            log.error("Erro ao atualizar colegiado", e);
+            return "redirect:/dashboard/collegiates/" + id + "/edit";
+        }
+        return "redirect:/dashboard/collegiates";
+    }
+
+    /**
+     * POST: Deletar colegiado
+     * 
+     * 
+     * WE DON'T DELETE NOTHING HERE, JUST DEACTIVATE
+     */
+    // @PostMapping("/collegiates/{id}/delete")
+    // public String deleteCollegiate(@PathVariable Long id,
+    //                               RedirectAttributes redirectAttributes,
+    //                               Authentication authentication) {
+    //     try {
+    //         List<String> roles = authentication.getAuthorities().stream()
+    //                 .map(GrantedAuthority::getAuthority)
+    //                 .toList();
+
+    //         if (!roles.contains("ROLE_COORDINATOR")) {
+    //             redirectAttributes.addFlashAttribute("errorMessage", "Acesso negado.");
+    //             return "redirect:/dashboard";
+    //         }
+
+    //         collegiateService.delete(id);
+    //         redirectAttributes.addFlashAttribute("successMessage", "Colegiado deletado com sucesso!");
+    //         log.info("Colegiado {} deletado", id);
+    //     } catch (Exception e) {
+    //         redirectAttributes.addFlashAttribute("errorMessage", "Erro ao deletar colegiado: " + e.getMessage());
+    //         log.error("Erro ao deletar colegiado", e);
+    //     }
+    //     return "redirect:/dashboard/collegiates";
+    // }
 }
 
 

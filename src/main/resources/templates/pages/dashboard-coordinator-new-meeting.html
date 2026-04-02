@@ -74,32 +74,22 @@
                 </p>
             </div>
 
-            <!-- Participantes (Professores) -->
+            <!-- Seleção de Colegiado -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-3">
-                    <i class="fas fa-users"></i> Participantes (Professores) *
-                    <span class="text-xs text-gray-500 ml-2">(<span th:text="${professors.size()}"></span> professores)</span>
+                <label for="collegiateId" class="block text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-graduation-cap"></i> Colegiado * 
+                    <span class="text-xs text-gray-500 ml-2">(Todos os membros participarão)</span>
                 </label>
-                <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 space-y-3 max-h-96 overflow-y-auto">
-                    <div th:each="prof : ${professors}">
-                        <label class="flex items-start space-x-3 hover:bg-white p-3 rounded cursor-pointer transition border border-transparent hover:border-indigo-300">
-                            <input type="checkbox" name="participantIds" th:value="${prof.id}" 
-                                   class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-900" th:text="${prof.name}"></p>
-                                <p class="text-xs text-gray-500" th:text="${prof.login}"></p>
-                            </div>
-                            <span th:if="${prof.coordinator}" class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                                Coordenador
-                            </span>
-                        </label>
-                    </div>
-                    <div th:if="${#lists.isEmpty(professors)}" class="text-center py-8 text-gray-500">
-                        <p>Nenhum professor disponível</p>
-                    </div>
-                </div>
+                <select id="collegiateId" name="collegiateId" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">-- Selecione um colegiado --</option>
+                    <option th:each="collegiate : ${collegiates}" 
+                            th:value="${collegiate.id}"
+                            th:text="${collegiate.description + ' (' + collegiate.collegiateMemberList.size() + ' membros)'}">
+                    </option>
+                </select>
                 <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle"></i> Selecione os professores que participarão da votação
+                    <i class="fas fa-info-circle"></i> Todos os membros do colegiado selecionado serão participantes automaticamente
                 </p>
             </div>
 
@@ -123,7 +113,7 @@
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p class="text-sm text-blue-800">
                     <i class="fas fa-info-circle"></i>
-                    <strong>Editando reunião. Altere os processos e participantes conforme necessário.</strong>
+                    <strong>Editando reunião. Altere os processos conforme necessário.</strong>
                 </p>
             </div>
 
@@ -144,7 +134,7 @@
             <!-- Processos (idêntico ao formulário de criação) -->
             <div>
                 <label for="processes" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-list"></i> Processos em Análise
+                    <i class="fas fa-list"></i> Processos SOB ANÁLISE
                 </label>
                 <div id="processes" class="space-y-2 border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-64 overflow-y-auto">
                     <p class="text-gray-500 text-sm" th:if="${#lists.isEmpty(allProcesses)}">
@@ -203,7 +193,7 @@
     <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 class="font-semibold text-blue-900 mb-2"><i class="fas fa-lightbulb"></i> Dicas</h3>
         <ul class="text-sm text-blue-800 space-y-1">
-            <li>✓ Apenas processos em análise (UNDER_ANALISYS) com relator votado são elegíveis</li>
+            <li>✓ Apenas processos sob análise (UNDER_ANALISYS) com relator votado são elegíveis</li>
             <li>✓ A reunião será criada com status DISPONÍVEL automaticamente</li>
             <li>✓ Você pode editar a reunião antes de finalizá-la</li>
         </ul>
