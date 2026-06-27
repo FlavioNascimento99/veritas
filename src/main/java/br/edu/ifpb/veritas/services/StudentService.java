@@ -23,12 +23,18 @@ public class StudentService {
         if (student.getLogin() != null && studentRepository.findByLogin(student.getLogin()).isPresent()) {
             throw new ResourceNotFoundException("Login já cadastrado.");
         }
-        // A verificação da matrícula é discutível
-        if (student.getRegister() != null && studentRepository.findByRegister(student.getRegister()).isPresent()) {
+        if (student.getRegister() == null || student.getRegister().isBlank()) {
+            student.setRegister(generateRegister());
+        } else if (studentRepository.findByRegister(student.getRegister()).isPresent()) {
             throw new ResourceNotFoundException("Matrícula já cadastrada.");
         }
         student.setPassword(passwordEncoder.encode(student.getPassword()));
         return studentRepository.save(student);
+    }
+
+    private String generateRegister() {
+        long count = studentRepository.count();
+        return "STU-" + java.time.Year.now() + "-" + String.format("%04d", count + 1);
     }
 
     public List<Student> findAll() {
@@ -48,7 +54,6 @@ public class StudentService {
         currentStudent.setName(payload.getName());
         currentStudent.setPhoneNumber(payload.getPhoneNumber());
         currentStudent.setLogin(payload.getLogin());
-        currentStudent.setRegister(payload.getRegister());
         if (payload.getPassword() != null && !payload.getPassword().isEmpty()) {
             currentStudent.setPassword(passwordEncoder.encode(payload.getPassword()));
         }

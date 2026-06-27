@@ -60,11 +60,18 @@ public class AdminService {
         if (admin.getLogin() != null && adminRepository.findByLogin(admin.getLogin()).isPresent()) {
             throw new ResourceNotFoundException("Nome de usuário não disponível.");
         }
-        if (admin.getRegister() != null && adminRepository.findByRegister(admin.getRegister()).isPresent()) {
+        if (admin.getRegister() == null || admin.getRegister().isBlank()) {
+            admin.setRegister(generateRegister());
+        } else if (adminRepository.findByRegister(admin.getRegister()).isPresent()) {
             throw new ResourceNotFoundException("Esta matrícula já se encontra cadastrada.");
         }
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         return adminRepository.save(admin);
+    }
+
+    private String generateRegister() {
+        long count = adminRepository.count();
+        return "ADM-" + java.time.Year.now() + "-" + String.format("%04d", count + 1);
     }
 
     @Transactional
@@ -73,7 +80,6 @@ public class AdminService {
         current.setName(payload.getName());
         current.setPhoneNumber(payload.getPhoneNumber());
         current.setLogin(payload.getLogin());
-        current.setRegister(payload.getRegister());
 
         if (payload.getPassword() != null && !payload.getPassword().isEmpty()) {
             current.setPassword(passwordEncoder.encode(payload.getPassword()));
