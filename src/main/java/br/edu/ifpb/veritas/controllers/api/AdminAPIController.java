@@ -34,7 +34,7 @@ public class AdminAPIController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Administrator> update(@PathVariable Long id, @RequestBody Administrator admin) {
+    public ResponseEntity<Administrator> update(@PathVariable Long id, @Valid @RequestBody Administrator admin) {
         return ResponseEntity.ok(adminService.update(id, admin));
     }
 

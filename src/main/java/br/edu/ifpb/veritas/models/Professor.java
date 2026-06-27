@@ -3,6 +3,8 @@ package br.edu.ifpb.veritas.models;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Setter
@@ -25,6 +27,7 @@ public class Professor {
    * Required fields for Postman test
    */
 
+  @NotBlank(message = "Nome do professor é obrigatório")
   @Column(name = "NAME")
   private String name;
 
@@ -34,9 +37,12 @@ public class Professor {
   @Column(name = "REGISTER")
   private String register;
 
+  @NotBlank(message = "Login é obrigatório")
   @Column(name = "LOGIN")
   private String login;
 
+  @NotBlank(message = "Senha é obrigatória")
+  @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
   @Column(name = "PASSWORD")
   private String password;
 

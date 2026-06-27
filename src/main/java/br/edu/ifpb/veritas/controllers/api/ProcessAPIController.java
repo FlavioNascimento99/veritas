@@ -1,5 +1,6 @@
 package br.edu.ifpb.veritas.controllers.api;
 import br.edu.ifpb.veritas.models.Process;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import br.edu.ifpb.veritas.services.ProcessService;
@@ -29,7 +30,7 @@ public class ProcessAPIController {
     */
    @PostMapping
    public ResponseEntity<Process> create(
-      @RequestBody Process process,
+      @Valid @RequestBody Process process,
       @RequestParam("studentId") Long studentId,
       @RequestParam("subjectId") Long subjectId,
       UriComponentsBuilder uriBuilder

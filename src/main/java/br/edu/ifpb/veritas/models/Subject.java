@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -22,6 +23,7 @@ public class Subject {
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long id;
 
+   @NotBlank(message = "Título do assunto é obrigatório")
    @Column(nullable = false, unique = true)
    private String title;
 

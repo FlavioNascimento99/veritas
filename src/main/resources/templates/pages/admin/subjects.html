@@ -16,12 +16,22 @@
         <!-- Formulário de Novo Assunto -->
         <div class="bg-white shadow-sm p-6 mt-1">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Novo Assunto</h2>
+            <!-- Erros globais de validação -->
+            <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <p class="font-semibold">Corrija os erros abaixo:</p>
+                <ul class="list-disc list-inside mt-1">
+                    <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
+                </ul>
+            </div>
+
             <form th:action="@{/admin/subjects}" th:object="${subject}" method="POST" class="flex items-end gap-4">
                 <div class="flex-grow">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700">Título do Assunto</label>
-                            <input type="text" th:field="*{title}" id="title" required class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <input type="text" th:field="*{title}" id="title" required class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                   th:classappend="${#fields.hasErrors('title')} ? 'border-red-500' : ''">
+                            <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-red-600 text-sm mt-1"></p>
                         </div>
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700">Descrição do Assunto</label>

@@ -10,6 +10,8 @@ import br.edu.ifpb.veritas.enums.StatusProcess;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,15 +29,18 @@ public class Process {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Título é obrigatório")
     @Column(name = "TITLE")
     private String title;
 
+    @NotBlank(message = "Descrição é obrigatória")
     @Column(name = "DESCRIPTION")
     private String description;
 
     @Column(name = "NUMBER")
     private String number;
 
+    @NotNull(message = "Data de criação é obrigatória")
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
@@ -45,6 +50,7 @@ public class Process {
     @Column(name = "SOLVED_AT")
     private LocalDateTime solvedAt;
 
+    @NotNull(message = "Status é obrigatório")
     @Column(name = "PROCESS_STATUS")
     @Enumerated(EnumType.STRING)
     private StatusProcess status;
@@ -56,10 +62,12 @@ public class Process {
     @Column(name = "PROCESS_ORDER")
     private String processOrder;
 
+    @NotNull(message = "Estudante interessado é obrigatório")
     @ManyToOne
     @JoinColumn(name = "INTERESTED_STUDENT_ID", nullable = false)
     private Student processCreator;
 
+    @NotNull(message = "Assunto é obrigatório")
     @ManyToOne
     @JoinColumn(name = "PROCESS_SUBJECT_ID", nullable = false)
     private Subject subject;

@@ -18,6 +18,8 @@ import br.edu.ifpb.veritas.enums.MeetingStatus;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,10 +41,12 @@ public class Meeting {
   /**
    * Descrição/Título da reunião para identificação
    */
+  @NotBlank(message = "Descrição da reunião não pode ser vazia")
   @Column(name = "description")
   private String description;
 
   // Pertence a um Colegiado
+  @NotNull(message = "Reunião deve estar associada a um colegiado")
   @ManyToOne
   @JoinColumn(name = "collegiate_id")
   private Collegiate collegiate; // 1 colegiado ao qual a reunião pertence
@@ -62,6 +66,7 @@ public class Meeting {
   @Column(name = "scheduled_date")
   private LocalDateTime scheduledDate;
 
+  @NotNull(message = "Status da reunião não pode ser nulo")
   @Enumerated(EnumType.STRING)
   @Column(name = "status")
   private MeetingStatus status;

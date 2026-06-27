@@ -4,6 +4,7 @@ import br.edu.ifpb.veritas.enums.VoteType;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class Vote {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotNull(message = "Tipo de voto é obrigatório")
   @Enumerated(EnumType.STRING)
   @Column(name = "vote_type")
   private VoteType voteType;
@@ -47,6 +49,7 @@ public class Vote {
    * Log 1: Haverá N votos para um Processo, logo referencia 
    * a este segundo.
    */
+  @NotNull(message = "Processo é obrigatório")
   @ManyToOne
   @JoinColumn(name = "PROCESS_ID", nullable = true)
   private Process process;
@@ -57,6 +60,7 @@ public class Vote {
    * - Muitos votos podem pertencer a um professor (em processos diferentes)
    * - Cada voto pertence a um único professor
    */
+  @NotNull(message = "Professor é obrigatório")
   @ManyToOne
   @JoinColumn(name = "PROFESSOR_ID", nullable = false)
   private Professor professor;

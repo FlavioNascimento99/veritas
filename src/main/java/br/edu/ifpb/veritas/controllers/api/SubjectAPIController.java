@@ -10,6 +10,7 @@ package br.edu.ifpb.veritas.controllers.api;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class SubjectAPIController {
     * Post feito para criação de novos 'Subject' da aplicação.
     */
    @PostMapping
-   public ResponseEntity<Subject> createSubject(@RequestBody Subject subject) {
+   public ResponseEntity<Subject> createSubject(@Valid @RequestBody Subject subject) {
       ResponseEntity.ok("All done folk");
       return ResponseEntity.ok(subjectService.create(subject));
    }

@@ -5,6 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +26,7 @@ public class Student {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotBlank(message = "Nome do estudante é obrigatório")
   @Column(name = "NAME")
   private String name;
 
@@ -42,9 +45,12 @@ public class Student {
    * login dentro do sistema, seja baseado em @ ou primeiro e último nome do 
    * usuário.
    */
+  @NotBlank(message = "Login é obrigatório")
   @Column(name = "LOGIN")
   private String login;
 
+  @NotBlank(message = "Senha é obrigatória")
+  @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
   @Column(name = "PASSWORD")
   private String password;
 
