@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Votação em Reunião Ativa</h1>
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                 Sair (Logout)
             </button>
         </form>
@@ -90,18 +90,14 @@
                               th:action="@{/dashboard/meetings/{id}/processes/{pid}/vote(id=${meeting.id}, pid=${process.id})}"
                               class="flex-1">
                             <input type="hidden" name="voteType" value="COM_RELATOR">
-                            <button type="submit" 
-                                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2">
-                                <i class="fas fa-thumbs-up"></i> Concordo com Relator
+                            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-thumbs-up"></i> Concordo com Relator
                             </button>
                         </form>
                         <form method="POST" 
                               th:action="@{/dashboard/meetings/{id}/processes/{pid}/vote(id=${meeting.id}, pid=${process.id})}"
                               class="flex-1">
                             <input type="hidden" name="voteType" value="DIVERGENTE">
-                            <button type="submit" 
-                                    class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2">
-                                <i class="fas fa-thumbs-down"></i> Discordo do Relator
+                            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-thumbs-down"></i> Discordo do Relator
                             </button>
                         </form>
                     </div>
@@ -146,3 +142,5 @@
         </ul>
     </div>
 </div>
+
+

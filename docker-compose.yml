@@ -1,15 +1,36 @@
 services:
+  veritas-db:
+    image: postgres:15
+    container_name: veritas-db
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER} -d ${PGDATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   veritas:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: veritas-app
     env_file: .env
+    environment:
+      PGHOST: veritas-db
     ports:
       - "8080:8080"
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
+    depends_on:
+      veritas-db:
+        condition: service_healthy
     networks:
       - test-network
     
@@ -23,6 +44,9 @@ services:
         max-size: "10m"
         max-file: "3"
 
+volumes:
+  pgdata:
+
 networks:
   test-network:
-    external: true
+    driver: bridge

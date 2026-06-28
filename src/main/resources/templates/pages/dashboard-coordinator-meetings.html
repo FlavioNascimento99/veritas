@@ -7,7 +7,7 @@
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
             <form th:action="@{/logout}" method="post" class="inline">
-                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                     Sair (Logout)
                 </button>
             </form>
@@ -97,9 +97,7 @@
                                 <form method="POST" 
                                       th:action="@{/dashboard/meetings/{id}/start(id=${meeting.id})}"
                                       class="inline">
-                                    <button type="submit" 
-                                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition">
-                                        <i class="fas fa-play-circle"></i> Iniciar Sessão
+                                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition"><i class="fas fa-play-circle"></i> Iniciar Sessão
                                     </button>
                                 </form>
                             </div>
@@ -123,9 +121,7 @@
                                       th:action="@{/dashboard/meetings/{id}/finalize(id=${meeting.id})}"
                                       class="inline"
                                       onsubmit="return confirm('Todos os processos foram apregoados? Esta ação é irreversível!');">
-                                    <button type="submit" 
-                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition">
-                                        <i class="fas fa-stop-circle"></i> Finalizar Sessão
+                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition"><i class="fas fa-stop-circle"></i> Finalizar Sessão
                                     </button>
                                 </form>
                             </div>
@@ -151,3 +147,5 @@
         </div>
     </div>
 </div>
+
+

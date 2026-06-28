@@ -173,14 +173,6 @@
             </div>
 
             <div class="p-6">
-                <!-- Erros globais de validação -->
-                <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    <p class="font-semibold">Corrija os erros abaixo:</p>
-                    <ul class="list-disc list-inside mt-1">
-                        <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
-                    </ul>
-                </div>
-
                 <form th:action="@{/processes/create}" method="post" enctype="multipart/form-data" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">

@@ -16,15 +16,14 @@
         <!-- Formulário de Novo Assunto -->
         <div class="bg-white shadow-sm p-6 mt-1">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Novo Assunto</h2>
-            <!-- Erros globais de validação -->
-            <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                <p class="font-semibold">Corrija os erros abaixo:</p>
-                <ul class="list-disc list-inside mt-1">
-                    <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
-                </ul>
-            </div>
-
             <form th:action="@{/admin/subjects}" th:object="${subject}" method="POST" class="flex items-end gap-4">
+                <!-- Erros globais de validação -->
+                <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    <p class="font-semibold">Corrija os erros abaixo:</p>
+                    <ul class="list-disc list-inside mt-1">
+                        <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
+                    </ul>
+                </div>
                 <div class="flex-grow">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>

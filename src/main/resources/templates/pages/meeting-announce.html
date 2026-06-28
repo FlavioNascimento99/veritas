@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Apregoação de Processos</h1>
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                 Sair (Logout)
             </button>
         </form>
@@ -105,9 +105,7 @@
                         <form method="POST" 
                               th:action="@{/dashboard/meetings/{id}/processes/{pid}/announce(id=${meeting.id}, pid=${process.id})}"
                               onsubmit="return confirm('Tem certeza que deseja apregoar este processo? Isso calculará e finalizará o resultado da votação.');">
-                            <button type="submit" 
-                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2">
-                                <i class="fas fa-gavel"></i> Apregoar Processo
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Apregoar Processo
                             </button>
                         </form>
                     </div>
@@ -160,3 +158,5 @@
         </ul>
     </div>
 </div>
+
+

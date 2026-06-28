@@ -16,12 +16,14 @@ import br.edu.ifpb.veritas.services.SubjectService;
 import br.edu.ifpb.veritas.services.ProcessService;
 import br.edu.ifpb.veritas.services.CollegiateService;
 import br.edu.ifpb.veritas.services.MeetingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -47,7 +49,12 @@ public class AdminController {
     }
 
     @PostMapping("/students")
-    public String createStudent(@ModelAttribute Student student, RedirectAttributes redirectAttributes) {
+    public String createStudent(@Valid @ModelAttribute Student student, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("pageTitle", "Cadastrar Estudante");
+            model.addAttribute("mainContent", "pages/admin/new-student :: content");
+            return "home";
+        }
         try {
             studentService.create(student);
             redirectAttributes.addFlashAttribute("successMessage", "Estudante cadastrado com sucesso!");
@@ -68,7 +75,12 @@ public class AdminController {
     }
 
     @PostMapping("/professors")
-    public String createProfessor(@ModelAttribute Professor professor, RedirectAttributes redirectAttributes) {
+    public String createProfessor(@Valid @ModelAttribute Professor professor, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("pageTitle", "Cadastrar Professor");
+            model.addAttribute("mainContent", "pages/admin/new-professor :: content");
+            return "home";
+        }
         try {
             professorService.create(professor);
             redirectAttributes.addFlashAttribute("successMessage", "Professor cadastrado com sucesso!");
@@ -109,7 +121,11 @@ public class AdminController {
     }
 
     @PostMapping("/professors/{id}/update")
-    public String updateProfessor(@PathVariable Long id, @ModelAttribute Professor professor, RedirectAttributes redirectAttributes) {
+    public String updateProfessor(@PathVariable Long id, @Valid @ModelAttribute Professor professor, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro de validação: corrija os campos.");
+            return "redirect:/admin/users";
+        }
         try {
             professorService.update(id, professor);
             redirectAttributes.addFlashAttribute("successMessage", "Professor atualizado com sucesso!");
@@ -120,7 +136,11 @@ public class AdminController {
     }
 
     @PostMapping("/students/{id}/update")
-    public String updateStudent(@PathVariable Long id, @ModelAttribute Student student, RedirectAttributes redirectAttributes) {
+    public String updateStudent(@PathVariable Long id, @Valid @ModelAttribute Student student, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro de validação: corrija os campos.");
+            return "redirect:/admin/users";
+        }
         studentService.update(id, student);
         redirectAttributes.addFlashAttribute("successMessage", "Estudante atualizado com sucesso!");
         return "redirect:/admin/users";
@@ -137,7 +157,13 @@ public class AdminController {
     }
 
     @PostMapping("/subjects")
-    public String createSubject(@ModelAttribute Subject subject, RedirectAttributes redirectAttributes) {
+    public String createSubject(@Valid @ModelAttribute Subject subject, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("subjects", subjectService.findAll());
+            model.addAttribute("pageTitle", "Gerenciar Assuntos");
+            model.addAttribute("mainContent", "pages/admin/subjects :: content");
+            return "home";
+        }
         subjectService.create(subject);
         redirectAttributes.addFlashAttribute("successMessage", "Assunto cadastrado com sucesso!");
         return "redirect:/admin/subjects";
@@ -225,7 +251,13 @@ public class AdminController {
     }
 
     @PostMapping("/collegiates")
-    public String createCollegiate(@ModelAttribute CollegiateDTO collegiateDTO, RedirectAttributes redirectAttributes) {
+    public String createCollegiate(@Valid @ModelAttribute CollegiateDTO collegiateDTO, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("professors", professorService.findAll());
+            model.addAttribute("pageTitle", "Cadastrar Colegiado");
+            model.addAttribute("mainContent", "pages/admin/new-collegiate :: content");
+            return "home";
+        }
         try {
             collegiateService.create(collegiateDTO);
             redirectAttributes.addFlashAttribute("successMessage", "Colegiado cadastrado com sucesso!");
@@ -237,7 +269,11 @@ public class AdminController {
     }
 
     @PostMapping("/collegiates/{id}")
-    public String updateCollegiate(@PathVariable Long id, @ModelAttribute CollegiateEditDTO collegiateDTO, RedirectAttributes redirectAttributes) {
+    public String updateCollegiate(@PathVariable Long id, @Valid @ModelAttribute CollegiateEditDTO collegiateDTO, BindingResult result, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro de validação: corrija os campos.");
+            return "redirect:/admin/collegiates/" + id + "/edit";
+        }
         try {
             collegiateService.updateFromDTO(id, collegiateDTO);
             redirectAttributes.addFlashAttribute("successMessage", "Colegiado atualizado com sucesso!");
