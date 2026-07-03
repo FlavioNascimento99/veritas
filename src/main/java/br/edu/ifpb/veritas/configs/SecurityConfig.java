@@ -42,10 +42,10 @@ public class SecurityConfig {
                         .principal("Visitante")
                         .authorities("ROLE_ANONYMOUS")
                 )
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/home", "/login", "/register", "/about", "/contact", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .requestMatchers("/dashboard").hasAnyRole("STUDENT", "PROFESSOR", "COORDINATOR", "ADMIN")
                         .anyRequest().authenticated()
                 )

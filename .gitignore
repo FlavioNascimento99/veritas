@@ -36,6 +36,11 @@ build/
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Docker
 docker-compose.override.yml
+
+# Logs
+*.log
+/logs/
