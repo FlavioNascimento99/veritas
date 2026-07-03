@@ -86,18 +86,18 @@
 
                     <!-- Botões de Votação -->
                     <div th:if="${process.status.name() == 'UNDER_ANALISYS'}" class="flex gap-3">
-                        <form method="POST" 
+                        <form method="POST"
                               th:action="@{/dashboard/meetings/{id}/processes/{pid}/vote(id=${meeting.id}, pid=${process.id})}"
                               class="flex-1">
-                            <input type="hidden" name="voteType" value="COM_RELATOR">
-                            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-thumbs-up"></i> Concordo com Relator
+                            <input type="hidden" name="voteType" value="DEFERIDO">
+                            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-thumbs-up"></i> Defiro
                             </button>
                         </form>
-                        <form method="POST" 
+                        <form method="POST"
                               th:action="@{/dashboard/meetings/{id}/processes/{pid}/vote(id=${meeting.id}, pid=${process.id})}"
                               class="flex-1">
-                            <input type="hidden" name="voteType" value="DIVERGENTE">
-                            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-thumbs-down"></i> Discordo do Relator
+                            <input type="hidden" name="voteType" value="INDEFERIDO">
+                            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-thumbs-down"></i> Indefiro
                             </button>
                         </form>
                     </div>
@@ -134,7 +134,7 @@
     <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h4 class="font-semibold text-blue-900 mb-2"><i class="fas fa-lightbulb"></i> Como Funciona</h4>
         <ul class="text-sm text-blue-800 space-y-1">
-            <li>✓ Você vota de acordo com a decisão do relator (concordar ou discordar)</li>
+            <li>✓ Você vota diretamente pelo deferimento ou indeferimento do processo, assim como o relator</li>
             <li>✓ Todos os votos dos membros são computados automaticamente</li>
             <li>✓ O sistema calcula o resultado final (maioria/empate)</li>
             <li>✓ Após votação de todos, o coordenador apregoa o processo</li>

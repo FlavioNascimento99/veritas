@@ -25,10 +25,12 @@ import java.util.Optional;
 /**
  * Serviço responsável pelo gerenciamento de votos no sistema de colegiado.
  *
- * Lógica de votação (pelo menos foi o que entendi):
+ * Lógica de votação:
  * 1) Relator vota primeiro: DEFERIMENTO ou INDEFERIMENTO (com justificativa)
- * 2) Membros do colegiado votam: COM_RELATOR ou DIVERGENTE
- * 3) Sistema calcula resultado: maioria define se prevalece voto do relator ou não
+ * 2) Membros do colegiado votam pelo mérito: DEFERIDO ou INDEFERIDO
+ * 3) Sistema calcula resultado: se a maioria dos membros votou no mesmo sentido do
+ *    relator, prevalece a decisão dele; se divergiu, o resultado é invertido; em
+ *    empate, prevalece a decisão do relator
  */
 @Slf4j
 @Service
@@ -39,64 +41,6 @@ public class VoteService {
     private final ProcessRepository processRepository;
     private final ProfessorRepository professorRepository;
     private final MeetingRepository meetingRepository;
-
-//    =============== ENTENDIMENTO INICIAL DA VOTAÇÃO ===============
-//    /**
-//     * REQFUNC 5: Professor registra seu voto em um processo.
-//     *
-//     * Validações:
-//     * - Processo não pode estar finalizado
-//     * - Professor não pode votar duas vezes no mesmo processo
-//     * - Reunião contendo o processo não pode estar finalizada
-//     */
-   @Transactional
-   public Vote registerVote(Long processId, Long professorId, VoteType voteType, String justification) {
-       Process process = processRepository.findById(processId)
-               .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com ID: " + processId));
-
-       Professor professor = professorRepository.findById(professorId)
-               .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + professorId));
-
-       // Impede voto em processo já finalizado
-       if (process.getStatus() == StatusProcess.APPROVED || process.getStatus() == StatusProcess.REJECTED) {
-           throw new IllegalStateException("Não é possível votar em um processo já finalizado. Status: " + process.getStatus());
-       }
-
-       // Impede voto em reunião finalizada
-       validateMeetingNotFinalized(processId);
-
-       // Valida se o processo está sob análise
-       if (process.getStatus() != StatusProcess.UNDER_ANALISYS) {
-           throw new IllegalStateException("Processo não está disponível para votação. Status atual: " + process.getStatus());
-       }
-
-       // Verifica se o professor já votou
-       Optional<Vote> existingVote = voteRepository.findByProcessIdAndProfessorId(processId, professorId);
-       if (existingVote.isPresent()) {
-           throw new IllegalStateException("Professor já votou neste processo. ID do voto existente: " + existingVote.get().getId());
-       }
-
-       // Cria e salva o voto
-       Vote vote = new Vote();
-       vote.setProcess(process);
-       vote.setProfessor(professor);
-       vote.setVoteType(voteType);
-       vote.setJustification(justification);
-       vote.setAway(false);
-       vote.setVotedAt(LocalDateTime.now());
-
-       Vote savedVote = voteRepository.save(vote);
-
-       // Se o professor é o relator, atualiza o voto do relator no processo
-    //    if (process.getProcessRapporteur() != null &&
-    //            process.getProcessRapporteur().getId().equals(professorId)) {
-
-    //        process.setRapporteurVote(vote.getVoteType());
-    //        processRepository.save(process);
-    //    }
-       
-       return savedVote;
-   }
 
     /**
      * Achei melhor separar os métodos (um pro voto do relator e outro pro voto dos membros do colegiado)
@@ -160,118 +104,6 @@ public class VoteService {
         return savedProcess;
     }
 
-    /**
-     * Registra o voto de um membro do colegiado (NÃO relator) em um processo.
-     *
-     * O membro vota se concorda (COM_RELATOR) ou discorda (DIVERGENTE) da decisão do relator.
-     *
-     * Este voto acontece durante a reunião do colegiado.
-     *
-     * Validações:
-     * - Relator já deve ter votado TODOS os processos da reunião
-     * - Processo deve estar EM_ANALISE
-     * - Professor não pode ser o relator
-     * - Professor não pode votar duas vezes
-     * - Reunião não pode estar finalizada
-     * - Deve existir reunião ativa
-     * - Reunião deve estar em estado DISPONÍVEL
-     */
-    @Transactional
-    public Vote registerMemberVote(Long processId, Long professorId,
-                                   VoteType voteType, String justification) {
-        Process process = processRepository.findById(processId)
-                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com ID: " + processId));
-
-        Professor professor = professorRepository.findById(professorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + professorId));
-
-        // Valida se relator já votou
-        if (process.getRapporteurVote() == null) {
-            throw new IllegalStateException("O relator ainda não registrou sua decisão sobre este processo.");
-        }
-
-        // Valida se processo está em análise
-        if (process.getStatus() != StatusProcess.UNDER_ANALISYS) {
-            throw new IllegalStateException("Processo não está disponível para votação. Status atual: " + process.getStatus().getStatus());
-        }
-
-        // Valida que quem está votando NÃO é o relator (talvez seja desnecessário, mas né, validar demais nunca é ruim)
-        if (process.getProcessRapporteur() != null &&
-                process.getProcessRapporteur().getId().equals(professorId)) {
-            throw new IllegalStateException("O relator não vota novamente como membro. Sua decisão já foi registrada.");
-        }
-
-        // Verifica se reunião está ativa
-        Meeting activeMeeting = meetingRepository.findByActiveTrue()
-                .orElseThrow(() -> new IllegalStateException("Não há reunião ativa no momento."));
-
-        // VALIDAÇÃO: Reunião deve estar em estado DISPONIVEL
-        if (activeMeeting.getStatus() != MeetingStatus.DISPONIVEL) {
-            throw new IllegalStateException("A reunião não está disponível para votação. Status atual: " + activeMeeting.getStatus().getStatus());
-        }
-
-        // VALIDAÇÃO: Relator deve ter votado TODOS os processos da reunião
-        if (!hasRapporteurVotedAllProcesses(activeMeeting.getId())) {
-            throw new IllegalStateException("O relator ainda não votou todos os processos desta reunião. Aguarde que o relator finalize suas votações.");
-        }
-
-        // Valida se processo está na pauta da reunião ativa
-        boolean isInAgenda = activeMeeting.getProcesses().stream()
-                .anyMatch(p -> p.getId().equals(processId));
-
-        if (!isInAgenda) {
-            throw new IllegalStateException("Processo não está na pauta da reunião ativa (ID: " + activeMeeting.getId() + ").");
-        }
-
-        // Valida se professor é participante da reunião
-        boolean isParticipant = activeMeeting.getParticipants().stream()
-                .anyMatch(p -> p.getId().equals(professorId));
-
-        if (!isParticipant) {
-            throw new IllegalStateException("Professor não é participante da reunião ativa.");
-        }
-
-        // Verifica se professor já votou
-        Optional<Vote> existingVote = voteRepository.findByProcessIdAndProfessorId(processId, professorId);
-        if (existingVote.isPresent()) {
-            throw new IllegalStateException("Professor já votou neste processo. ID do voto: " + existingVote.get().getId());
-        }
-
-        // Valida reunião não finalizada
-        validateMeetingNotFinalized(processId);
-
-        // Cria e salva o voto
-        Vote vote = new Vote();
-        vote.setProcess(process);
-        vote.setProfessor(professor);
-        vote.setVoteType(voteType);
-        vote.setJustification(justification);
-        vote.setAway(false);
-        vote.setVotedAt(LocalDateTime.now());
-
-        Vote savedVote = voteRepository.save(vote);
-        
-        // NOVO: Verifica se todos os membros votaram e finaliza automaticamente
-        log.info("Voto registrado. Verificando se todos os membros votaram para o processo {}", processId);
-        if (allMembersHaveVoted(processId, activeMeeting.getId())) {
-            log.info("TODOS os membros votaram! Finalizando processo {} automaticamente...", processId);
-            finalizeProcessAutomatically(processId);
-        } else {
-            log.info("Ainda faltam membros votarem no processo {}", processId);
-        }
-        
-        return savedVote;
-    }
-
-    /**
-     * Sobrecarregação: Registra voto de membro SEM justificação obrigatória (REQFUNC 11)
-     * Usado quando membros votam em uma reunião ativa
-     */
-    @Transactional
-    public Vote registerMemberVote(Long processId, Long professorId, VoteType voteType) {
-        return registerMemberVote(processId, professorId, voteType, "");
-    }
-    
     /**
      * Verifica se todos os membros do colegiado (excluindo o relator) votaram em um processo.
      * O relator já votou via registerRapporteurDecision, então não é contado aqui.
@@ -368,24 +200,12 @@ public class VoteService {
     }
 
     /**
-     * Valida se todos os votos do relator foram registrados em uma reunião.
-     * Apenas após isso, os demais membros podem votar.
-     */
-    public boolean hasRapporteurVotedAllProcesses(Long meetingId) {
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reunião não encontrada."));
-
-        return meeting.getProcesses().stream()
-                .allMatch(p -> p.getRapporteurVote() != null);
-    }
-
-    /**
      * REQFUNC 11: Apregoa um processo e calcula seu resultado final automaticamente.
      *
      * Regra de cálculo:
-     * - Conta votos COM RELATOR vs DIVERGENTE DO RELATOR
-     * - Se maioria votou COM RELATOR → resultado = decisão do relator
-     * - Se maioria votou DIVERGENTE → resultado = contrário à decisão do relator
+     * - Compara o voto de cada membro com a decisão do relator
+     * - Se maioria votou no mesmo sentido do relator → resultado = decisão do relator
+     * - Se maioria votou no sentido oposto → resultado = contrário à decisão do relator
      * - Em caso de empate, prevalece o voto do relator
      *
      * Atualiza o status do processo para APPROVED ou REJECTED.
@@ -447,10 +267,10 @@ public class VoteService {
      * REQFUNC 11: Calcula o resultado da votação de um processo.
      *
      * Lógica:
-     * 1. Conta quantos membros votaram COM_RELATOR
-     * 2. Conta quantos membros votaram DIVERGENTE
-     * 3. Se maioria votou COM_RELATOR → mantém decisão do relator
-     * 4. Se maioria votou DIVERGENTE → inverte decisão do relator
+     * 1. Conta quantos membros votaram no mesmo sentido do relator (concordam)
+     * 2. Conta quantos membros votaram no sentido oposto ao do relator (divergem)
+     * 3. Se maioria concordou → mantém decisão do relator
+     * 4. Se maioria divergiu → inverte decisão do relator
      * 5. Em empate → prevalece decisão do relator
      */
     public DecisionType calculateResult(Long processId) {
@@ -463,20 +283,27 @@ public class VoteService {
             throw new IllegalStateException("Relator ainda não votou neste processo.");
         }
 
-        // Conta votos dos membros
-        Long votosComRelator = voteRepository.countByProcessIdAndVoteType(processId, VoteType.DEFERIDO);
-        Long votosDivergentes = voteRepository.countByProcessIdAndVoteType(processId, VoteType.INDEFERIDO);
+        // O voto de membro que concorda com o relator usa o mesmo sentido (DEFERIDO/INDEFERIDO)
+        VoteType agreeingVoteType = rapportVote == DecisionType.DEFERIMENTO
+                ? VoteType.DEFERIDO
+                : VoteType.INDEFERIDO;
+        VoteType disagreeingVoteType = agreeingVoteType == VoteType.DEFERIDO
+                ? VoteType.INDEFERIDO
+                : VoteType.DEFERIDO;
+
+        Long votosComRelator = voteRepository.countByProcessIdAndVoteType(processId, agreeingVoteType);
+        Long votosDivergentes = voteRepository.countByProcessIdAndVoteType(processId, disagreeingVoteType);
 
         // Se não houve votação dos membros, prevalece decisão do relator
         if (votosComRelator == 0 && votosDivergentes == 0) {
             return rapportVote;
         }
 
-        // Se maioria votou COM_RELATOR, mantém decisão do relator
+        // Se maioria concordou com o relator (ou empate), mantém sua decisão
         if (votosComRelator >= votosDivergentes) {
             return rapportVote;
         } else {
-            // Se maioria votou DIVERGENTE, inverte a decisão
+            // Se maioria divergiu, inverte a decisão
             return rapportVote == DecisionType.DEFERIMENTO
                     ? DecisionType.INDEFERIMENTO
                     : DecisionType.DEFERIMENTO;
@@ -596,45 +423,5 @@ public class VoteService {
         }
 
         return savedVote;
-    }
-
-    /**
-     * Retorna informações sobre a votação de um processo
-     */
-    public VotingStats getVotingStats(Long processId) {
-        Process process = processRepository.findById(processId)
-                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado."));
-
-        Long totalVotes = voteRepository.countVotesByProcessId(processId);
-        Long votesForDeferido = voteRepository.countByProcessIdAndVoteType(processId, VoteType.DEFERIDO);
-        Long votesForIndeferido = voteRepository.countByProcessIdAndVoteType(processId, VoteType.INDEFERIDO);
-
-        return new VotingStats(
-                totalVotes,
-                votesForDeferido,
-                votesForIndeferido,
-                process.getRapporteurVote(),
-                process.getStatus()
-        );
-    }
-
-    /**
-     * Estatísticas de votação (precisa ser revisado)
-     */
-    public static class VotingStats {
-        public final Long totalVotes;
-        public final Long votesForDeferido;
-        public final Long votesForIndeferido;
-        public final DecisionType rapporteurVote;
-        public final StatusProcess processStatus;
-
-        public VotingStats(Long totalVotes, Long votesForDeferido, Long votesForIndeferido,
-                           DecisionType rapporteurVote, StatusProcess processStatus) {
-            this.totalVotes = totalVotes;
-            this.votesForDeferido = votesForDeferido;
-            this.votesForIndeferido = votesForIndeferido;
-            this.rapporteurVote = rapporteurVote;
-            this.processStatus = processStatus;
-        }
     }
 }

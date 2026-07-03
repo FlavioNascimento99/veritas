@@ -701,7 +701,7 @@ public class DashboardController {
             }
 
             // Registra o voto de membro
-            voteService.registerMemberVote(processId, professor.getId(), voteType);
+            voteService.registerProfessorVote(processId, professor.getId(), voteType, null);
             redirectAttributes.addFlashAttribute("successMessage", "Voto registrado com sucesso!");
 
         } catch (IllegalStateException e) {
