@@ -42,9 +42,15 @@ class MeetingServiceTest {
     void testCreateSimpleMeeting() {
         System.out.println("\n=== INICIANDO TESTE DE CRIAÇÃO DE REUNIÃO SIMPLES ===");
         
+        Collegiate collegiate = new Collegiate();
+        collegiate.setDescription("Colegiado Teste");
+        collegiate.setCreatedAt(LocalDateTime.now());
+        collegiate = collegiateRepository.save(collegiate);
+
         // Cria uma reunião vazia apenas para testar o save
         Meeting meeting = new Meeting();
         meeting.setDescription("Teste de Reunião Simples");
+        meeting.setCollegiate(collegiate);
         meeting.setCreatedAt(LocalDateTime.now());
         meeting.setScheduledDate(LocalDateTime.now());
         meeting.setStatus(MeetingStatus.DISPONIVEL);
