@@ -2,7 +2,7 @@
 
 ### 1. Introdução e Objetivo
 
-O **Projeto Collegialis** visa criar um sistema para **controlar o fluxo de julgamento de processos para um colegiado de professores**. Um colegiado é um grupo de professores que se reúne para julgar processos criados por alunos sobre assuntos acadêmicos.
+O **Veritas** (nome de código original do projeto: **Collegialis**) é um sistema para **controlar o fluxo de julgamento de processos para um colegiado de professores**. Um colegiado é um grupo de professores que se reúne para julgar processos criados por alunos sobre assuntos acadêmicos.
 
 O sistema deve gerenciar diversos perfis de usuários, cada um com acesso a funcionalidades específicas.
 
@@ -18,6 +18,8 @@ O julgamento de um processo acadêmico segue o seguinte fluxo no sistema:
     *   Os demais membros do colegiado votam se concordam ou não com o relator.
     *   A **maioria dos votos define o resultado**.
     *   **Regra de Julgamento:** Se o relator votou pelo deferimento/indeferimento e a maioria votou com ele, o processo é considerado deferido/indeferido. **Se a maioria votou divergente do relator, o resultado final do processo será o contrário ao do relator**.
+
+> **Nota de implementação:** na prática, o voto de um membro do colegiado usa o mesmo domínio do relator (deferimento/indeferimento do processo), e "concordar com o relator" significa votar no mesmo sentido que ele. A apuração (`VoteService.calculateResult`) compara cada voto de membro com a decisão do relator para determinar maioria/divergência, coberta por testes em `VoteServiceTest`.
 
 ### 3. Requisitos Funcionais (REQFUNC)
 
@@ -44,6 +46,8 @@ Os requisitos funcionais são divididos por perfil de usuário, definindo as aç
 *   **REQFUNC 12:** Finalizar uma sessão, impedindo que qualquer informação acerca dos julgamentos seja alterada.
 *   Presidir a reunião (consultar a pauta e ir julgando cada processo).
 
+> **Nota de implementação:** o Coordenador não é uma entidade própria no modelo de dados. Ele é representado por um `Professor` com a flag `coordinator = true`, vinculado a um `Course` via `coordinatorAt`. Essa escolha evita duplicar cadastro/autenticação entre "professor" e "coordenador", já que na prática um coordenador é sempre também um professor do colegiado.
+
 #### Administrador
 *   **REQFUNC 13:** Realizar operações CRUD (Criação, Leitura, Atualização, Exclusão) para **colegiados** (conjunto de professores que o compõem).
 *   **REQFUNC 14:** Realizar CRUDs para **alunos, professores e coordenadores**.
@@ -63,8 +67,10 @@ Estes requisitos definem as especificações técnicas obrigatórias para a impl
 | **REQNAOFUNC 6** | Utilizar o padrão **Post\_Redirect\_Get** (PRG). | |
 | **REQNAOFUNC 7** | Utilizar **layouts e fragmentos** para os *templates* **Thymeleaf**. | |
 | **REQNAOFUNC 8** | Utilizar **mecanismos de autenticação e autorização do Spring Security**. | |
-| **REQNAOFUNC 9** | Utilizar **paginação em tabelas** com reflexo no banco de dados, limitando as consultas aos registros da página atual. | |
+| **REQNAOFUNC 9** | Utilizar **paginação em tabelas** com reflexo no banco de dados, limitando as consultas aos registros da página atual. | ⚠️ Parcial: a listagem de processos (`DashboardController`) usa `Pageable`/`Page<T>`. Os CRUDs de colegiados, alunos e professores (`AdminController`) ainda carregam a lista completa via `findAll()`. |
 | **REQNAOFUNC 10** | Utilizar uma **anotação específica com regra própria para validar a matrícula**. | |
+
+> **Nota de implementação:** o requisito original (REQNAOFUNC 1) pedia Spring Boot 3.1.2, versão vigente à época do enunciado. O projeto foi atualizado para **Spring Boot 3.4.3** (ver `pom.xml`), mantendo a mesma stack (Spring Data JPA, Spring Security, Thymeleaf, Hibernate).
 
 ### 5. Recomendações e Ferramentas
 
@@ -79,9 +85,12 @@ Estes requisitos definem as especificações técnicas obrigatórias para a impl
 veritas/
 ├── src/
 │   ├── main/
-│   │   ├── java/br/edu/.../veritas/
+│   │   ├── java/br/edu/ifpb/veritas/
 │   │   │   ├── configs/
 │   │   │   ├── controllers/
+│   │   │   │   ├── api/
+│   │   │   │   └── web/
+│   │   │   ├── dtos/
 │   │   │   ├── enums/
 │   │   │   ├── exceptions/
 │   │   │   ├── models/
@@ -96,4 +105,7 @@ veritas/
 │   │       │   ├── home.html
 │   │       │   └── register.html
 │   │       └── application.properties
+│   └── test/
+│       └── java/br/edu/ifpb/veritas/services/
 └── pom.xml
+```
