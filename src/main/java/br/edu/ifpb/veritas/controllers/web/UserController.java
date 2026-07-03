@@ -1,6 +1,6 @@
 package br.edu.ifpb.veritas.controllers.web;
 
-import br.edu.ifpb.veritas.dto.RegistrationDTO;
+import br.edu.ifpb.veritas.dtos.RegistrationDTO;
 import br.edu.ifpb.veritas.services.RegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

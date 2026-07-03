@@ -1,4 +1,4 @@
-package br.edu.ifpb.veritas.dto;
+package br.edu.ifpb.veritas.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
