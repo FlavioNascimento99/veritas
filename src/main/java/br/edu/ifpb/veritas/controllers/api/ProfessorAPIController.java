@@ -24,6 +24,7 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,12 +37,14 @@ public class ProfessorAPIController {
     private final ProcessService processService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Professor> create(@Valid @RequestBody Professor professor) {
         professorService.create(professor);
         return ResponseEntity.ok(professor);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Professor>> findAll() {
         return ResponseEntity.ok(professorService.findAll());
     }
@@ -52,17 +55,20 @@ public class ProfessorAPIController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Professor> update(@PathVariable Long id, @RequestBody Professor professor) {
         return ResponseEntity.ok(professorService.update(id, professor));
     }
 
     @PatchMapping("/{id}/coordinatorState")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Professor> setAsCoordinator(@PathVariable Long id) {
         professorService.coordinatorStateChanger(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/activeState")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deactivate(@PathVariable Long id) {
         professorService.activeStateChanger(id);
         return ResponseEntity.noContent().build();

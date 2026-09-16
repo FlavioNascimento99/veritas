@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
@@ -552,6 +553,7 @@ public class DashboardController {
      * POST: Atribuir processo a professor
      */
     @PostMapping("/assign")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public String assignProfessorToProcess(@RequestParam("processId") Long processId,
                                            @RequestParam("professorId") Long professorId,
                                            RedirectAttributes redirectAttributes) {

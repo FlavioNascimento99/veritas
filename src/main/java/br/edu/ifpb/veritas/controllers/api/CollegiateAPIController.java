@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class CollegiateAPIController {
     private final ProfessorService professorService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Void> create(@Valid @RequestBody CollegiateDTO collegiateDTO) {
         Collegiate collegiate = new Collegiate();
         collegiate.setDescription(collegiateDTO.getDescription());
@@ -52,6 +54,7 @@ public class CollegiateAPIController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Collegiate> update(@PathVariable Long id, @RequestBody Collegiate collegiate) {
         return ResponseEntity.ok(collegiateService.update(id, collegiate));
     }

@@ -7,6 +7,7 @@ import br.edu.ifpb.veritas.services.MeetingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class MeetingAPIController {
     private final MeetingService meetingService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Meeting> create(@Valid @RequestBody Meeting meeting) {
         return ResponseEntity.ok(meetingService.create(meeting));
     }
@@ -33,11 +35,13 @@ public class MeetingAPIController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Meeting> update(@PathVariable Long id, @RequestBody Meeting meeting) {
         return ResponseEntity.ok(meetingService.update(id, meeting));
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Meeting> updateStatus(@PathVariable Long id, @RequestParam MeetingStatus status) {
         return ResponseEntity.ok(meetingService.updateStatus(id, status));
     }

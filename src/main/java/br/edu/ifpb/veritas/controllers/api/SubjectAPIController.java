@@ -13,6 +13,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import br.edu.ifpb.veritas.models.Subject;
 import br.edu.ifpb.veritas.services.SubjectService;
@@ -28,6 +29,7 @@ public class SubjectAPIController {
     * Post feito para criação de novos 'Subject' da aplicação.
     */
    @PostMapping
+   @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
    public ResponseEntity<Subject> createSubject(@Valid @RequestBody Subject subject) {
       ResponseEntity.ok("All done folk");
       return ResponseEntity.ok(subjectService.create(subject));
@@ -45,6 +47,7 @@ public class SubjectAPIController {
     * Put feito para alteração(Opicional) total do objeto/dado.
     */
    @PutMapping("/{id}")
+   @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
    public ResponseEntity<Subject> updateSubject(@PathVariable Long id, @RequestBody Subject subject) {
       return ResponseEntity.ok(subjectService.update(id, subject));
    }
@@ -55,12 +58,14 @@ public class SubjectAPIController {
     * 2. Desativa
     */
    @PatchMapping("/{id}/inactivate")
+   @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
    public ResponseEntity<Subject> inactivateSubject(@PathVariable Long id) {
       subjectService.deactivate(id);
       return ResponseEntity.noContent().build();
    }
 
    @PatchMapping("/{id}/reactivate")
+   @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
    public ResponseEntity<Subject> reactivateSubject(@PathVariable Long id) {
       subjectService.reactivate(id);
       return ResponseEntity.noContent().build();

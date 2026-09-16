@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 
 /**
@@ -29,6 +30,7 @@ public class ProcessAPIController {
     *    4. Quanto ao Professor é desnecessário, porque o Processo não vai inicializar com um Relator(Professor), este será implementado a partir de um Coordenador
     */
    @PostMapping
+   @PreAuthorize("hasRole('STUDENT')")
    public ResponseEntity<Process> create(
       @Valid @RequestBody Process process,
       @RequestParam("studentId") Long studentId,
@@ -42,6 +44,7 @@ public class ProcessAPIController {
 
 
    @GetMapping("/my-processes")
+   @PreAuthorize("hasRole('STUDENT')")
    public ResponseEntity<List<Process>> listOwnedStudentProcesses(@RequestParam("studentId") Long studentId) {
       List<Process> processes = processService.listByStudent(studentId);
       return ResponseEntity.ok(processes);
@@ -53,6 +56,7 @@ public class ProcessAPIController {
     * 1. Owned Professor Processes (REQFUNC 3)
     */
    @GetMapping("/designated-to-me")
+   @PreAuthorize("hasRole('PROFESSOR')")
    public ResponseEntity<List<Process>> listOwnedProfessorProcesses(@RequestParam("professorId") Long professorId) {
       List<Process> processes = processService.listByProfessor(professorId);
       return ResponseEntity.ok(processes);
@@ -64,6 +68,7 @@ public class ProcessAPIController {
     * 1. Distribute Process (REQFUNC 8)
     */
    @PatchMapping("/{processId}/distribute")
+   @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
    public ResponseEntity<Process> distributeProcess(@PathVariable Long processId, @RequestBody Map<String, Long> body) {
       Long professorId = body.get("professorId");
       Process updatedProcess = processService.distribute(processId, professorId);

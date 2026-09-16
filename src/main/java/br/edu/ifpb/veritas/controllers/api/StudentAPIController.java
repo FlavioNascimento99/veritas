@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,33 +21,39 @@ public class StudentAPIController {
     private final ProcessService processService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Student> create(@Valid @RequestBody Student student) {
         studentService.create(student);
         return ResponseEntity.ok(student);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Student>> findAll() {
         return ResponseEntity.ok(studentService.findAll());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> findById(@PathVariable Long id) {
         return ResponseEntity.ok(studentService.findById(id));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     public ResponseEntity<Student> update(@PathVariable Long id, @RequestBody Student student) {
         return ResponseEntity.ok(studentService.update(id, student));
     }
 
     @PatchMapping("/{id}/desactivate")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> desactivate(@PathVariable Long id) {
         studentService.desactivate(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/reactivate")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> reactivate(@PathVariable Long id) { 
         studentService.reactivate(id);
         return ResponseEntity.noContent().build();
