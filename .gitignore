@@ -44,3 +44,9 @@ docker-compose.override.yml
 # Logs
 *.log
 /logs/
+
+# Node / Cloudflare Workers
+node_modules/
+.wrangler/
+.dev.vars
+dist/

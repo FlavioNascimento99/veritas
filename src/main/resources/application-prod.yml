@@ -81,8 +81,3 @@ logging:
     org.springframework.security: INFO
   pattern:
     console: "%d{ISO8601} [%thread] %-5level %logger - %msg%n"
-    file: "%d{ISO8601} [%thread] %-5level %logger - %msg%n"
-  file:
-    name: logs/veritas.log
-    max-size: 100MB
-    max-history: 30

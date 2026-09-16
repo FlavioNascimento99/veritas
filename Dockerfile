@@ -23,15 +23,18 @@ FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
+# Install curl for health check
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Copy built JAR from builder stage
 COPY --from=builder /app/target/*.jar app.jar
 
 # Expose port (Spring Boot default)
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD java -cp app.jar org.springframework.boot.loader.JarLauncher || exit 1
+# Health check — waits for Spring Boot to be ready
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Run application with environment variables for Supabase
+# Run application
 ENTRYPOINT ["java", "-jar", "app.jar"]

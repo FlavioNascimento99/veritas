@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "veritas",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-12",
+  "observability": {
+    "enabled": true
+  },
+  "containers": [
+    {
+      "class_name": "VeritasContainer",
+      "image": "./Dockerfile",
+      "max_instances": 1,
+      "name": "veritas-app",
+      "instance_type": "standard-1"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "VeritasContainer",
+        "name": "VERITAS_CONTAINER"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["VeritasContainer"],
+      "tag": "v1"
+    }
+  ]
+}
