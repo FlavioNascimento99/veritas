@@ -1,6 +1,5 @@
 package br.edu.ifpb.veritas.services;
 
-import br.edu.ifpb.veritas.models.Administrator;
 import br.edu.ifpb.veritas.models.Professor;
 import br.edu.ifpb.veritas.models.Student;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RegistrationService {
 
-    private final AdminService adminService;
+    private static final String STUDENT = "student";
+    private static final String PROFESSOR = "professor";
+
     private final ProfessorService professorService;
     private final StudentService studentService;
 
@@ -22,26 +23,19 @@ public class RegistrationService {
         }
 
         switch (userType) {
-            case "student":
+            case STUDENT:
                 Student student = new Student();
                 student.setName(fullName);
                 student.setLogin(email);
                 student.setPassword(password); // O service irá criptografar
                 studentService.create(student);
                 break;
-            case "professor":
+            case PROFESSOR:
                 Professor professor = new Professor();
                 professor.setName(fullName);
                 professor.setLogin(email);
                 professor.setPassword(password); // O service irá criptografar
                 professorService.create(professor);
-                break;
-            case "admin":
-                Administrator admin = new Administrator();
-                admin.setName(fullName);
-                admin.setLogin(email);
-                admin.setPassword(password); // O service irá criptografar
-                adminService.create(admin);
                 break;
             default:
                 throw new IllegalArgumentException("Tipo de usuário inválido: " + userType);

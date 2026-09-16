@@ -2,6 +2,7 @@ package br.edu.ifpb.veritas.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,5 +26,6 @@ public class RegistrationDTO {
     private String confirmPassword;
 
     @NotBlank(message = "Tipo de usuário é obrigatório")
+    @Pattern(regexp = "(student|professor)", message = "Tipo de usuário inválido")
     private String userType;
 }
