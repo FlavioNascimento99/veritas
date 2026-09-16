@@ -24,7 +24,9 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -76,7 +78,18 @@ public class ProfessorAPIController {
 
     // REQFUNC 3: professor consulta todos os processos designados a ele
     @GetMapping("/{id}/processes")
-    public ResponseEntity<List<Process>> getAssignedProcesses(@PathVariable("id") Long professorId) {
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ADMIN', 'COORDINATOR')")
+    public ResponseEntity<List<Process>> getAssignedProcesses(@PathVariable("id") Long professorId,
+                                                              Authentication authentication) {
+        boolean isProfessor = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"));
+        if (isProfessor && !professorId.equals(
+                professorService.findByLogin(authentication.getName())
+                        .orElseThrow(() -> new AccessDeniedException("Acesso negado."))
+                        .getId())) {
+            throw new AccessDeniedException("Acesso negado.");
+        }
+
         List<Process> processes = processService.listByProfessor(professorId);
         return ResponseEntity.ok(processes);
     }

@@ -12,6 +12,7 @@ import br.edu.ifpb.veritas.services.StudentService;
 import br.edu.ifpb.veritas.services.VoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -121,11 +122,15 @@ public class ProcessController {
 
     // REQFUNC 16: Download do documento PDF anexado ao processo
     @GetMapping("/{id}/download")
-    public ResponseEntity<byte[]> downloadDocument(@PathVariable("id") Long processId) {
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable("id") Long processId, Authentication authentication) {
         Process process = processService.findById(processId);
 
         if (process.getDocument() == null) {
             return ResponseEntity.notFound().build();
+        }
+
+        if (!canDownloadDocument(process, authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         String filename = process.getDocumentFilename();
@@ -138,6 +143,33 @@ public class ProcessController {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + filename + "\"")
                 .body(process.getDocument());
+    }
+
+    private boolean canDownloadDocument(Process process, Authentication authentication) {
+        boolean privileged = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_COORDINATOR"));
+        if (privileged) {
+            return true;
+        }
+
+        var studentOpt = studentService.findByLogin(authentication.getName());
+        if (studentOpt.isPresent() && process.getProcessCreator() != null) {
+            return process.getProcessCreator().getId().equals(studentOpt.get().getId());
+        }
+
+        var professorOpt = professorService.findByLogin(authentication.getName());
+        if (professorOpt.isPresent()) {
+            Long professorId = professorOpt.get().getId();
+            boolean isRapporteur = process.getProcessRapporteur() != null
+                    && process.getProcessRapporteur().getId().equals(professorId);
+            boolean isMeetingParticipant = process.getMeeting() != null
+                    && process.getMeeting().getParticipants().stream()
+                            .anyMatch(p -> p.getId().equals(professorId));
+            return isRapporteur || isMeetingParticipant;
+        }
+
+        return false;
     }
 
     @GetMapping("/{id}")

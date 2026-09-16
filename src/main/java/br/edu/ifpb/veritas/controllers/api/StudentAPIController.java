@@ -8,7 +8,9 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -70,10 +72,21 @@ public class StudentAPIController {
 
     // Precisa ser testado
     @GetMapping("/{studentId}/processes")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'COORDINATOR')")
     public ResponseEntity<List<br.edu.ifpb.veritas.models.Process>> listStudentProcesses(
             @PathVariable Long studentId,
             @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value = "subjectId", required = false) Long subjectId) {
+            @RequestParam(value = "subjectId", required = false) Long subjectId,
+            Authentication authentication) {
+
+        boolean isStudent = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"));
+        if (isStudent && !studentId.equals(
+                studentService.findByLogin(authentication.getName())
+                        .orElseThrow(() -> new AccessDeniedException("Acesso negado."))
+                        .getId())) {
+            throw new AccessDeniedException("Acesso negado.");
+        }
 
         List<Process> processes = processService.listByStudentFiltered(studentId, status, subjectId);
         return ResponseEntity.ok(processes);

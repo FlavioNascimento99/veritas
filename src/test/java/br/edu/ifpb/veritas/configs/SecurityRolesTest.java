@@ -1,5 +1,7 @@
 package br.edu.ifpb.veritas.configs;
 
+import br.edu.ifpb.veritas.models.Professor;
+import br.edu.ifpb.veritas.repositories.ProfessorRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +21,9 @@ class SecurityRolesTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ProfessorRepository professorRepository;
 
     @Test
     void anonimoRedirecionadoParaLoginEmApi() throws Exception {
@@ -50,9 +55,20 @@ class SecurityRolesTest {
     }
 
     @Test
-    @WithMockUser(roles = "PROFESSOR")
     void professorConsultaProcessosDesignados() throws Exception {
-        mockMvc.perform(get("/api/processes/designated-to-me").param("professorId", "1"))
+        String login = "relator-" + System.nanoTime() + "@test.com";
+        Professor professor = new Professor();
+        professor.setName("Relator Teste");
+        professor.setLogin(login);
+        professor.setPassword("123456");
+        professor.setCoordinator(false);
+        professor.setIsActive(true);
+        professorRepository.save(professor);
+
+        mockMvc.perform(get("/api/processes/designated-to-me")
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                                .user(org.springframework.security.core.userdetails.User
+                                        .withUsername(login).password("x").roles("PROFESSOR").build())))
                 .andExpect(status().isOk());
     }
 
