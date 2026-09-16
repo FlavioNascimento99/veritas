@@ -248,4 +248,93 @@ class VoteServiceTest {
 
         assertThrows(IllegalStateException.class, () -> voteService.announceProcess(processId));
     }
+
+    @Test
+    void ultimaPosicaoSendoAusenciaFinalizaProcessoAutomaticamente() {
+        Professor rapporteur = createProfessor("relator-" + System.nanoTime());
+        Professor member1 = createProfessor("membro1-" + System.nanoTime());
+        Professor member2 = createProfessor("membro2-" + System.nanoTime());
+        Professor member3 = createProfessor("membro3-" + System.nanoTime());
+
+        Process process = createProcessWithMeeting(rapporteur, List.of(member1, member2, member3));
+
+        voteService.registerRapporteurDecision(process.getId(), rapporteur.getId(),
+                DecisionType.DEFERIMENTO, "Justificativa do relator");
+        voteService.registerProfessorVote(process.getId(), member1.getId(), VoteType.DEFERIDO, "");
+        voteService.registerProfessorVote(process.getId(), member2.getId(), VoteType.DEFERIDO, "");
+        voteService.registerAbsence(process.getId(), member3.getId());
+
+        Process finalized = processRepository.findById(process.getId()).orElseThrow();
+        assertEquals(StatusProcess.APPROVED, finalized.getStatus());
+        assertEquals(DecisionType.DEFERIMENTO, voteService.calculateResult(process.getId()));
+    }
+
+    @Test
+    void ausenciaRegistradaMantemProcessoAguardandoOsDemais() {
+        Professor rapporteur = createProfessor("relator-" + System.nanoTime());
+        Professor member1 = createProfessor("membro1-" + System.nanoTime());
+        Professor member2 = createProfessor("membro2-" + System.nanoTime());
+
+        Process process = createProcessWithMeeting(rapporteur, List.of(member1, member2));
+
+        voteService.registerRapporteurDecision(process.getId(), rapporteur.getId(),
+                DecisionType.DEFERIMENTO, "Justificativa do relator");
+        voteService.registerAbsence(process.getId(), member1.getId());
+
+        Process pending = processRepository.findById(process.getId()).orElseThrow();
+        assertEquals(StatusProcess.UNDER_ANALISYS, pending.getStatus());
+
+        voteService.registerProfessorVote(process.getId(), member2.getId(), VoteType.DEFERIDO, "");
+
+        Process finalized = processRepository.findById(process.getId()).orElseThrow();
+        assertEquals(StatusProcess.APPROVED, finalized.getStatus());
+    }
+
+    @Test
+    void naoPodeRegistrarAusenciaDeProfessorQueJaVotou() {
+        Professor rapporteur = createProfessor("relator-" + System.nanoTime());
+        Professor member = createProfessor("membro-" + System.nanoTime());
+
+        Process process = createProcessWithMeeting(rapporteur, List.of(member));
+
+        voteService.registerRapporteurDecision(process.getId(), rapporteur.getId(),
+                DecisionType.DEFERIMENTO, "Justificativa do relator");
+        voteService.registerProfessorVote(process.getId(), member.getId(), VoteType.DEFERIDO, "");
+
+        assertThrows(IllegalStateException.class, () ->
+                voteService.registerAbsence(process.getId(), member.getId()));
+    }
+
+    @Test
+    void relatorNaoPodeRegistrarAusenciaComoMembro() {
+        Professor rapporteur = createProfessor("relator-" + System.nanoTime());
+        Professor member = createProfessor("membro-" + System.nanoTime());
+
+        Process process = createProcessWithMeeting(rapporteur, List.of(rapporteur, member));
+
+        voteService.registerRapporteurDecision(process.getId(), rapporteur.getId(),
+                DecisionType.DEFERIMENTO, "Justificativa do relator");
+
+        assertThrows(IllegalStateException.class, () ->
+                voteService.registerAbsence(process.getId(), rapporteur.getId()));
+    }
+
+    @Test
+    void naoPodeRegistrarAusenciaEmReuniaoNaoAtiva() {
+        Professor rapporteur = createProfessor("relator-" + System.nanoTime());
+        Professor member = createProfessor("membro-" + System.nanoTime());
+
+        Process process = createProcessWithMeeting(rapporteur, List.of(member));
+
+        voteService.registerRapporteurDecision(process.getId(), rapporteur.getId(),
+                DecisionType.DEFERIMENTO, "Justificativa do relator");
+
+        Meeting meeting = process.getMeeting();
+        meeting.setActive(false);
+        meeting.setStatus(MeetingStatus.FINALIZADA);
+        meetingRepository.save(meeting);
+
+        assertThrows(IllegalStateException.class, () ->
+                voteService.registerAbsence(process.getId(), member.getId()));
+    }
 }

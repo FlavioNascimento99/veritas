@@ -90,26 +90,25 @@ public class VoteService {
 
         Process savedProcess = processRepository.save(process);
         
-        // NOVO: Verifica se todos os membros já votaram (incluindo relator) e finaliza automaticamente
+        // Verifica se todos os membros já se posicionaram (voto ou ausência) e finaliza automaticamente
         if (process.getMeeting() != null) {
             log.info("Relator votou no processo {}. Verificando se todos votaram...", processId);
-            if (allMembersHaveVoted(processId, process.getMeeting().getId())) {
-                log.info("TODOS votaram (incluindo relator)! Finalizando processo {} automaticamente...", processId);
-                finalizeProcessAutomatically(processId);
-            } else {
-                log.info("Ainda faltam membros votarem no processo {}", processId);
-            }
+            checkAndFinalizeIfComplete(processId, process.getMeeting().getId());
         }
         
         return savedProcess;
     }
 
     /**
-     * Verifica se todos os membros do colegiado (excluindo o relator) votaram em um processo.
-     * O relator já votou via registerRapporteurDecision, então não é contado aqui.
-     * 
+     * Verifica se todos os membros do colegiado (excluindo o relator) já se posicionaram
+     * em um processo. O relator vota via registerRapporteurDecision, então não é contado aqui.
+     *
+     * Posicionamento significa ter um registro de voto OU de ausência no processo —
+     * o ausente conta para o quórum, mas não influencia a direção do resultado
+     * (ver calculateResult, que ignora votos com away = true).
+     *
      * Casos:
-     * 1. Se há membros além do relator: todos devem ter votado
+     * 1. Se há membros além do relator: todos devem ter se posicionado
      * 2. Se só há o relator: considera completo assim que ele votar
      */
     private boolean allMembersHaveVoted(Long processId, Long meetingId) {
@@ -131,14 +130,23 @@ public class VoteService {
             return rapporteurVoted;
         }
         
-        // Total de votos registrados de membros (presente)
-        Long totalMemberVotes = voteRepository.countVotesByProcessId(processId);
+        // Total de membros que já se posicionaram (voto ou ausência)
+        Long totalMemberVotes = voteRepository.countAllVotesByProcessId(processId);
         
-        log.info("Processo {}: {} votos de membros registrados / {} membros (excluindo relator)", 
+        log.info("Processo {}: {} posicionamentos de membros / {} membros (excluindo relator)", 
                 processId, totalMemberVotes, totalParticipantsExcludingRapporteur);
         
-        // Todos votaram quando votos >= membros (excluindo relator)
+        // Todos se posicionaram quando posicionamentos >= membros (excluindo relator)
         return totalMemberVotes >= totalParticipantsExcludingRapporteur;
+    }
+
+    private void checkAndFinalizeIfComplete(Long processId, Long meetingId) {
+        if (allMembersHaveVoted(processId, meetingId)) {
+            log.info("TODOS se posicionaram no processo {}. Finalizando automaticamente...", processId);
+            finalizeProcessAutomatically(processId);
+        } else {
+            log.info("Ainda faltam membros se posicionarem no processo {}", processId);
+        }
     }
     
     /**
@@ -146,7 +154,7 @@ public class VoteService {
      * Calcula o resultado e atualiza o status para APPROVED ou REJECTED.
      * 
      * NOTA: Este é um método PRIVATE, então não tem sua própria transação.
-     * Executa dentro da transação do método público que o chamou (registerRapporteurDecision, registerMemberVote, etc).
+     * Executa dentro da transação do método público que o chamou (registerRapporteurDecision, registerProfessorVote, registerAbsence).
      */
     private void finalizeProcessAutomatically(Long processId) {
         Process process = processRepository.findById(processId)
@@ -311,31 +319,71 @@ public class VoteService {
     }
 
     /**
-     * Registra ausência de um professor em uma votação
+     * Registra ausência de um professor membro em uma votação.
+     *
+     * A ausência conta como posicionamento para o quórum ("todos se posicionaram"),
+     * mas não influencia a direção do resultado (votos com away = true são
+     * ignorados no calculateResult).
+     *
+     * Validações (mesmas do voto de membro):
+     * - Processo deve estar UNDER_ANALISYS
+     * - Professor não pode ser o relator
+     * - Professor não pode já ter se posicionado (voto ou ausência)
+     * - Reunião do processo deve estar ativa
      */
     @Transactional
     public Vote registerAbsence(Long processId, Long professorId) {
         Process process = processRepository.findById(processId)
-                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com ID: " + processId));
 
         Professor professor = professorRepository.findById(professorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + professorId));
 
-        // Valida se reunião não está finalizada
-        validateMeetingNotFinalized(processId);
-
-        // Valida se processo não está finalizado
-        if (process.getStatus() == StatusProcess.APPROVED || process.getStatus() == StatusProcess.REJECTED) {
-            throw new IllegalStateException("Não é possível registrar ausência em processo já finalizado.");
+        // Valida se processo está em análise
+        if (process.getStatus() != StatusProcess.UNDER_ANALISYS) {
+            throw new IllegalStateException("Processo não está disponível para votação. Status atual: " + process.getStatus().getStatus());
         }
 
+        // Valida que quem registra ausência NÃO é o relator
+        if (process.getProcessRapporteur() != null &&
+                process.getProcessRapporteur().getId().equals(professorId)) {
+            throw new IllegalStateException("O relator não pode registrar ausência como membro do colegiado.");
+        }
+
+        // Verifica se professor já se posicionou (voto ou ausência)
+        Optional<Vote> existingVote = voteRepository.findByProcessIdAndProfessorId(processId, professorId);
+        if (existingVote.isPresent()) {
+            throw new IllegalStateException("Professor já se posicionou neste processo. Você não pode alterar seu posicionamento.");
+        }
+
+        // Valida se processo está em reunião ativa
+        Meeting meeting = process.getMeeting();
+        if (meeting == null || !meeting.isActive()) {
+            throw new IllegalStateException("Processo não está em uma reunião ativa.");
+        }
+
+        // Valida se professor é participante da reunião
+        boolean isParticipant = meeting.getParticipants().stream()
+                .anyMatch(p -> p.getId().equals(professorId));
+        if (!isParticipant) {
+            throw new IllegalStateException("Professor não é participante da reunião.");
+        }
+
+        // Cria e salva a ausência
         Vote vote = new Vote();
         vote.setProcess(process);
         vote.setProfessor(professor);
         vote.setAway(true);
         vote.setVotedAt(LocalDateTime.now());
 
-        return voteRepository.save(vote);
+        Vote savedVote = voteRepository.save(vote);
+
+        // Verifica se todos os participantes se posicionaram (voto ou ausência).
+        // Se sim, calcula o resultado final automaticamente
+        log.info("Ausência registrada. Verificando se todos se posicionaram no processo {}", processId);
+        checkAndFinalizeIfComplete(processId, meeting.getId());
+
+        return savedVote;
     }
 
     // Métodos adicionais de consulta
@@ -412,15 +460,10 @@ public class VoteService {
 
         Vote savedVote = voteRepository.save(vote);
 
-        // LÓGICA: Verifica se todos os participantes votaram
+        // LÓGICA: Verifica se todos os participantes se posicionaram (voto ou ausência).
         // Se sim, calcula o resultado final automaticamente
-        log.info("Voto de professor registrado. Verificando se todos votaram para o processo {}", processId);
-        if (allMembersHaveVoted(processId, meeting.getId())) {
-            log.info("TODOS os membros votaram! Finalizando processo {} automaticamente...", processId);
-            finalizeProcessAutomatically(processId);
-        } else {
-            log.info("Ainda faltam membros votarem no processo {}", processId);
-        }
+        log.info("Voto de professor registrado. Verificando se todos se posicionaram no processo {}", processId);
+        checkAndFinalizeIfComplete(processId, meeting.getId());
 
         return savedVote;
     }

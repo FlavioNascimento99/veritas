@@ -28,6 +28,10 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     @Query("SELECT COUNT(v) FROM Vote v WHERE v.process.id = :processId AND v.away = false")
     Long countVotesByProcessId(@Param("processId") Long processId);
 
+    // Conta quantos professores já se posicionaram em um processo (voto ou ausência)
+    @Query("SELECT COUNT(v) FROM Vote v WHERE v.process.id = :processId")
+    Long countAllVotesByProcessId(@Param("processId") Long processId);
+
     // Busca votos de um processo (excluindo ausentes)
     @Query("SELECT v FROM Vote v WHERE v.process.id = :processId AND v.away = false")
     List<Vote> findActiveVotesByProcessId(@Param("processId") Long processId);

@@ -4,6 +4,7 @@ import br.edu.ifpb.veritas.enums.VoteType;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,10 +25,15 @@ public class Vote {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @NotNull(message = "Tipo de voto é obrigatório")
   @Enumerated(EnumType.STRING)
   @Column(name = "vote_type")
   private VoteType voteType;
+
+  // Ausentes (away = true) não têm voteType — posicionamento sem direção
+  @AssertTrue(message = "Tipo de voto é obrigatório para votos de membros presentes")
+  public boolean isVoteTypePresentWhenPresent() {
+    return Boolean.TRUE.equals(away) || voteType != null;
+  }
   
   /**
    * Log 1: Define se o mesmo (Professor membro do Colegiado) 
