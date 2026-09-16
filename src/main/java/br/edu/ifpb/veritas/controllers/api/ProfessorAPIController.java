@@ -16,6 +16,8 @@
 
 package br.edu.ifpb.veritas.controllers.api;
 
+import br.edu.ifpb.veritas.dtos.CreateProfessorDTO;
+import br.edu.ifpb.veritas.dtos.UpdateProfessorDTO;
 import br.edu.ifpb.veritas.models.Process;
 import br.edu.ifpb.veritas.models.Professor;
 import br.edu.ifpb.veritas.services.ProcessService;
@@ -40,7 +42,12 @@ public class ProfessorAPIController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-    public ResponseEntity<Professor> create(@Valid @RequestBody Professor professor) {
+    public ResponseEntity<Professor> create(@Valid @RequestBody CreateProfessorDTO dto) {
+        Professor professor = new Professor();
+        professor.setName(dto.getName());
+        professor.setPhoneNumber(dto.getPhoneNumber());
+        professor.setLogin(dto.getLogin());
+        professor.setPassword(dto.getPassword());
         professorService.create(professor);
         return ResponseEntity.ok(professor);
     }
@@ -58,8 +65,8 @@ public class ProfessorAPIController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-    public ResponseEntity<Professor> update(@PathVariable Long id, @RequestBody Professor professor) {
-        return ResponseEntity.ok(professorService.update(id, professor));
+    public ResponseEntity<Professor> update(@PathVariable Long id, @Valid @RequestBody UpdateProfessorDTO dto) {
+        return ResponseEntity.ok(professorService.updateFromDTO(id, dto));
     }
 
     @PatchMapping("/{id}/coordinatorState")

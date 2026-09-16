@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import br.edu.ifpb.veritas.dtos.CreateSubjectDTO;
+import br.edu.ifpb.veritas.dtos.UpdateSubjectDTO;
 import br.edu.ifpb.veritas.models.Subject;
 import br.edu.ifpb.veritas.services.SubjectService;
 
@@ -30,8 +32,10 @@ public class SubjectAPIController {
     */
    @PostMapping
    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-   public ResponseEntity<Subject> createSubject(@Valid @RequestBody Subject subject) {
-      ResponseEntity.ok("All done folk");
+   public ResponseEntity<Subject> createSubject(@Valid @RequestBody CreateSubjectDTO dto) {
+      Subject subject = new Subject();
+      subject.setTitle(dto.getTitle());
+      subject.setDescription(dto.getDescription());
       return ResponseEntity.ok(subjectService.create(subject));
    }
 
@@ -48,7 +52,10 @@ public class SubjectAPIController {
     */
    @PutMapping("/{id}")
    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-   public ResponseEntity<Subject> updateSubject(@PathVariable Long id, @RequestBody Subject subject) {
+   public ResponseEntity<Subject> updateSubject(@PathVariable Long id, @Valid @RequestBody UpdateSubjectDTO dto) {
+      Subject subject = new Subject();
+      subject.setTitle(dto.getTitle());
+      subject.setDescription(dto.getDescription());
       return ResponseEntity.ok(subjectService.update(id, subject));
    }
 

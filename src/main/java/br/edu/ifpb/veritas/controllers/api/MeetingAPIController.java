@@ -1,6 +1,7 @@
-// Java
 package br.edu.ifpb.veritas.controllers.api;
 
+import br.edu.ifpb.veritas.dtos.CreateMeetingDTO;
+import br.edu.ifpb.veritas.dtos.UpdateMeetingDTO;
 import br.edu.ifpb.veritas.enums.MeetingStatus;
 import br.edu.ifpb.veritas.models.Meeting;
 import br.edu.ifpb.veritas.services.MeetingService;
@@ -20,8 +21,13 @@ public class MeetingAPIController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-    public ResponseEntity<Meeting> create(@Valid @RequestBody Meeting meeting) {
-        return ResponseEntity.ok(meetingService.create(meeting));
+    public ResponseEntity<Meeting> create(@Valid @RequestBody CreateMeetingDTO dto) {
+        Meeting meeting = meetingService.createMeetingWithCollegiate(
+                dto.getCollegiateId(),
+                dto.getScheduledDate(),
+                dto.getProcessIds(),
+                dto.getDescription());
+        return ResponseEntity.ok(meeting);
     }
 
     @GetMapping
@@ -36,8 +42,8 @@ public class MeetingAPIController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-    public ResponseEntity<Meeting> update(@PathVariable Long id, @RequestBody Meeting meeting) {
-        return ResponseEntity.ok(meetingService.update(id, meeting));
+    public ResponseEntity<Meeting> update(@PathVariable Long id, @Valid @RequestBody UpdateMeetingDTO dto) {
+        return ResponseEntity.ok(meetingService.updateFromDTO(id, dto));
     }
 
     @PatchMapping("/{id}/status")

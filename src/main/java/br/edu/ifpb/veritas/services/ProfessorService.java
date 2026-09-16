@@ -1,5 +1,6 @@
 package br.edu.ifpb.veritas.services;
 
+import br.edu.ifpb.veritas.dtos.UpdateProfessorDTO;
 import br.edu.ifpb.veritas.exceptions.ResourceNotFoundException;
 import br.edu.ifpb.veritas.models.Professor;
 import br.edu.ifpb.veritas.repositories.ProfessorRepository;
@@ -51,10 +52,24 @@ public class ProfessorService {
         currentProfessor.setName(payload.getName());
         currentProfessor.setPhoneNumber(payload.getPhoneNumber());
         currentProfessor.setLogin(payload.getLogin());
-        currentProfessor.setCoordinator(payload.getCoordinator());
+        if (payload.getCoordinator() != null) {
+            currentProfessor.setCoordinator(payload.getCoordinator());
+        }
 
         if (payload.getPassword() != null && !payload.getPassword().isEmpty()) {
             currentProfessor.setPassword(passwordEncoder.encode(payload.getPassword()));
+        }
+        return professorRepository.save(currentProfessor);
+    }
+
+    @Transactional
+    public Professor updateFromDTO(Long id, UpdateProfessorDTO dto) {
+        Professor currentProfessor = findById(id);
+        currentProfessor.setName(dto.getName());
+        currentProfessor.setPhoneNumber(dto.getPhoneNumber());
+        currentProfessor.setLogin(dto.getLogin());
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            currentProfessor.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
         return professorRepository.save(currentProfessor);
     }

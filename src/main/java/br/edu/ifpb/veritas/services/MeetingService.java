@@ -1,5 +1,6 @@
 package br.edu.ifpb.veritas.services;
 
+import br.edu.ifpb.veritas.dtos.UpdateMeetingDTO;
 import br.edu.ifpb.veritas.enums.MeetingStatus;
 import br.edu.ifpb.veritas.enums.StatusProcess;
 import br.edu.ifpb.veritas.exceptions.ResourceNotFoundException;
@@ -64,6 +65,24 @@ public class MeetingService {
         currentMeeting.setProcesses(payload.getProcesses());
         currentMeeting.setScheduledDate(payload.getScheduledDate());
         currentMeeting.setStatus(payload.getStatus());
+
+        return meetingRepository.save(currentMeeting);
+    }
+
+    @Transactional
+    public Meeting updateFromDTO(Long id, UpdateMeetingDTO dto) {
+        Meeting currentMeeting = findById(id);
+
+        if (currentMeeting.getStatus() == MeetingStatus.FINALIZADA) {
+            throw new IllegalStateException("Não é possível alterar uma reunião finalizada.");
+        }
+
+        if (dto.getDescription() != null) {
+            currentMeeting.setDescription(dto.getDescription());
+        }
+        if (dto.getScheduledDate() != null) {
+            currentMeeting.setScheduledDate(dto.getScheduledDate());
+        }
 
         return meetingRepository.save(currentMeeting);
     }

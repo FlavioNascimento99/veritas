@@ -84,8 +84,7 @@ class SecurityRolesTest {
     void professorNaoCriaReuniao() throws Exception {
         mockMvc.perform(post("/api/meetings")
                         .contentType("application/json")
-                        .content("{\"id\": 1, \"description\": \"Reunião teste\", "
-                                + "\"collegiate\": {\"id\": 2}, \"status\": \"DISPONIVEL\"}"))
+                        .content("{\"collegiateId\": 999999, \"description\": \"Reunião teste\"}"))
                 .andExpect(status().isForbidden());
     }
 

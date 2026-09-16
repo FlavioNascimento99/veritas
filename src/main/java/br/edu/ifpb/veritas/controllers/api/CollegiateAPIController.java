@@ -1,6 +1,7 @@
 package br.edu.ifpb.veritas.controllers.api;
 
 import br.edu.ifpb.veritas.dtos.CollegiateDTO;
+import br.edu.ifpb.veritas.dtos.CollegiateEditDTO;
 import br.edu.ifpb.veritas.models.Collegiate;
 import br.edu.ifpb.veritas.models.Professor;
 import br.edu.ifpb.veritas.services.CollegiateService;
@@ -55,8 +56,8 @@ public class CollegiateAPIController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-    public ResponseEntity<Collegiate> update(@PathVariable Long id, @RequestBody Collegiate collegiate) {
-        return ResponseEntity.ok(collegiateService.update(id, collegiate));
+    public ResponseEntity<Collegiate> update(@PathVariable Long id, @Valid @RequestBody CollegiateEditDTO dto) {
+        return ResponseEntity.ok(collegiateService.updateFromDTO(id, dto));
     }
 
     // Retorna o colegiado associado a um representante estudantil específico

@@ -1,5 +1,6 @@
 package br.edu.ifpb.veritas.controllers.api;
 
+import br.edu.ifpb.veritas.dtos.CreateProcessDTO;
 import br.edu.ifpb.veritas.exceptions.ResourceNotFoundException;
 import br.edu.ifpb.veritas.models.Process;
 import br.edu.ifpb.veritas.models.Professor;
@@ -35,11 +36,14 @@ public class ProcessAPIController {
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<Process> create(
-            @Valid @RequestBody Process process,
+            @Valid @RequestBody CreateProcessDTO dto,
             @RequestParam("subjectId") Long subjectId,
             Authentication authentication,
             UriComponentsBuilder uriBuilder
     ) {
+        Process process = new Process();
+        process.setTitle(dto.getTitle());
+        process.setDescription(dto.getDescription());
         Process saved = processService.createProcess(process, currentStudent(authentication).getId(), subjectId);
         var uri = uriBuilder.path("/api/processes/{id}").buildAndExpand(saved.getId()).toUri();
         return ResponseEntity.created(uri).body(saved);

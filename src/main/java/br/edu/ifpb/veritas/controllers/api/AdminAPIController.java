@@ -1,5 +1,7 @@
 package br.edu.ifpb.veritas.controllers.api;
 
+import br.edu.ifpb.veritas.dtos.CreateAdminDTO;
+import br.edu.ifpb.veritas.dtos.UpdateAdminDTO;
 import br.edu.ifpb.veritas.models.Administrator;
 import br.edu.ifpb.veritas.services.AdminService;
 import jakarta.validation.Valid;
@@ -20,7 +22,12 @@ public class AdminAPIController {
     private final AdminService adminService;
 
     @PostMapping
-    public ResponseEntity<Administrator> create(@Valid @RequestBody Administrator admin) {
+    public ResponseEntity<Administrator> create(@Valid @RequestBody CreateAdminDTO dto) {
+        Administrator admin = new Administrator();
+        admin.setName(dto.getName());
+        admin.setPhoneNumber(dto.getPhoneNumber());
+        admin.setLogin(dto.getLogin());
+        admin.setPassword(dto.getPassword());
         adminService.create(admin);
         return ResponseEntity.ok(admin);
     }
@@ -36,7 +43,12 @@ public class AdminAPIController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Administrator> update(@PathVariable Long id, @Valid @RequestBody Administrator admin) {
+    public ResponseEntity<Administrator> update(@PathVariable Long id, @Valid @RequestBody UpdateAdminDTO dto) {
+        Administrator admin = new Administrator();
+        admin.setName(dto.getName());
+        admin.setPhoneNumber(dto.getPhoneNumber());
+        admin.setLogin(dto.getLogin());
+        admin.setPassword(dto.getPassword());
         return ResponseEntity.ok(adminService.update(id, admin));
     }
 

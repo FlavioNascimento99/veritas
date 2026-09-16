@@ -1,5 +1,7 @@
 package br.edu.ifpb.veritas.controllers.api;
 
+import br.edu.ifpb.veritas.dtos.CreateStudentDTO;
+import br.edu.ifpb.veritas.dtos.UpdateStudentDTO;
 import br.edu.ifpb.veritas.models.Process;
 import br.edu.ifpb.veritas.models.Student;
 import br.edu.ifpb.veritas.services.ProcessService;
@@ -24,7 +26,12 @@ public class StudentAPIController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-    public ResponseEntity<Student> create(@Valid @RequestBody Student student) {
+    public ResponseEntity<Student> create(@Valid @RequestBody CreateStudentDTO dto) {
+        Student student = new Student();
+        student.setName(dto.getName());
+        student.setPhoneNumber(dto.getPhoneNumber());
+        student.setLogin(dto.getLogin());
+        student.setPassword(dto.getPassword());
         studentService.create(student);
         return ResponseEntity.ok(student);
     }
@@ -43,7 +50,12 @@ public class StudentAPIController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
-    public ResponseEntity<Student> update(@PathVariable Long id, @RequestBody Student student) {
+    public ResponseEntity<Student> update(@PathVariable Long id, @Valid @RequestBody UpdateStudentDTO dto) {
+        Student student = new Student();
+        student.setName(dto.getName());
+        student.setPhoneNumber(dto.getPhoneNumber());
+        student.setLogin(dto.getLogin());
+        student.setPassword(dto.getPassword());
         return ResponseEntity.ok(studentService.update(id, student));
     }
 
