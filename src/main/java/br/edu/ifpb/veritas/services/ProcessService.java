@@ -39,8 +39,7 @@ public class ProcessService {
     // Tamanho máximo do arquivo: 5MB
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-    // Tipo MIME permitido
-    private static final String ALLOWED_CONTENT_TYPE = "application/pdf";
+    private static final byte[] PDF_MAGIC = {'%', 'P', 'D', 'F', '-'};
 
     // Cria um processo COM upload opcional de documento PDF
     @Transactional
@@ -144,14 +143,6 @@ public class ProcessService {
 
     // Processa e valida o upload do documento PDF
     private void processDocumentUpload(Process process, MultipartFile document) {
-        // Valida o tipo do arquivo
-        String contentType = document.getContentType();
-        if (contentType == null || !contentType.equals(ALLOWED_CONTENT_TYPE)) {
-            throw new IllegalArgumentException(
-                    "Tipo de arquivo inválido. Apenas arquivos PDF são permitidos."
-            );
-        }
-
         // Valida o tamanho do arquivo
         if (document.getSize() > MAX_FILE_SIZE) {
             throw new IllegalArgumentException(
@@ -159,20 +150,51 @@ public class ProcessService {
             );
         }
 
-        // Valida o nome do arquivo
-        String filename = document.getOriginalFilename();
-        if (filename == null || filename.isBlank()) {
-            filename = "documento.pdf";
+        byte[] bytes;
+        try {
+            bytes = document.getBytes();
+        } catch (IOException e) {
+            throw new IllegalStateException("Erro ao ler o arquivo enviado.");
+        }
+
+        // Valida o conteúdo por magic bytes (o contentType é controlado pelo cliente)
+        if (!isPdfByMagicBytes(bytes)) {
+            throw new IllegalArgumentException(
+                    "Tipo de arquivo inválido. Apenas arquivos PDF são permitidos."
+            );
         }
 
         // Salva os dados do documento
-        try {
-            process.setDocument(document.getBytes());
-            process.setDocumentFilename(filename);
-            process.setDocumentUploadDate(LocalDateTime.now());
-        } catch (IOException e) {
-            throw new IllegalStateException("Erro ao processar o arquivo: " + e.getMessage());
+        process.setDocument(bytes);
+        process.setDocumentFilename(sanitizeFilename(document.getOriginalFilename()));
+        process.setDocumentUploadDate(LocalDateTime.now());
+    }
+
+    // Verifica a assinatura %PDF- nos primeiros bytes do arquivo
+    private boolean isPdfByMagicBytes(byte[] bytes) {
+        if (bytes == null || bytes.length < PDF_MAGIC.length) {
+            return false;
         }
+        for (int i = 0; i < PDF_MAGIC.length; i++) {
+            if (bytes[i] != PDF_MAGIC[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Remove caminhos e caracteres de controle do nome do arquivo
+    public static String sanitizeFilename(String originalFilename) {
+        if (originalFilename == null || originalFilename.isBlank()) {
+            return "documento.pdf";
+        }
+        String name = originalFilename.replace('\\', '/');
+        name = name.substring(name.lastIndexOf('/') + 1);
+        name = name.replaceAll("[\\r\\n\\u0000-\\u001F\\u007F]", "");
+        if (name.isBlank()) {
+            return "documento.pdf";
+        }
+        return name.endsWith(".pdf") ? name : name + ".pdf";
     }
 
     public List<Process> listByStudent(Long studentId) {

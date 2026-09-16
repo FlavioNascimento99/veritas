@@ -136,6 +136,8 @@ public class ProcessController {
         String filename = process.getDocumentFilename();
         if (filename == null || filename.isBlank()) {
             filename = "documento_processo_" + process.getNumber() + ".pdf";
+        } else {
+            filename = ProcessService.sanitizeFilename(filename);
         }
 
         return ResponseEntity.ok()
