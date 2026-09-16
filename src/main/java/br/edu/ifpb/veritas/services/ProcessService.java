@@ -356,6 +356,7 @@ public class ProcessService {
      * Critério: Processo deve estar UNDER_ANALISYS, estar na mesma reunião do professor,
      * estar associado a um colegiado onde o professor é membro, e o professor NÃO deve ter votado ainda
      */
+    @Transactional
     public List<Process> findPendingVotesByProfessor(Long professorId) {
         professorRepository.findById(professorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + professorId));

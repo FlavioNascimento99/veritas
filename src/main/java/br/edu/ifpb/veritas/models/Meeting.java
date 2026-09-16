@@ -75,7 +75,7 @@ public class Meeting {
   // para a próxima etapa do projeto
 
   // REQFUNC 09: Lista de professores escalados para a reunião
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   @JoinTable(
           name = "meeting_participants",
           joinColumns = @JoinColumn(name = "meeting_id"),
