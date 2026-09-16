@@ -49,7 +49,15 @@ public class UserController {
             return "home";
         }
 
-        registrationService.registerUser(dto.getFullName(), dto.getEmail(), dto.getPassword(), dto.getConfirmPassword(), dto.getUserType());
+        try {
+            registrationService.registerUser(dto.getFullName(), dto.getEmail(), dto.getPassword(), dto.getConfirmPassword(), dto.getUserType());
+        } catch (IllegalArgumentException ex) {
+            result.rejectValue("userType", "error", ex.getMessage());
+            model.addAttribute("pageTitle", "Registro de Usuário");
+            model.addAttribute("activePage", "register");
+            model.addAttribute("mainContent", "pages/register :: content");
+            return "home";
+        }
         redirectAttributes.addFlashAttribute("successMessage", "Conta criada com sucesso! Faça o login.");
         return "redirect:/login";
     }

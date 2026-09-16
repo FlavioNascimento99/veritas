@@ -77,7 +77,6 @@
             <option value="">Selecione um tipo</option>
             <option value="student">Estudante</option>
             <option value="professor">Professor</option>
-            <option value="admin">Administrador</option>
           </select>
           <p th:if="${#fields.hasErrors('userType')}" th:errors="*{userType}" class="text-red-600 text-sm mt-1"></p>
         </div>
