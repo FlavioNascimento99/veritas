@@ -37,7 +37,7 @@ public class Process {
     @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name = "NUMBER")
+    @Column(name = "NUMBER", unique = true)
     private String number;
 
     @NotNull(message = "Data de criação é obrigatória")

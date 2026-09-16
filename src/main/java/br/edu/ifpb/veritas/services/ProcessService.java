@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,14 +62,15 @@ public class ProcessService {
         process.setSubject(subject);
         process.setCreatedAt(LocalDateTime.now());
         process.setStatus(StatusProcess.WAITING);
-        process.setNumber(generateProcessNumber());
 
         // REQFUNC 16: Processa o upload do documento, se fornecido
         if (document != null && !document.isEmpty()) {
             processDocumentUpload(process, document);
         }
 
-        return processRepository.save(process);
+        Process saved = processRepository.save(process);
+        saved.setNumber(String.format("%d-%06d", java.time.Year.now().getValue(), saved.getId()));
+        return saved;
     }
 
     // Mantém compatibilidade com chamadas existentes (sem documento)
@@ -317,11 +317,6 @@ public class ProcessService {
         process.setDistributedAt(LocalDateTime.now());
 
         return processRepository.save(process);
-    }
-
-    private String generateProcessNumber() {
-        int seq = (int) (System.currentTimeMillis() % 100000);
-        return String.format("%d-%05d", Year.now().getValue(), seq);
     }
 
     public List<Process> findFinalizedProcesses() {

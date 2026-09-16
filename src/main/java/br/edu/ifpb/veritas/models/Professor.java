@@ -34,7 +34,7 @@ public class Professor {
   @Column(name = "PHONE_NUMBER")
   private String phoneNumber;
  
-  @Column(name = "REGISTER")
+  @Column(name = "REGISTER", unique = true)
   private String register;
 
   @NotBlank(message = "Login é obrigatório")

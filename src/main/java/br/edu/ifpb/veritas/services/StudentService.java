@@ -23,18 +23,20 @@ public class StudentService {
         if (student.getLogin() != null && studentRepository.findByLogin(student.getLogin()).isPresent()) {
             throw new ResourceNotFoundException("Login já cadastrado.");
         }
-        if (student.getRegister() == null || student.getRegister().isBlank()) {
-            student.setRegister(generateRegister());
-        } else if (studentRepository.findByRegister(student.getRegister()).isPresent()) {
+        boolean autoRegister = student.getRegister() == null || student.getRegister().isBlank();
+        if (!autoRegister && studentRepository.findByRegister(student.getRegister()).isPresent()) {
             throw new ResourceNotFoundException("Matrícula já cadastrada.");
         }
         student.setPassword(passwordEncoder.encode(student.getPassword()));
-        return studentRepository.save(student);
+        Student saved = studentRepository.save(student);
+        if (autoRegister) {
+            saved.setRegister(numeroMatricula("STU", saved.getId()));
+        }
+        return saved;
     }
 
-    private String generateRegister() {
-        long count = studentRepository.count();
-        return "STU-" + java.time.Year.now() + "-" + String.format("%04d", count + 1);
+    private String numeroMatricula(String prefixo, Long id) {
+        return prefixo + "-" + java.time.Year.now() + "-" + String.format("%04d", id);
     }
 
     public List<Student> findAll() {

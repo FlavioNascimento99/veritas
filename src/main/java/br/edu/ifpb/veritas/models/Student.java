@@ -37,7 +37,7 @@ public class Student {
    * dentro da estidade estudante, visto que não vai ser necessário nenhum
    * tipo de busca ou filtro de forma obrigatória dentro da aplicação.
    */
-  @Column(name = "REGISTER")
+  @Column(name = "REGISTER", unique = true)
   private String register;
 
   /**

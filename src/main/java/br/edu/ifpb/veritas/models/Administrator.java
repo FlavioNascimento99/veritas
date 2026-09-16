@@ -27,7 +27,7 @@ public class Administrator {
     @Column(name = "TB_ADMIN_PHONE_NUMBER")
     private String phoneNumber;
 
-    @Column(name = "TB_ADMIN_REGISTER")
+    @Column(name = "TB_ADMIN_REGISTER", unique = true)
     private String register;
 
     @NotBlank(message = "Login é obrigatório")
