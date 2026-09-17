@@ -1,122 +1,84 @@
-<div th:fragment="mainContent" class="relative flex flex-col items-center">
-
-    <!-- Animated geometric background (behind content) -->
-    <div aria-hidden="true" class="absolute inset-0 -z-10 overflow-hidden">
-        <style>
-            .animated-shape { 
-                position: absolute;
-                border-radius: 24px;
-                filter: blur(36px);
-                opacity: .6;
-                transform: translateZ(0);
-            
-            }
-
-            @keyframes floatA { 
-                0% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-                
-                50% { 
-                    transform: translateY(-36px) rotate(18deg);
-                } 
-                
-                100% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-            }
-
-            @keyframes floatB { 
-                0% { 
-                    transform: translateY(0) translateX(0) rotate(0deg);
-                } 
-
-                50% { 
-                    transform: translateY(-18px) translateX(24px) rotate(45deg);
-                } 
-                
-                100% { 
-                    transform: translateY(0) translateX(0) rotate(0deg);
-                } 
-            }
-            
-            @keyframes floatC { 
-                0% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-                
-                50% { 
-                    transform: translateY(-24px) rotate(-12deg);
-                } 
-                
-                100% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-            }
-        </style>
-
-        <div class="animated-bg w-full h-full relative">
-            <div class="animated-shape bg-cyan-300"     style="width:360px; height:360px; left:-6%;  top:8%;     animation:floatA 1s ease-in-out infinite;"></div>
-            <div class="animated-shape bg-green-400"    style="width:220px; height:220px; right:-6%; top:18%;    border-radius:40%;animation:floatB 1s ease-in-out infinite;"></div>
-            <div class="animated-shape bg-purple-700"   style="width:280px; height:280px; left:20%;  bottom:-8%; animation:floatC 1s ease-in-out infinite;"></div>
-            <div class="animated-shape bg-blue-600"     style="width:140px; height:140px; right:18%; bottom:6%;  border-radius:12%; animation:floatA 1s ease-in-out infinite;opacity:0.45;"></div>
+<div th:fragment="mainContent" class="flex flex-col gap-8">
+    <!-- HERO -->
+    <section class="nb-card overflow-hidden" aria-labelledby="hero-title">
+        <div class="bg-[var(--nb-yellow)] border-b-[3px] border-[var(--nb-ink)] px-6 py-3 flex flex-wrap items-center justify-between gap-2">
+            <p class="font-mono-nb text-xs font-bold uppercase tracking-[0.2em] text-black">● Sistema do colegiado — IFPB</p>
+            <p class="font-mono-nb text-xs font-bold uppercase tracking-[0.2em] text-black hidden sm:block">criar → distribuir → votar</p>
         </div>
-    </div>
-
-    <!-- Hero Section -->
-    <section class="relative bg-center text-white border-1 border-gray-300 rounded-3xl shadow-xl w-fit m-10">
-        <div class="container mx-auto flex flex-col items-center px-4 py-10 text-center md:py-10 md:px-10 lg:px-12 xl:max-w-3xl">
-            <h1 class="text-4xl text-gray-300 font-bold leading-none sm:text-5xl">
-                <span class="text-black font-thin">Bem-vindo ao</span>
-                <span class="text-indigo-600 dark:text-indigo-400"> Veritas</span>
-            </h1>
-            <p class="px-8 mt-8 mb-12 text-lg font-extralight text-black text-justify">
-                Uma aplicação moderna e intuitiva, criada com objetivo de ser um projeto de disciplina da graduação, para gerenciar seus processos acadêmicos com eficiência e estilo.
-            </p>
-            <div class="flex flex-wrap justify-center">
-                <a th:href="@{/login}" class="px-8 py-3 m-2 text-lg font-semibold rounded bg-indigo-600 text-gray-50 hover:bg-indigo-700">Comece Agora</a> <!-- O estilo deste botão já contrasta bem -->
-                <a th:href="@{/about}" class="px-8 py-3 m-2 text-lg text-black border rounded border-gray-300 hover:bg-gray-100 hover:text-gray-800">Saiba Mais</a> <!-- Ajuste no hover para melhor visibilidade -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+            <div class="p-6 sm:p-10">
+                <p class="nb-tag bg-[var(--nb-card)] inline-flex mb-4">Novo semestre · fluxo de julgamento</p>
+                <h1 id="hero-title" class="text-4xl sm:text-6xl font-black leading-[0.95] tracking-tight uppercase">
+                    Bem-vindo<br>ao <span class="bg-[var(--nb-ink)] text-[var(--nb-yellow)] px-3 py-1 inline-block -rotate-1 border-[3px] border-[var(--nb-ink)]">Veritas</span>
+                </h1>
+                <p class="mt-5 text-base sm:text-lg font-medium max-w-prose">
+                    Crie, distribua e vote em processos do colegiado com um fluxo claro e auditável — sem papelada perdida e sem e-mail esquecido.
+                </p>
+                <div class="mt-7 flex flex-wrap gap-3">
+                    <a th:href="@{/login}" class="nb-btn bg-[var(--nb-ink)] !text-[var(--nb-paper)]">Comece agora <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    <a th:href="@{/about}" class="nb-btn bg-[var(--nb-card)]">Saiba mais</a>
+                </div>
+                <dl class="mt-8 grid grid-cols-3 gap-3 max-w-md">
+                    <div class="nb-card-flat p-3 text-center bg-[var(--nb-green)]">
+                        <dt class="font-mono-nb text-[10px] font-bold uppercase text-black">Passo 1</dt>
+                        <dd class="font-black text-black text-sm uppercase">Criar</dd>
+                    </div>
+                    <div class="nb-card-flat p-3 text-center bg-[var(--nb-cyan)]">
+                        <dt class="font-mono-nb text-[10px] font-bold uppercase text-black">Passo 2</dt>
+                        <dd class="font-black text-black text-sm uppercase">Distribuir</dd>
+                    </div>
+                    <div class="nb-card-flat p-3 text-center bg-[var(--nb-pink)]">
+                        <dt class="font-mono-nb text-[10px] font-bold uppercase text-black">Passo 3</dt>
+                        <dd class="font-black text-black text-sm uppercase">Votar</dd>
+                    </div>
+                </dl>
+            </div>
+            <div class="border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-[var(--nb-ink)] bg-[var(--nb-ink)] text-[var(--nb-paper)] p-6 sm:p-10 nb-dots-bg">
+                <p class="font-mono-nb text-xs uppercase tracking-[0.2em] opacity-70">$ veritas status</p>
+                <ul class="mt-4 space-y-3 font-bold">
+                    <li class="flex items-center gap-3 border-[2.5px] border-[var(--nb-paper)] rounded-xl px-4 py-3">
+                        <span class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-[var(--nb-green)] text-black border-2 border-[var(--nb-paper)]" aria-hidden="true"><i class="fas fa-file-circle-plus"></i></span>
+                        Processo protocolado com número automático
+                    </li>
+                    <li class="flex items-center gap-3 border-[2.5px] border-[var(--nb-paper)] rounded-xl px-4 py-3">
+                        <span class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-[var(--nb-cyan)] text-black border-2 border-[var(--nb-paper)]" aria-hidden="true"><i class="fas fa-shuffle"></i></span>
+                        Relatoria distribuída pelo colegiado
+                    </li>
+                    <li class="flex items-center gap-3 border-[2.5px] border-[var(--nb-paper)] rounded-xl px-4 py-3">
+                        <span class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-[var(--nb-yellow)] text-black border-2 border-[var(--nb-paper)]" aria-hidden="true"><i class="fas fa-check-to-slot"></i></span>
+                        Votação registrada e resultado finalizado
+                    </li>
+                </ul>
+                <p class="mt-5 text-sm opacity-80 font-medium">Feito para alunos, professores, coordenação e administração — cada papel vê só o que precisa.</p>
             </div>
         </div>
     </section>
 
-    <!-- Presentation Section -->
-    <section class="py-20">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-gray-800 dark:text-white">Funcionalidades Principais</h2>
-                <p class="text-gray-600 dark:text-gray-400 mt-4">Descubra o que o Veritas pode fazer por você.</p>
+    <!-- FEATURES -->
+    <section aria-labelledby="features-title">
+        <div class="flex items-end justify-between gap-4 mb-4">
+            <div>
+                <p class="font-mono-nb text-xs font-bold uppercase tracking-[0.2em]">■ O que o sistema faz</p>
+                <h2 id="features-title" class="text-3xl sm:text-4xl font-black uppercase tracking-tight">Funcionalidades principais</h2>
             </div>
-
-            <div class="flex flex-wrap -mx-4">
-                <!-- Feature 1 -->
-                <div class="w-full md:w-1/3 px-4 mb-8">
-                    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
-                        <i class="fas fa-cogs text-4xl text-indigo-600 dark:text-indigo-400 mb-4"></i>
-                        <h3 class="text-2xl font-bold mb-2 text-indigo-600">Gerenciamento de Processos</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Crie, distribua e avalie processos de forma centralizada e organizada.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="w-full md:w-1/3 px-4 mb-8">
-                    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
-                        <i class="fas fa-users text-4xl text-indigo-600 dark:text-indigo-400 mb-4"></i>
-                        <h3 class="text-2xl font-bold mb-2 text-indigo-600">Controle de Usuários</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Gerencie diferentes perfis de usuários com permissões específicas.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="w-full md:w-1/3 px-4 mb-8">
-                    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
-                        <i class="fas fa-book text-4xl text-indigo-600 dark:text-indigo-400 mb-4"></i>
-                        <h3 class="text-2xl font-bold mb-2 text-indigo-600">Gestão de Disciplinas</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Organize e gerencie as disciplinas oferecidas em sua instituição.</p>
-                    </div>
-                </div>
-            </div>
+            <a th:href="@{/register}" class="nb-btn nb-btn-sm bg-[var(--nb-pink)] text-black hidden sm:inline-flex">Criar conta</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <article class="nb-card p-6 bg-[var(--nb-yellow)]">
+                <span class="w-12 h-12 inline-flex items-center justify-center rounded-xl border-[3px] border-black bg-white text-black text-2xl" aria-hidden="true"><i class="fas fa-cogs"></i></span>
+                <h3 class="mt-4 text-xl font-black uppercase text-black">Processos</h3>
+                <p class="mt-2 font-medium text-black">Crie, acompanhe e finalize processos com número, status e histórico centralizados.</p>
+            </article>
+            <article class="nb-card p-6 bg-[var(--nb-cyan)]">
+                <span class="w-12 h-12 inline-flex items-center justify-center rounded-xl border-[3px] border-black bg-white text-black text-2xl" aria-hidden="true"><i class="fas fa-users"></i></span>
+                <h3 class="mt-4 text-xl font-black uppercase text-black">Pessoas & papéis</h3>
+                <p class="mt-2 font-medium text-black">Estudantes, professores, coordenação e admin — cada um com permissões específicas.</p>
+            </article>
+            <article class="nb-card p-6 bg-[var(--nb-green)]">
+                <span class="w-12 h-12 inline-flex items-center justify-center rounded-xl border-[3px] border-black bg-white text-black text-2xl" aria-hidden="true"><i class="fas fa-book"></i></span>
+                <h3 class="mt-4 text-xl font-black uppercase text-black">Colegiados</h3>
+                <p class="mt-2 font-medium text-black">Reuniões, relatorias e votações organizadas por colegiado e disciplina.</p>
+            </article>
         </div>
     </section>
-
 </div>

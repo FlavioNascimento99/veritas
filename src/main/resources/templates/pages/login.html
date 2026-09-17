@@ -1,110 +1,44 @@
-<div th:fragment="content" class="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
-    <!-- Animated geometric background (behind content) -->
-    <div aria-hidden="true" class="absolute inset-0 z-8 overflow-hidden w-full h-screen">
-        <style>
-            .animated-shape { 
-                position: absolute;
-                border-radius: 24px;
-                filter: blur(36px);
-                opacity: .6;
-                transform: translateZ(0);
-            
-            }
-
-            @keyframes floatA { 
-                0% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-                
-                50% { 
-                    transform: translateY(-36px) rotate(18deg);
-                } 
-                
-                100% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-            }
-
-            @keyframes floatB { 
-                0% { 
-                    transform: translateY(0) translateX(0) rotate(0deg);
-                } 
-
-                50% { 
-                    transform: translateY(-18px) translateX(24px) rotate(45deg);
-                } 
-                
-                100% { 
-                    transform: translateY(0) translateX(0) rotate(0deg);
-                } 
-            }
-            
-            @keyframes floatC { 
-                0% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-                
-                50% { 
-                    transform: translateY(-24px) rotate(-12deg);
-                } 
-                
-                100% { 
-                    transform: translateY(0) rotate(0deg);
-                } 
-            }
-        </style>
-
-        <div class="animated-bg w-full h-full relative">
-            <div class="animated-shape bg-cyan-300"     style="width:360px; height:360px; left:5%;   top:10%;    animation:floatA 8s ease-in-out infinite;"></div>
-            <div class="animated-shape bg-green-400"    style="width:220px; height:220px; right:10%; top:30%;    border-radius:40%;animation:floatB 6s ease-in-out infinite;"></div>
-            <div class="animated-shape bg-purple-700"   style="width:280px; height:280px; left:15%;  bottom:10%; animation:floatC 9s ease-in-out infinite;"></div>
-            <div class="animated-shape bg-blue-600"     style="width:140px; height:140px; right:15%; bottom:15%; border-radius:12%; animation:floatA 5s ease-in-out infinite;opacity:0.45;"></div>
+<div th:fragment="content" class="flex justify-center py-6">
+    <section class="nb-card w-full max-w-md overflow-hidden" aria-labelledby="login-title">
+        <div class="bg-[var(--nb-ink)] text-[var(--nb-paper)] px-6 py-4 flex items-center justify-between">
+            <p class="font-mono-nb text-xs font-bold uppercase tracking-[0.2em]">■ Acesso restrito</p>
+            <span class="nb-tag bg-[var(--nb-yellow)] !text-black font-mono-nb">login</span>
         </div>
-    </div>
+        <div class="p-6 sm:p-8">
+            <h1 id="login-title" class="text-3xl font-black uppercase tracking-tight">Bem-vindo de volta!</h1>
+            <p class="mt-1 font-medium opacity-80">Faça login para acessar o Veritas.</p>
 
-
-    <!-- Card de Login -->
-    <section class="relative z-10 w-full max-w-md p-8 space-y-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl">
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Bem-vindo de volta!</h1>
-            <p class="text-gray-600 dark:text-gray-400">Faça login para acessar o Veritas.</p>
-        </div>
-
-        <!-- Mensagem de Erro -->
-        <div th:if="${param.error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline">Usuário ou senha inválidos.</span>
-        </div>
-
-        <form th:action="@{/login}" method="post" class="space-y-6">
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    </div>
-                    <input id="username" name="username" type="text" autocomplete="email" required
-                        class="appearance-none block w-full px-10 py-3 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-                </div>
+            <div th:if="${param.error}" class="mt-5 border-[3px] border-black rounded-xl bg-[#FF6B6B] text-black px-4 py-3 font-bold shadow-[4px_4px_0_#111]" role="alert">
+                <strong class="font-black uppercase text-sm">Erro!</strong>
+                <span class="block text-sm">Usuário ou senha inválidos.</span>
+            </div>
+            <div th:if="${param.logout}" class="mt-5 border-[3px] border-black rounded-xl bg-[var(--nb-green)] text-black px-4 py-3 font-bold shadow-[4px_4px_0_#111]" role="status">
+                <span class="block text-sm font-bold">Você saiu com segurança. Até logo!</span>
             </div>
 
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <input id="password" name="password" type="password" autocomplete="current-password" required
-                        class="appearance-none block w-full px-10 py-3 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+            <form th:action="@{/login}" method="post" class="mt-6 space-y-5">
+                <div>
+                    <label for="username" class="nb-label">Email</label>
+                    <input id="username" name="username" type="email" autocomplete="email" required placeholder="voce@ifpb.edu.br" class="nb-input">
                 </div>
-            </div>
-            <div>
-                <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                    Entrar
+                <div>
+                    <label for="password" class="nb-label">Senha</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" class="nb-input">
+                </div>
+                <button type="submit" class="nb-btn w-full bg-[var(--nb-yellow)] text-black">
+                    Entrar <i class="fas fa-arrow-right" aria-hidden="true"></i>
                 </button>
+            </form>
+
+            <div class="mt-6 flex items-center gap-3" aria-hidden="true">
+                <span class="h-[3px] flex-1 bg-[var(--nb-ink)]"></span>
+                <span class="font-mono-nb text-xs font-bold uppercase">ou</span>
+                <span class="h-[3px] flex-1 bg-[var(--nb-ink)]"></span>
             </div>
-        </form>
+            <p class="mt-4 text-center font-medium text-sm">
+                Sem conta?
+                <a th:href="@{/register}" class="font-black underline decoration-[3px] underline-offset-4 hover:bg-[var(--nb-yellow)] hover:text-black px-1">Crie a sua</a>
+            </p>
+        </div>
     </section>
 </div>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Veritas — Gestão de processos acadêmicos do colegiado">
+    <meta name="color-scheme" content="light dark">
+    <title th:text="${pageTitle ?: 'Veritas — Gestão Acadêmica'}">Veritas — Gestão Acadêmica</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style>
+        :root {
+            --nb-paper: #FFFDF3;
+            --nb-ink: #111111;
+            --nb-yellow: #FFDE59;
+            --nb-pink: #FF90E8;
+            --nb-cyan: #7DF9FF;
+            --nb-green: #3DFF88;
+            --nb-red: #FF6B6B;
+            --nb-blue: #6C9BFF;
+            --nb-purple: #C4A8FF;
+            --nb-card: #FFFFFF;
+            --nb-muted: #555555;
+            color-scheme: light dark;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --nb-paper: #141414;
+                --nb-ink: #FAF7EC;
+                --nb-card: #1E1E1E;
+                --nb-muted: #C9C4B4;
+            }
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Archivo', system-ui, sans-serif;
+            background: var(--nb-paper);
+            color: var(--nb-ink);
+        }
+        .font-mono-nb { font-family: 'Space Mono', monospace; }
+
+        /* Blueprint grid backdrop — flat, no blur */
+        .nb-grid-bg {
+            background-image:
+                linear-gradient(color-mix(in srgb, var(--nb-ink) 12%, transparent) 1.5px, transparent 1.5px),
+                linear-gradient(90deg, color-mix(in srgb, var(--nb-ink) 12%, transparent) 1.5px, transparent 1.5px);
+            background-size: 32px 32px;
+        }
+        .nb-dots-bg {
+            background-image: radial-gradient(color-mix(in srgb, var(--nb-ink) 22%, transparent) 2px, transparent 2px);
+            background-size: 22px 22px;
+        }
+
+        .nb-card {
+            background: var(--nb-card);
+            border: 3px solid var(--nb-ink);
+            border-radius: 14px;
+            box-shadow: 6px 6px 0 var(--nb-ink);
+        }
+        .nb-card-flat {
+            background: var(--nb-card);
+            border: 3px solid var(--nb-ink);
+            border-radius: 14px;
+            box-shadow: 3px 3px 0 var(--nb-ink);
+        }
+        .nb-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+            border: 3px solid var(--nb-ink);
+            border-radius: 10px;
+            box-shadow: 4px 4px 0 var(--nb-ink);
+            font-weight: 800; text-transform: uppercase; letter-spacing: .02em;
+            padding: .7rem 1.25rem;
+            transition: transform .12s ease, box-shadow .12s ease;
+            cursor: pointer;
+        }
+        .nb-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--nb-ink); }
+        .nb-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--nb-ink); }
+        .nb-btn-sm { padding: .45rem .8rem; font-size: .8rem; border-width: 2.5px; box-shadow: 3px 3px 0 var(--nb-ink); }
+        .nb-input, .nb-select, .nb-textarea {
+            width: 100%;
+            background: var(--nb-card);
+            color: var(--nb-ink);
+            border: 3px solid var(--nb-ink);
+            border-radius: 10px;
+            box-shadow: 3px 3px 0 var(--nb-ink);
+            padding: .7rem .9rem;
+            font-weight: 500;
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+        .nb-input:focus, .nb-select:focus, .nb-textarea:focus {
+            outline: 3px solid var(--nb-yellow);
+            outline-offset: 1px;
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0 var(--nb-ink);
+        }
+        .nb-input-error { border-color: #E11D48 !important; box-shadow: 3px 3px 0 #E11D48 !important; }
+        .nb-label { font-weight: 800; text-transform: uppercase; font-size: .78rem; letter-spacing: .06em; margin-bottom: .4rem; display: block; }
+        .nb-badge {
+            display: inline-flex; align-items: center; gap: .3rem;
+            border: 2.5px solid var(--nb-ink);
+            border-radius: 999px;
+            padding: .15rem .7rem;
+            font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+            color: #111;
+        }
+        .nb-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .nb-table thead th {
+            background: var(--nb-ink);
+            color: var(--nb-paper);
+            text-transform: uppercase; font-size: .72rem; letter-spacing: .08em;
+            padding: .7rem .9rem; text-align: left; white-space: nowrap;
+        }
+        .nb-table thead th:first-child { border-radius: 10px 0 0 0; }
+        .nb-table thead th:last-child { border-radius: 0 10px 0 0; }
+        .nb-table tbody td { padding: .7rem .9rem; border-bottom: 2.5px solid var(--nb-ink); font-weight: 500; }
+        .nb-table tbody tr:last-child td { border-bottom: none; }
+        .nb-table-wrap { border: 3px solid var(--nb-ink); border-radius: 12px; overflow-x: auto; background: var(--nb-card); box-shadow: 5px 5px 0 var(--nb-ink); }
+        .nb-tag { border: 2.5px solid var(--nb-ink); border-radius: 8px; box-shadow: 3px 3px 0 var(--nb-ink); font-weight: 800; padding: .1rem .55rem; font-size: .75rem; }
+
+        :focus-visible { outline: 3px dashed var(--nb-ink); outline-offset: 2px; }
+        ::selection { background: var(--nb-yellow); color: #111; }
+
+        details.nb-details > summary { list-style: none; cursor: pointer; }
+        details.nb-details > summary::-webkit-details-marker { display: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .001s !important; transition-duration: .001s !important; }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+</html>

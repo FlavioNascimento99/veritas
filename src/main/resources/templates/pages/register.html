@@ -1,141 +1,69 @@
-<div th:fragment="content" class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12">
-  <div class="w-full max-w-md">
-    <!-- Card Principal -->
-    <div class="bg-white rounded-lg shadow-lg p-8">
-      <!-- Header do Formulário -->
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Criar Conta</h1>
-        <p class="text-gray-600">Junte-se à Veritas</p>
+<div th:fragment="content" class="flex justify-center py-6">
+  <div class="w-full max-w-lg">
+    <section class="nb-card overflow-hidden" aria-labelledby="register-title">
+      <div class="bg-[var(--nb-pink)] border-b-[3px] border-[var(--nb-ink)] px-6 py-4 flex items-center justify-between">
+        <p class="font-mono-nb text-xs font-black uppercase tracking-[0.2em] text-black">■ Nova conta</p>
+        <span class="nb-tag bg-white text-black font-mono-nb">estudante · professor</span>
       </div>
+      <div class="p-6 sm:p-8">
+        <h1 id="register-title" class="text-3xl font-black uppercase tracking-tight">Criar conta</h1>
+        <p class="mt-1 font-medium opacity-80">Junte-se ao Veritas em menos de 1 minuto.</p>
 
-      <!-- Formulário de Registro -->
-      <form th:action="@{/register}" th:object="${registrationDTO}" method="POST" class="space-y-4">
-
-        <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          <p class="font-semibold">Corrija os erros abaixo:</p>
-          <ul class="list-disc list-inside mt-1">
+        <div th:if="${#fields.hasErrors()}" class="mt-5 border-[3px] border-black rounded-xl bg-[#FF6B6B] text-black px-4 py-3 font-bold shadow-[4px_4px_0_#111]" role="alert">
+          <p class="font-black uppercase text-sm">Corrija os erros abaixo:</p>
+          <ul class="list-disc list-inside mt-1 text-sm">
             <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
           </ul>
         </div>
 
-        <!-- Nome Completo -->
-        <div>
-          <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
-            Nome Completo
-          </label>
-          <input type="text" th:field="*{fullName}" id="fullName" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('fullName')} ? 'border-red-500' : ''"
-                 placeholder="Seu nome completo"/>
-          <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-red-600 text-sm mt-1"></p>
-        </div>
+        <form th:action="@{/register}" th:object="${registrationDTO}" method="POST" class="mt-6 space-y-5">
+          <div>
+            <label for="fullName" class="nb-label">Nome completo</label>
+            <input type="text" th:field="*{fullName}" id="fullName" required placeholder="Seu nome completo"
+                   class="nb-input" th:classappend="${#fields.hasErrors('fullName')} ? ' nb-input-error' : ''">
+            <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="mt-1 text-sm font-bold text-[#B00020]"></p>
+          </div>
+          <div>
+            <label for="email" class="nb-label">Email</label>
+            <input type="email" th:field="*{email}" id="email" required placeholder="seu@email.com"
+                   class="nb-input" th:classappend="${#fields.hasErrors('email')} ? ' nb-input-error' : ''">
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="mt-1 text-sm font-bold text-[#B00020]"></p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="password" class="nb-label">Senha</label>
+              <input type="password" th:field="*{password}" id="password" required placeholder="Mínimo 6 caracteres"
+                     class="nb-input" th:classappend="${#fields.hasErrors('password')} ? ' nb-input-error' : ''">
+              <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="mt-1 text-sm font-bold text-[#B00020]"></p>
+            </div>
+            <div>
+              <label for="confirmPassword" class="nb-label">Confirmar senha</label>
+              <input type="password" th:field="*{confirmPassword}" id="confirmPassword" required placeholder="Repita a senha"
+                     class="nb-input" th:classappend="${#fields.hasErrors('confirmPassword')} ? ' nb-input-error' : ''">
+              <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="mt-1 text-sm font-bold text-[#B00020]"></p>
+            </div>
+          </div>
+          <div>
+            <label for="userType" class="nb-label">Tipo de usuário</label>
+            <select th:field="*{userType}" id="userType" required
+                    class="nb-select" th:classappend="${#fields.hasErrors('userType')} ? ' nb-input-error' : ''">
+              <option value="">Selecione um tipo</option>
+              <option value="student">Estudante</option>
+              <option value="professor">Professor</option>
+            </select>
+            <p th:if="${#fields.hasErrors('userType')}" th:errors="*{userType}" class="mt-1 text-sm font-bold text-[#B00020]"></p>
+          </div>
+          <button type="submit" class="nb-btn w-full bg-[var(--nb-ink)] !text-[var(--nb-paper)]">Criar conta</button>
+        </form>
 
-        <!-- Email -->
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-            Email
-          </label>
-          <input type="email" th:field="*{email}" id="email" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('email')} ? 'border-red-500' : ''"
-                 placeholder="seu@email.com"/>
-          <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-red-600 text-sm mt-1"></p>
-        </div>
-
-        <!-- Senha -->
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-            Senha
-          </label>
-          <input type="password" th:field="*{password}" id="password" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('password')} ? 'border-red-500' : ''"
-                 placeholder="Mínimo 6 caracteres"/>
-          <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-red-600 text-sm mt-1"></p>
-        </div>
-
-        <!-- Confirmar Senha -->
-        <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
-            Confirmar Senha
-          </label>
-          <input type="password" th:field="*{confirmPassword}" id="confirmPassword" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('confirmPassword')} ? 'border-red-500' : ''"
-                 placeholder="Confirme sua senha"/>
-          <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="text-red-600 text-sm mt-1"></p>
-        </div>
-
-        <!-- Tipo de Usuário -->
-        <div>
-          <label for="userType" class="block text-sm font-medium text-gray-700 mb-2">
-            Tipo de Usuário
-          </label>
-          <select th:field="*{userType}" id="userType" required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                  th:classappend="${#fields.hasErrors('userType')} ? 'border-red-500' : ''">
-            <option value="">Selecione um tipo</option>
-            <option value="student">Estudante</option>
-            <option value="professor">Professor</option>
-          </select>
-          <p th:if="${#fields.hasErrors('userType')}" th:errors="*{userType}" class="text-red-600 text-sm mt-1"></p>
-        </div>
-
-        <!-- Botão de Registro -->
-        <button
-          type="submit"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 mt-6"
-        >
-          Criar Conta
-        </button>
-      </form>
-
-      <!-- Link para Login -->
-      <div class="text-center mt-6">
-        <p class="text-gray-600">
+        <p class="mt-5 text-center font-medium text-sm">
           Já tem uma conta?
-          <a
-            th:href="@{/login}"
-            class="text-indigo-600 hover:text-indigo-700 font-medium transition"
-          >
-            Faça login
-          </a>
+          <a th:href="@{/login}" class="font-black underline decoration-[3px] underline-offset-4 hover:bg-[var(--nb-yellow)] hover:text-black px-1">Faça login</a>
         </p>
       </div>
-
-      <!-- Divisor -->
-      <div class="relative my-6">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-300"></div>
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="px-2 bg-white text-gray-500">Ou continue com</span>
-        </div>
-      </div>
-
-      <!-- Botões Sociais -->
-      <div class="grid grid-cols-2 gap-4">
-        <button
-          type="button"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
-        >
-          <i class="fab fa-google"></i> Google
-        </button>
-        <button
-          type="button"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
-        >
-          <i class="fab fa-github"></i> GitHub
-        </button>
-      </div>
-    </div>
-
-    <!-- Botão para Voltar -->
-    <div class="text-center mt-6">
-      <a th:href="@{/login}"
-         class="inline-flex items-center px-6 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-        &larr; Voltar para o Login
-      </a>
+    </section>
+    <div class="text-center mt-5">
+      <a th:href="@{/login}" class="nb-btn nb-btn-sm bg-[var(--nb-card)]">&larr; Voltar para o login</a>
     </div>
   </div>
 </div>

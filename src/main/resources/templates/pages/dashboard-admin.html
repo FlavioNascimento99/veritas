@@ -1,81 +1,84 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard do Administrador</h1>
-        <form th:action="@{/logout}" method="post">
-            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Sair (Logout)
-            </button>
-        </form>
-    </div>
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Visão Geral</h2>
-        <p class="text-gray-600 mb-6">Resumo rápido das entidades e ações administrativas.</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div class="p-4 bg-blue-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Estudantes</div>
-                <div class="text-2xl font-bold text-blue-800" th:text="${studentsCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/students}" class="text-blue-600 hover:underline">Ver todos</a></div>
+<div th:fragment="content" class="flex flex-col gap-6">
+    <section class="nb-card overflow-hidden" aria-labelledby="admin-title">
+        <div class="bg-[var(--nb-ink)] text-[var(--nb-paper)] px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <p class="font-mono-nb text-[11px] font-bold uppercase tracking-[0.2em] opacity-70">■ Administração</p>
+                <h1 id="admin-title" class="text-2xl sm:text-3xl font-black uppercase tracking-tight">Dashboard do administrador</h1>
             </div>
-
-            <div class="p-4 bg-green-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Professores</div>
-                <div class="text-2xl font-bold text-green-800" th:text="${professorsCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/professors}" class="text-green-600 hover:underline">Ver todos</a></div>
-            </div>
-
-            <div class="p-4 bg-yellow-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Assuntos</div>
-                <div class="text-2xl font-bold text-yellow-800" th:text="${subjectsCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/subjects}" class="text-yellow-600 hover:underline">Gerenciar</a></div>
-            </div>
-
-            <div class="p-4 bg-indigo-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Processos</div>
-                <div class="text-2xl font-bold text-indigo-800" th:text="${processesCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/processes}" class="text-indigo-600 hover:underline">Ver processos</a></div>
-            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nb-btn nb-btn-sm bg-[#FF6B6B] !text-black">Sair <i class="fas fa-sign-out-alt" aria-hidden="true"></i></button>
+            </form>
         </div>
 
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Ações rápidas</h3>
-            <div class="flex flex-wrap gap-3">
-                <a th:href="@{/admin/students/new}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded">Novo Estudante</a>
-                <a th:href="@{/admin/professors/new}" class="inline-block bg-green-600 text-white px-4 py-2 rounded">Novo Professor</a>
-                <a th:href="@{/admin/subjects}" class="inline-block bg-yellow-600 text-white px-4 py-2 rounded">Gerenciar Assuntos</a>
-                <a th:href="@{/admin/collegiates}" class="inline-block bg-purple-600 text-white px-4 py-2 rounded">Gerenciar Colegiados</a>
+        <div class="p-6">
+            <h2 class="text-lg font-black uppercase">Visão geral</h2>
+            <p class="font-medium opacity-70 text-sm">Resumo rápido das entidades e ações administrativas.</p>
+
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="nb-card p-4 bg-[var(--nb-cyan)]">
+                    <p class="font-mono-nb text-[11px] font-black uppercase text-black">Estudantes</p>
+                    <p class="text-4xl font-black text-black" th:text="${studentsCount ?: 0}">0</p>
+                    <a th:href="@{/admin/students}" class="mt-2 inline-block font-black text-black text-sm underline decoration-[3px] underline-offset-4">Ver todos →</a>
+                </div>
+                <div class="nb-card p-4 bg-[var(--nb-green)]">
+                    <p class="font-mono-nb text-[11px] font-black uppercase text-black">Professores</p>
+                    <p class="text-4xl font-black text-black" th:text="${professorsCount ?: 0}">0</p>
+                    <a th:href="@{/admin/professors}" class="mt-2 inline-block font-black text-black text-sm underline decoration-[3px] underline-offset-4">Ver todos →</a>
+                </div>
+                <div class="nb-card p-4 bg-[var(--nb-yellow)]">
+                    <p class="font-mono-nb text-[11px] font-black uppercase text-black">Assuntos</p>
+                    <p class="text-4xl font-black text-black" th:text="${subjectsCount ?: 0}">0</p>
+                    <a th:href="@{/admin/subjects}" class="mt-2 inline-block font-black text-black text-sm underline decoration-[3px] underline-offset-4">Gerenciar →</a>
+                </div>
+                <div class="nb-card p-4 bg-[var(--nb-pink)]">
+                    <p class="font-mono-nb text-[11px] font-black uppercase text-black">Processos</p>
+                    <p class="text-4xl font-black text-black" th:text="${processesCount ?: 0}">0</p>
+                    <a th:href="@{/admin/processes}" class="mt-2 inline-block font-black text-black text-sm underline decoration-[3px] underline-offset-4">Ver processos →</a>
+                </div>
+            </div>
+
+            <h3 class="mt-6 text-sm font-black uppercase tracking-widest">Ações rápidas</h3>
+            <div class="mt-2 flex flex-wrap gap-3">
+                <a th:href="@{/admin/students/new}" class="nb-btn nb-btn-sm bg-[var(--nb-cyan)] text-black">+ Novo estudante</a>
+                <a th:href="@{/admin/professors/new}" class="nb-btn nb-btn-sm bg-[var(--nb-green)] text-black">+ Novo professor</a>
+                <a th:href="@{/admin/subjects}" class="nb-btn nb-btn-sm bg-[var(--nb-yellow)] text-black">Assuntos</a>
+                <a th:href="@{/admin/collegiates}" class="nb-btn nb-btn-sm bg-[var(--nb-purple)] text-black">Colegiados</a>
             </div>
         </div>
+    </section>
 
-        <div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Processos recentes</h3>
-            <div th:if="${recentProcesses != null and #lists.isEmpty(recentProcesses) == false}">
-                <table class="min-w-full divide-y divide-gray-200">
+    <section class="nb-card overflow-hidden" aria-labelledby="recent-title">
+        <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-card)]">
+            <h3 id="recent-title" class="text-lg font-black uppercase">Processos recentes</h3>
+        </div>
+        <div th:if="${recentProcesses != null and #lists.isEmpty(recentProcesses) == false}" class="p-4 sm:p-6">
+            <div class="nb-table-wrap">
+                <table class="nb-table">
                     <thead>
                     <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudante</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado em</th>
-                        <th class="px-4 py-2"></th>
+                        <th scope="col">Número</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Estudante</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Criado em</th>
+                        <th scope="col"><span class="sr-only">Ações</span></th>
                     </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody>
                     <tr th:each="proc : ${recentProcesses}">
-                        <td class="px-4 py-2" th:text="${proc.number}">--</td>
-                        <td class="px-4 py-2" th:text="${proc.title}">--</td>
-                        <td class="px-4 py-2" th:text="${proc.processCreator != null ? proc.processCreator.name : '—'}">—</td>
-                        <td class="px-4 py-2" th:text="${proc.status}">—</td>
-                        <td class="px-4 py-2" th:text="${#temporals.format(proc.createdAt, 'dd/MM/yyyy HH:mm')}">--</td>
-                        <td class="px-4 py-2"><a th:href="@{/processes/{id}(id=${proc.id})}" class="text-indigo-600 hover:underline">Detalhes</a></td>
+                        <td class="font-mono-nb font-bold" th:text="${proc.number}">--</td>
+                        <td th:text="${proc.title}">--</td>
+                        <td th:text="${proc.processCreator != null ? proc.processCreator.name : '—'}">—</td>
+                        <td><span class="nb-badge bg-[var(--nb-yellow)] text-black" th:text="${proc.status}">—</span></td>
+                        <td class="font-mono-nb text-sm" th:text="${#temporals.format(proc.createdAt, 'dd/MM/yyyy HH:mm')}">--</td>
+                        <td><a th:href="@{/processes/{id}(id=${proc.id})}" class="font-black underline decoration-[3px] underline-offset-4">Detalhes</a></td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div th:if="${recentProcesses == null or #lists.isEmpty(recentProcesses)}">
-                <p class="text-gray-600">Nenhum processo recente encontrado.</p>
-            </div>
         </div>
-    </div>
+        <div th:if="${recentProcesses == null or #lists.isEmpty(recentProcesses)}" class="p-6">
+            <p class="nb-card-flat p-4 font-bold text-center">Nenhum processo recente encontrado.</p>
+        </div>
+    </section>
 </div>

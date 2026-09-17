@@ -1,141 +1,133 @@
-<div th:fragment="content" class="p-6 bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto">
-        <!-- Cabeçalho -->
-        <div class="flex justify-between items-center mb-8">
+<div th:fragment="content" class="flex flex-col gap-6">
+    <section class="nb-card overflow-hidden" aria-labelledby="collegiates-title">
+        <div class="bg-[var(--nb-purple)] px-6 py-4 border-b-[3px] border-[var(--nb-ink)] flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Gerenciar Colegiados</h1>
-                <p class="text-gray-600 mt-2">Lista de todos os colegiados do sistema</p>
+                <p class="font-mono-nb text-[11px] font-bold uppercase tracking-[0.2em] text-black opacity-70">■ Administração</p>
+                <h1 id="collegiates-title" class="text-2xl sm:text-3xl font-black uppercase tracking-tight text-black">Gerenciar Colegiados</h1>
+                <p class="font-medium text-sm text-black">Lista de todos os colegiados do sistema</p>
             </div>
-            <a th:href="@{/admin/collegiates/new}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-semibold">
-                <i class="fas fa-plus mr-2"></i>Criar Colegiado
-            </a>
-            <a th:href="@{/dashboard}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold">
-                <i class="fas fa-arrow-left mr-2"></i>Retornar ao Dashboard
-            </a>
-        </div>
-
-        <!-- Modal para Criar Colegiado -->
-        <div id="createCollegiateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
-            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
-                <h2 class="text-2xl font-bold mb-4">Criar Novo Colegiado</h2>
-                <form id="createCollegiateForm">
-                    <div class="mb-4">
-                        <label for="description" class="block text-gray-700 font-semibold mb-2">Descrição</label>
-                        <textarea id="description" name="description" class="w-full px-3 py-2 border rounded-lg" required></textarea>
-                    </div>
-                    <div class="mb-4">
-                        <label for="rapporteur" class="block text-gray-700 font-semibold mb-2">Relator</label>
-                        <select id="rapporteur" name="rapporteur" class="w-full px-3 py-2 border rounded-lg" required>
-                            <!-- Options will be populated by JavaScript -->
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label for="members" class="block text-gray-700 font-semibold mb-2">Membros</label>
-                        <select id="members" name="members" multiple class="w-full px-3 py-2 border rounded-lg" required>
-                            <!-- Options will be populated by JavaScript -->
-                        </select>
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="button" id="closeModalBtn" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg mr-2">Cancelar</button>
-                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg">Salvar</button>
-                    </div>
-                </form>
+            <div class="flex flex-wrap gap-3">
+                <a th:href="@{/admin/collegiates/new}" class="nb-btn nb-btn-sm bg-[var(--nb-green)] text-black"><i class="fas fa-plus" aria-hidden="true"></i>Criar Colegiado</a>
+                <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm bg-[var(--nb-ink)] !text-[var(--nb-paper)]"><i class="fas fa-arrow-left" aria-hidden="true"></i>Retornar ao Dashboard</a>
             </div>
         </div>
 
-        <!-- Mensagens de Feedback -->
-        <div th:if="${successMessage}" class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            <span th:text="${successMessage}"></span>
-        </div>
-        <div th:if="${errorMessage}" class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            <span th:text="${errorMessage}"></span>
-        </div>
-
-        <!-- Tabela de Colegiados -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div th:if="${collegiates.isEmpty()}" class="p-8 text-center">
-                <p class="text-gray-500 text-lg">Nenhum colegiado encontrado</p>
+        <div class="p-6">
+            <div th:if="${successMessage}" role="status" class="mb-6 px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-green)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" role="alert" class="mb-6 px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[#FF6B6B] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                <span th:text="${errorMessage}"></span>
             </div>
 
-            <div th:unless="${collegiates.isEmpty()}" class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">ID</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Descrição</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Relator</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Membros</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Processos</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Criado em</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr th:each="collegiate : ${collegiates}" class="bg-white hover:bg-gray-100 transition-colors duration-200">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                                <span th:text="${collegiate.id}"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:text="${collegiate.description ?: 'Sem descrição'}"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:if="${collegiate.rapporteur == null}" class="text-gray-500 italic">Sem relator</span>
-                                <div th:if="${collegiate.rapporteur != null}" class="flex items-center">
-                                    <i class="fas fa-user-tie text-purple-600 mr-2"></i>
-                                    <span th:text="${collegiate.rapporteur.name}"></span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:if="${collegiate.collegiateMemberList == null or collegiate.collegiateMemberList.isEmpty()}" class="text-gray-500 italic">Nenhum membro</span>
-                                <div th:if="${collegiate.collegiateMemberList != null and !collegiate.collegiateMemberList.isEmpty()}" class="flex flex-wrap gap-1">
-                                    <span th:each="member : ${collegiate.collegiateMemberList.subList(0, #lists.size(collegiate.collegiateMemberList) > 2 ? 2 : #lists.size(collegiate.collegiateMemberList))}" 
-                                          class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-semibold">
-                                        <span th:text="${member.name}"></span>
+            <div th:if="${collegiates.isEmpty()}" class="nb-card-flat p-8 text-center">
+                <p class="text-lg font-bold">Nenhum colegiado encontrado</p>
+            </div>
+
+            <div th:unless="${collegiates.isEmpty()}">
+                <div class="nb-table-wrap">
+                    <table class="nb-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Descrição</th>
+                                <th scope="col">Relator</th>
+                                <th scope="col">Membros</th>
+                                <th scope="col">Processos</th>
+                                <th scope="col">Criado em</th>
+                                <th scope="col">Status</th>
+                                <th scope="col"><span class="sr-only">Ações</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="collegiate : ${collegiates}">
+                                <td class="font-mono-nb font-bold">
+                                    <span th:text="${collegiate.id}"></span>
+                                </td>
+                                <td>
+                                    <span th:text="${collegiate.description ?: 'Sem descrição'}"></span>
+                                </td>
+                                <td>
+                                    <span th:if="${collegiate.rapporteur == null}" class="italic font-bold opacity-70">Sem relator</span>
+                                    <span th:if="${collegiate.rapporteur != null}">
+                                        <i class="fas fa-user-tie" aria-hidden="true"></i>
+                                        <span th:text="${collegiate.rapporteur.name}"></span>
                                     </span>
-                                    <span th:if="${collegiate.collegiateMemberList.size() > 2}" class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-semibold">
-                                        +<span th:text="${collegiate.collegiateMemberList.size() - 2}"></span>
+                                </td>
+                                <td>
+                                    <span th:if="${collegiate.collegiateMemberList == null or collegiate.collegiateMemberList.isEmpty()}" class="italic font-bold opacity-70">Nenhum membro</span>
+                                    <span th:if="${collegiate.collegiateMemberList != null and !collegiate.collegiateMemberList.isEmpty()}">
+                                        <span th:each="member : ${collegiate.collegiateMemberList.subList(0, #lists.size(collegiate.collegiateMemberList) > 2 ? 2 : #lists.size(collegiate.collegiateMemberList))}"
+                                              class="nb-tag bg-[var(--nb-purple)] text-black">
+                                            <span th:text="${member.name}"></span>
+                                        </span>
+                                        <span th:if="${collegiate.collegiateMemberList.size() > 2}" class="nb-tag bg-[var(--nb-card)]">
+                                            +<span th:text="${collegiate.collegiateMemberList.size() - 2}"></span>
+                                        </span>
                                     </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:if="${meetings == null or meetings.isEmpty()}" class="text-gray-500 italic">Nenhum</span>
-                                <div th:unless="${meetings == null or meetings.isEmpty()}" class="flex flex-wrap gap-1">
-                                    <span th:each="meeting : ${meetings}" 
-                                          th:if="${meeting.collegiate != null and meeting.collegiate.id == collegiate.id}"
-                                          class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
-                                        <span th:text="${#lists.size(meeting.processes)}"></span> processos
+                                </td>
+                                <td>
+                                    <span th:if="${meetings == null or meetings.isEmpty()}" class="italic font-bold opacity-70">Nenhum</span>
+                                    <span th:unless="${meetings == null or meetings.isEmpty()}">
+                                        <span th:each="meeting : ${meetings}"
+                                              th:if="${meeting.collegiate != null and meeting.collegiate.id == collegiate.id}"
+                                              class="nb-tag bg-[var(--nb-cyan)] text-black">
+                                            <span th:text="${#lists.size(meeting.processes)}"></span> processos
+                                        </span>
                                     </span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:text="${#temporals.format(collegiate.createdAt, 'dd/MM/yyyy')}"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm">
-                                <span th:if="${collegiate.closedAt == null}" class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                                    ATIVO
-                                </span>
-                                <span th:if="${collegiate.closedAt != null}" class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">
-                                    ENCERRADO
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm">
-                                <a th:href="@{/admin/collegiates/{id}(id=${collegiate.id})}" class="text-purple-600 hover:text-purple-900 font-semibold transition-colors duration-200">
-                                    <i class="fas fa-eye mr-1"></i>Visualizar
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                </td>
+                                <td class="font-mono-nb text-sm">
+                                    <span th:text="${#temporals.format(collegiate.createdAt, 'dd/MM/yyyy')}"></span>
+                                </td>
+                                <td>
+                                    <span th:if="${collegiate.closedAt == null}" class="nb-badge bg-[var(--nb-green)] text-black">ATIVO</span>
+                                    <span th:if="${collegiate.closedAt != null}" class="nb-badge bg-[#FF6B6B] !text-black">ENCERRADO</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/admin/collegiates/{id}(id=${collegiate.id})}" class="font-black underline decoration-[3px] underline-offset-4"><i class="fas fa-eye" aria-hidden="true"></i>Visualizar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Estatísticas -->
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Total de Colegiados</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2" th:text="${collegiates.size()}"></p>
-            </div>
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6" aria-labelledby="collegiates-stats-title">
+        <h2 id="collegiates-stats-title" class="sr-only">Estatísticas</h2>
+        <div class="nb-card p-6 bg-[var(--nb-purple)]">
+            <h3 class="text-sm font-black uppercase tracking-widest text-black">Total de Colegiados</h3>
+            <p class="text-3xl font-black text-black mt-2" th:text="${collegiates.size()}"></p>
+        </div>
+    </section>
+
+    <!-- Modal para Criar Colegiado -->
+    <div id="createCollegiateModal" class="fixed inset-0 hidden items-center justify-center" style="background: color-mix(in srgb, var(--nb-ink) 60%, transparent);">
+        <div class="nb-card w-full max-w-2xl p-6" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
+            <h2 id="create-modal-title" class="text-2xl font-black uppercase mb-4">Criar Novo Colegiado</h2>
+            <form id="createCollegiateForm" class="flex flex-col gap-4">
+                <div>
+                    <label for="description" class="nb-label">Descrição</label>
+                    <textarea id="description" name="description" class="nb-textarea" required></textarea>
+                </div>
+                <div>
+                    <label for="rapporteur" class="nb-label">Relator</label>
+                    <select id="rapporteur" name="rapporteur" class="nb-select" required>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div>
+                    <label for="members" class="nb-label">Membros</label>
+                    <select id="members" name="members" multiple class="nb-select" required>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="closeModalBtn" class="nb-btn nb-btn-sm bg-[var(--nb-card)]">Cancelar</button>
+                    <button type="submit" class="nb-btn nb-btn-sm bg-[var(--nb-green)] text-black">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

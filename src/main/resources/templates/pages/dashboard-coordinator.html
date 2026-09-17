@@ -1,217 +1,219 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard do Coordenador</h1>
-        <form th:action="@{/logout}" method="post">
-            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Sair (Logout)
-            </button>
-        </form>
-    </div>
-
-    <!-- Navigation Buttons -->
-    <div class="mb-6 flex gap-3 flex-wrap">
-        <a th:href="@{/dashboard}"
-           class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 inline-flex items-center gap-2">
-            <i class="fas fa-file-alt"></i> Processos
-        </a>
-        <a th:href="@{/dashboard/professors}"
-           class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 inline-flex items-center gap-2">
-            <i class="fas fa-chalkboard-user"></i> Professores
-        </a>
-        <a th:href="@{/dashboard/meetings}"
-           class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 inline-flex items-center gap-2">
-            <i class="fas fa-calendar-check"></i> Reuniões
-        </a>
-        <a th:href="@{/dashboard/collegiates}"
-           class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 inline-flex items-center gap-2">
-            <i class="fas fa-graduation-cap"></i> Colegiados
-        </a>
-    </div>
+<div th:fragment="content" class="flex flex-col gap-6">
+    <section class="nb-card overflow-hidden" aria-labelledby="coordinator-title">
+        <div class="bg-[var(--nb-ink)] text-[var(--nb-paper)] px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <p class="font-mono-nb text-[11px] font-bold uppercase tracking-[0.2em] opacity-70">■ Coordenação</p>
+                <h1 id="coordinator-title" class="text-2xl sm:text-3xl font-black uppercase tracking-tight">Dashboard do Coordenador</h1>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nb-btn nb-btn-sm bg-[#FF6B6B] !text-black">
+                    Sair (Logout)
+                </button>
+            </form>
+        </div>
+        <div class="p-6">
+            <div class="flex gap-3 flex-wrap">
+                <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm bg-[var(--nb-yellow)] text-black">
+                    <i class="fas fa-file-alt" aria-hidden="true"></i> Processos
+                </a>
+                <a th:href="@{/dashboard/professors}" class="nb-btn nb-btn-sm bg-[var(--nb-card)]">
+                    <i class="fas fa-chalkboard-user" aria-hidden="true"></i> Professores
+                </a>
+                <a th:href="@{/dashboard/meetings}" class="nb-btn nb-btn-sm bg-[var(--nb-card)]">
+                    <i class="fas fa-calendar-check" aria-hidden="true"></i> Reuniões
+                </a>
+                <a th:href="@{/dashboard/collegiates}" class="nb-btn nb-btn-sm bg-[var(--nb-card)]">
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i> Colegiados
+                </a>
+            </div>
+        </div>
+    </section>
 
     <!-- PROCESSOS -->
-    <div th:if="${param.tab == null or param.tab == 'processes'}" class="tab-content">
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-semibold text-gray-700">Processos Pendentes de Distribuição</h2>
+    <div th:if="${param.tab == null or param.tab == 'processes'}">
+        <section class="nb-card overflow-hidden" aria-labelledby="pending-title">
+            <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-yellow)] flex flex-wrap justify-between items-center gap-2">
+                <h2 id="pending-title" class="text-2xl font-black uppercase text-black">Processos Pendentes de Distribuição</h2>
                 <!-- Contador de resultados -->
-                <span class="text-sm text-gray-500">
-                    Total: <span th:text="${totalElements}" class="font-semibold">0</span> processo(s)
+                <span class="nb-tag bg-[var(--nb-card)] text-sm">
+                    Total: <span th:text="${totalElements}">0</span> processo(s)
                 </span>
             </div>
 
-            <div class="mb-4">
-                <form th:action="@{/dashboard}" method="get" class="flex flex-wrap gap-3 items-end mb-4">
-                    <div>
-                        <label class="text-sm text-gray-600 block">Status</label>
-                        <select name="status" class="rounded border px-2 py-1">
-                            <option value="">Todos</option>
-                            <option th:each="s : ${T(br.edu.ifpb.veritas.enums.StatusProcess).values()}"
-                                    th:value="${s.name()}" th:text="${s.status}"
-                                    th:selected="${filterStatus != null and filterStatus.equals(s.name())}">
-                            </option>
-                        </select>
-                    </div>
+            <div class="p-4 sm:p-6">
+                <div class="mb-4">
+                    <form th:action="@{/dashboard}" method="get" class="flex flex-wrap gap-3 items-end mb-4">
+                        <div>
+                            <label class="nb-label">Status</label>
+                            <select name="status" class="nb-select">
+                                <option value="">Todos</option>
+                                <option th:each="s : ${T(br.edu.ifpb.veritas.enums.StatusProcess).values()}"
+                                        th:value="${s.name()}" th:text="${s.status}"
+                                        th:selected="${filterStatus != null and filterStatus.equals(s.name())}">
+                                </option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <label class="text-sm text-gray-600 block">Estudante</label>
-                        <select name="studentId" class="rounded border px-2 py-1">
-                            <option value="">Todos</option>
-                            <option th:each="stu : ${students}"
-                                    th:value="${stu.id}" th:text="${stu.name}"
-                                    th:selected="${filterStudentId != null and filterStudentId == stu.id}">
-                            </option>
-                        </select>
-                    </div>
+                        <div>
+                            <label class="nb-label">Estudante</label>
+                            <select name="studentId" class="nb-select">
+                                <option value="">Todos</option>
+                                <option th:each="stu : ${students}"
+                                        th:value="${stu.id}" th:text="${stu.name}"
+                                        th:selected="${filterStudentId != null and filterStudentId == stu.id}">
+                                </option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <label class="text-sm text-gray-600 block">Relator</label>
-                        <select name="professorId" class="rounded border px-2 py-1">
-                            <option value="">Todos</option>
-                            <option th:each="prof : ${professors}"
-                                    th:value="${prof.id}" th:text="${prof.name}"
-                                    th:selected="${filterProfessorId != null and filterProfessorId == prof.id}">
-                            </option>
-                        </select>
-                    </div>
+                        <div>
+                            <label class="nb-label">Relator</label>
+                            <select name="professorId" class="nb-select">
+                                <option value="">Todos</option>
+                                <option th:each="prof : ${professors}"
+                                        th:value="${prof.id}" th:text="${prof.name}"
+                                        th:selected="${filterProfessorId != null and filterProfessorId == prof.id}">
+                                </option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">Filtrar</button>
-                        <a th:href="@{/dashboard}" class="ml-2 text-sm text-gray-600">Limpar</a>
-                    </div>
-                </form>
-            </div>
-
-            <div th:if="${allProcesses != null}" class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudante</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Relator</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                    </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                    <tr th:each="process : ${allProcesses}">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${process.processCreator != null ? process.processCreator.name : '-'}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${process.processRapporteur != null ? process.processRapporteur.name : '-'}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${process.number}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${process.title}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                                <span th:class="${'inline-flex px-2 py-1 text-xs font-semibold rounded-full ' +
-                                              (process.status.name() == 'WAITING' ? 'bg-yellow-200 text-yellow-800' :
-                                              process.status.name() == 'UNDER_ANALISYS' ? 'bg-blue-200 text-blue-800' :
-                                              'bg-green-200 text-green-800')}"
-                                      th:text="${process.status.status}"></span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <!-- MANTIDO EXATAMENTE COMO ESTAVA ANTES -->
-                            <form th:action="@{/dashboard/assign}" method="post" class="flex items-center gap-2">
-                                <input type="hidden" name="processId" th:value="${process.id}" />
-                                <select name="professorId" required class="rounded border px-2 py-1 text-sm">
-                                    <option value="">Professor</option>
-                                    <option th:each="prof : ${professors}" th:value="${prof.id}" th:text="${prof.name}"></option>
-                                </select>
-                                <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Atribuir</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <tr th:if="${allProcesses.isEmpty()}">
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">Nenhum processo encontrado</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- ========== REQNAOFUNC 9: Controles de Paginação ========== -->
-            <div th:if="${totalPages > 1}" class="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
-
-                <!-- Informação da página atual -->
-                <div class="text-sm text-gray-700">
-                    Página <span th:text="${currentPage + 1}" class="font-semibold">1</span>
-                    de <span th:text="${totalPages}" class="font-semibold">1</span>
-                    <span class="text-gray-500 ml-2">
-                        (Exibindo <span th:text="${#lists.size(allProcesses)}">0</span> de
-                        <span th:text="${totalElements}">0</span> processos)
-                    </span>
+                        <div class="flex items-center gap-3">
+                            <button type="submit" class="nb-btn nb-btn-sm bg-[var(--nb-ink)] !text-[var(--nb-paper)]">Filtrar</button>
+                            <a th:href="@{/dashboard}" class="font-black underline decoration-[3px] underline-offset-4 text-sm">Limpar</a>
+                        </div>
+                    </form>
                 </div>
 
-                <!-- Botões de navegação -->
-                <div class="flex gap-2">
-                    <!-- Botão Primeira Página -->
-                    <a th:if="${hasPrevious}"
-                       th:href="@{/dashboard(page=0, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
-                       class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
-                       title="Primeira página">
-                        <i class="fas fa-angle-double-left"></i>
-                    </a>
-                    <span th:unless="${hasPrevious}"
-                          class="px-3 py-1 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">
-                        <i class="fas fa-angle-double-left"></i>
-                    </span>
+                <div th:if="${allProcesses != null}">
+                    <div class="nb-table-wrap">
+                        <table class="nb-table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Estudante</th>
+                                <th scope="col">Relator</th>
+                                <th scope="col">Número</th>
+                                <th scope="col">Título</th>
+                                <th scope="col">Status</th>
+                                <th scope="col"><span class="sr-only">Ações</span></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="process : ${allProcesses}">
+                                <td th:text="${process.processCreator != null ? process.processCreator.name : '-'}"></td>
+                                <td th:text="${process.processRapporteur != null ? process.processRapporteur.name : '-'}"></td>
+                                <td class="font-mono-nb font-bold" th:text="${process.number}"></td>
+                                <td th:text="${process.title}"></td>
+                                <td>
+                                    <span th:class="${'nb-badge bg-[var(--nb-yellow)] text-black ' +
+                                                      (process.status.name() == 'WAITING' ? 'bg-yellow-200 text-yellow-800' :
+                                                      process.status.name() == 'UNDER_ANALISYS' ? 'bg-blue-200 text-blue-800' :
+                                                      'bg-green-200 text-green-800')}"
+                                          th:text="${process.status.status}"></span>
+                                </td>
+                                <td>
+                                    <!-- MANTIDO EXATAMENTE COMO ESTAVA ANTES -->
+                                    <form th:action="@{/dashboard/assign}" method="post" class="flex items-center gap-2">
+                                        <input type="hidden" name="processId" th:value="${process.id}" />
+                                        <select name="professorId" required class="nb-select !w-auto !py-1 text-sm" aria-label="Selecionar professor relator">
+                                            <option value="">Professor</option>
+                                            <option th:each="prof : ${professors}" th:value="${prof.id}" th:text="${prof.name}"></option>
+                                        </select>
+                                        <button type="submit" class="nb-btn nb-btn-sm bg-[var(--nb-green)] text-black">Atribuir</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${allProcesses.isEmpty()}">
+                                <td colspan="6" class="px-6 py-4 text-center font-bold">Nenhum processo encontrado</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                    <!-- Botão Anterior -->
-                    <a th:if="${hasPrevious}"
-                       th:href="@{/dashboard(page=${currentPage - 1}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
-                       class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm">
-                        <i class="fas fa-angle-left mr-1"></i>Anterior
-                    </a>
-                    <span th:unless="${hasPrevious}"
-                          class="px-3 py-1 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">
-                        <i class="fas fa-angle-left mr-1"></i>Anterior
-                    </span>
+                <!-- ========== REQNAOFUNC 9: Controles de Paginação ========== -->
+                <div th:if="${totalPages > 1}" class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t-[3px] border-[var(--nb-ink)] pt-4">
 
-                    <!-- Números das páginas (mostra até 5 páginas próximas) -->
-                    <div class="flex gap-1">
-                        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                            <th:block th:if="${i >= currentPage - 2 and i <= currentPage + 2}">
-                                <a th:if="${i != currentPage}"
-                                   th:href="@{/dashboard(page=${i}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
-                                   th:text="${i + 1}"
-                                   class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm">
-                                </a>
-                                <span th:if="${i == currentPage}"
-                                      th:text="${i + 1}"
-                                      class="px-3 py-1 bg-indigo-600 text-white rounded text-sm font-semibold">
-                                </span>
+                    <!-- Informação da página atual -->
+                    <div class="text-sm font-medium">
+                        Página <span th:text="${currentPage + 1}" class="font-black">1</span>
+                        de <span th:text="${totalPages}" class="font-black">1</span>
+                        <span class="opacity-70 ml-2">
+                            (Exibindo <span th:text="${#lists.size(allProcesses)}">0</span> de
+                            <span th:text="${totalElements}">0</span> processos)
+                        </span>
+                    </div>
+
+                    <!-- Botões de navegação -->
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <!-- Botão Primeira Página -->
+                        <a th:if="${hasPrevious}"
+                           th:href="@{/dashboard(page=0, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
+                           class="nb-btn nb-btn-sm bg-[var(--nb-card)]"
+                           title="Primeira página" aria-label="Primeira página">
+                            <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+                        </a>
+                        <span th:unless="${hasPrevious}"
+                              class="nb-btn nb-btn-sm bg-[var(--nb-card)] opacity-40 cursor-not-allowed" aria-hidden="true">
+                            <i class="fas fa-angle-double-left"></i>
+                        </span>
+
+                        <!-- Botão Anterior -->
+                        <a th:if="${hasPrevious}"
+                           th:href="@{/dashboard(page=${currentPage - 1}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
+                           class="nb-btn nb-btn-sm bg-[var(--nb-card)]">
+                            <i class="fas fa-angle-left mr-1" aria-hidden="true"></i>Anterior
+                        </a>
+                        <span th:unless="${hasPrevious}"
+                              class="nb-btn nb-btn-sm bg-[var(--nb-card)] opacity-40 cursor-not-allowed">
+                            <i class="fas fa-angle-left mr-1" aria-hidden="true"></i>Anterior
+                        </span>
+
+                        <!-- Números das páginas (mostra até 5 páginas próximas) -->
+                        <div class="flex gap-1">
+                            <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                                <th:block th:if="${i >= currentPage - 2 and i <= currentPage + 2}">
+                                    <a th:if="${i != currentPage}"
+                                       th:href="@{/dashboard(page=${i}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
+                                       th:text="${i + 1}"
+                                       class="nb-btn nb-btn-sm bg-[var(--nb-card)]">
+                                    </a>
+                                    <span th:if="${i == currentPage}"
+                                          th:text="${i + 1}"
+                                          class="nb-btn nb-btn-sm bg-[var(--nb-ink)] !text-[var(--nb-paper)]">
+                                    </span>
+                                </th:block>
                             </th:block>
-                        </th:block>
+                        </div>
+
+                        <!-- Botão Próximo -->
+                        <a th:if="${hasNext}"
+                           th:href="@{/dashboard(page=${currentPage + 1}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
+                           class="nb-btn nb-btn-sm bg-[var(--nb-card)]">
+                            Próximo<i class="fas fa-angle-right ml-1" aria-hidden="true"></i>
+                        </a>
+                        <span th:unless="${hasNext}"
+                              class="nb-btn nb-btn-sm bg-[var(--nb-card)] opacity-40 cursor-not-allowed">
+                            Próximo<i class="fas fa-angle-right ml-1" aria-hidden="true"></i>
+                        </span>
+
+                        <!-- Botão Última Página -->
+                        <a th:if="${hasNext}"
+                           th:href="@{/dashboard(page=${totalPages - 1}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
+                           class="nb-btn nb-btn-sm bg-[var(--nb-card)]"
+                           title="Última página" aria-label="Última página">
+                            <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+                        </a>
+                        <span th:unless="${hasNext}"
+                              class="nb-btn nb-btn-sm bg-[var(--nb-card)] opacity-40 cursor-not-allowed" aria-hidden="true">
+                            <i class="fas fa-angle-double-right"></i>
+                        </span>
                     </div>
+                </div>
 
-                    <!-- Botão Próximo -->
-                    <a th:if="${hasNext}"
-                       th:href="@{/dashboard(page=${currentPage + 1}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
-                       class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm">
-                        Próximo<i class="fas fa-angle-right ml-1"></i>
-                    </a>
-                    <span th:unless="${hasNext}"
-                          class="px-3 py-1 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">
-                        Próximo<i class="fas fa-angle-right ml-1"></i>
-                    </span>
-
-                    <!-- Botão Última Página -->
-                    <a th:if="${hasNext}"
-                       th:href="@{/dashboard(page=${totalPages - 1}, status=${filterStatus}, studentId=${filterStudentId}, professorId=${filterProfessorId})}"
-                       class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
-                       title="Última página">
-                        <i class="fas fa-angle-double-right"></i>
-                    </a>
-                    <span th:unless="${hasNext}"
-                          class="px-3 py-1 bg-gray-100 text-gray-400 rounded text-sm cursor-not-allowed">
-                        <i class="fas fa-angle-double-right"></i>
-                    </span>
+                <!-- Mensagem quando há apenas uma página -->
+                <div th:if="${totalPages <= 1 and totalElements > 0}" class="mt-4 text-sm font-medium opacity-70 text-center">
+                    Exibindo todos os <span th:text="${totalElements}">0</span> processo(s)
                 </div>
             </div>
-
-            <!-- Mensagem quando há apenas uma página -->
-            <div th:if="${totalPages <= 1 and totalElements > 0}" class="mt-4 text-sm text-gray-500 text-center">
-                Exibindo todos os <span th:text="${totalElements}">0</span> processo(s)
-            </div>
-
-        </div>
+        </section>
     </div>
 </div>
-

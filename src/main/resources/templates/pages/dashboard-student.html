@@ -1,260 +1,224 @@
-<div th:fragment="content" class="p-6 bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto">
-        <!-- Cabeçalho -->
-        <div class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 flex items-center gap-3">
-                <i class="fas fa-graduation-cap text-green-600"></i>Dashboard do Estudante
-            </h1>
-            <p class="text-gray-600 mt-2">Acompanhe seus processos e submissões</p>
+<div th:fragment="content" class="flex flex-col gap-6">
+    <section class="nb-card overflow-hidden" aria-labelledby="student-title">
+        <div class="bg-[var(--nb-ink)] text-[var(--nb-paper)] px-6 py-4">
+            <p class="font-mono-nb text-[11px] font-bold uppercase tracking-[0.2em] opacity-70">■ Estudante</p>
+            <h1 id="student-title" class="text-2xl sm:text-3xl font-black uppercase tracking-tight"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Dashboard do Estudante</h1>
+            <p class="font-medium opacity-70 text-sm">Acompanhe seus processos e submissões</p>
         </div>
+    </section>
 
-        <!-- Mensagem de Sucesso -->
-        <div th:if="${successMessage}" class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-3">
-            <i class="fas fa-check-circle"></i>
-            <span th:text="${successMessage}"></span>
+    <div th:if="${successMessage}" role="status" class="border-[3px] border-[var(--nb-ink)] rounded-xl bg-[var(--nb-green)] text-black shadow-[4px_4px_0_#111] px-4 py-3 flex items-center gap-3 font-bold">
+        <i class="fas fa-check-circle" aria-hidden="true"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" role="alert" class="border-[3px] border-[var(--nb-ink)] rounded-xl bg-[#FF6B6B] text-black shadow-[4px_4px_0_#111] px-4 py-3 flex items-center gap-3 font-bold">
+        <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <section class="nb-card overflow-hidden" aria-labelledby="student-stats-title">
+        <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-green)]">
+            <h2 id="student-stats-title" class="text-lg font-black uppercase text-black">Estatísticas rápidas</h2>
         </div>
-
-        <!-- Mensagem de Erro -->
-        <div th:if="${errorMessage}" class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-3">
-            <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${errorMessage}"></span>
-        </div>
-
-        <!-- Estatísticas Rápidas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-blue-600">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-semibold">Total de Processos</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-2" th:text="${processes != null ? #lists.size(processes) : 0}">0</p>
-                    </div>
-                    <i class="fas fa-folder text-blue-600 text-4xl opacity-20"></i>
-                </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="nb-card p-4 bg-[var(--nb-cyan)]">
+                <p class="font-mono-nb text-[11px] font-black uppercase text-black">Total de Processos</p>
+                <p class="text-4xl font-black text-black" th:text="${processes != null ? #lists.size(processes) : 0}">0</p>
             </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-yellow-600">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-semibold">SOB ANÁLISE</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-2" id="processingCount">0</p>
-                    </div>
-                    <i class="fas fa-hourglass text-yellow-600 text-4xl opacity-20"></i>
-                </div>
+            <div class="nb-card p-4 bg-[var(--nb-yellow)]">
+                <p class="font-mono-nb text-[11px] font-black uppercase text-black">Sob análise</p>
+                <p class="text-4xl font-black text-black" id="processingCount">0</p>
             </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-green-600">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-semibold">Aprovados</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-2" id="approvedCount">0</p>
-                    </div>
-                    <i class="fas fa-check-circle text-green-600 text-4xl opacity-20"></i>
-                </div>
+            <div class="nb-card p-4 bg-[var(--nb-green)]">
+                <p class="font-mono-nb text-[11px] font-black uppercase text-black">Aprovados</p>
+                <p class="text-4xl font-black text-black" id="approvedCount">0</p>
             </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-red-600">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm font-semibold">Indeferidos</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-2" id="rejectedCount">0</p>
-                    </div>
-                    <i class="fas fa-times-circle text-red-600 text-4xl opacity-20"></i>
-                </div>
+            <div class="nb-card p-4 bg-[#FF6B6B]">
+                <p class="font-mono-nb text-[11px] font-black uppercase text-black">Indeferidos</p>
+                <p class="text-4xl font-black text-black" id="rejectedCount">0</p>
             </div>
         </div>
+    </section>
 
-        <!-- Meus Processos -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-            <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-list"></i>Meus Processos
-                </h2>
+    <section class="nb-card overflow-hidden" aria-labelledby="my-processes-title">
+        <div class="bg-[var(--nb-ink)] text-[var(--nb-paper)] px-6 py-4">
+            <h2 id="my-processes-title" class="text-2xl font-black uppercase flex items-center gap-2">
+                <i class="fas fa-list" aria-hidden="true"></i>Meus Processos
+            </h2>
+        </div>
+
+        <div class="p-6">
+            <div class="mb-6 flex gap-3 items-end flex-wrap">
+                <div class="flex-1 min-w-[250px]">
+                    <label for="statusFilter" class="nb-label">Filtrar por Status</label>
+                    <select id="statusFilter" name="status" onchange="filterProcesses()" class="nb-select">
+                        <option value="">Todos os Status</option>
+                        <option value="WAITING">Aguardando</option>
+                        <option value="UNDER_ANALISYS">SOB ANÁLISE</option>
+                        <option value="APPROVED">Aprovado</option>
+                        <option value="REJECTED">Rejeitado</option>
+                    </select>
+                </div>
+                <button onclick="resetFilters()" class="nb-btn nb-btn-sm bg-[var(--nb-card)]">
+                    <i class="fas fa-redo mr-2" aria-hidden="true"></i>Limpar Filtro
+                </button>
             </div>
 
-            <div class="p-6">
-                <!-- Filtros -->
-                <div class="mb-6 flex gap-3 items-end flex-wrap">
-                    <div class="flex-1 min-w-[250px]">
-                        <label for="statusFilter" class="block text-sm font-semibold text-gray-700 mb-2">Filtrar por Status</label>
-                        <select id="statusFilter" name="status" onchange="filterProcesses()"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="">Todos os Status</option>
-                            <option value="WAITING">Aguardando</option>
-                            <option value="UNDER_ANALISYS">SOB ANÁLISE</option>
-                            <option value="APPROVED">Aprovado</option>
-                            <option value="REJECTED">Rejeitado</option>
-                        </select>
-                    </div>
-                    <button onclick="resetFilters()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors font-semibold">
-                        <i class="fas fa-redo mr-2"></i>Limpar Filtro
-                    </button>
-                </div>
-
-                <!-- Tabela de Processos -->
-                <div th:if="${processes != null and !processes.isEmpty()}" class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-100">
+            <div th:if="${processes != null and !processes.isEmpty()}">
+                <div class="nb-table-wrap">
+                    <table class="nb-table">
+                        <thead>
                         <tr>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Número</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Título</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Assunto</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Documento</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Criado em</th>
-                            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Ações</th>
+                            <th scope="col">Número</th>
+                            <th scope="col">Título</th>
+                            <th scope="col">Assunto</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Documento</th>
+                            <th scope="col">Criado em</th>
+                            <th scope="col"><span class="sr-only">Ações</span></th>
                         </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
-                        <tr th:each="proc : ${processes}" class="bg-white hover:bg-gray-50 transition-colors duration-200 process-row" th:data-status="${proc.status.name()}">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded" th:text="${proc.number}"></span>
+                        <tbody>
+                        <tr th:each="proc : ${processes}" class="process-row" th:data-status="${proc.status.name()}">
+                            <td>
+                                <span class="nb-tag bg-[var(--nb-cyan)] text-black font-mono-nb" th:text="${proc.number}"></span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
+                            <td>
                                 <span th:text="${proc.title ?: 'Sem título'}"></span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
+                            <td>
                                 <span th:text="${proc.subject.title ?: '—'}"></span>
                             </td>
-                            <td class="px-6 py-4 text-sm">
-                                    <span th:if="${proc.status.name() == 'WAITING'}" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
-                                        <i class="fas fa-clock mr-1"></i>Aguardando
-                                    </span>
-                                <span th:if="${proc.status.name() == 'UNDER_ANALISYS'}" class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                                        <i class="fas fa-spinner mr-1"></i>SOB ANÁLISE
-                                    </span>
-                                <span th:if="${proc.status.name() == 'APPROVED'}" class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                                        <i class="fas fa-check mr-1"></i>Aprovado
-                                    </span>
-                                <span th:if="${proc.status.name() == 'REJECTED'}" class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">
-                                        <i class="fas fa-times mr-1"></i>Rejeitado
-                                    </span>
+                            <td>
+                                <span th:if="${proc.status.name() == 'WAITING'}" class="nb-badge bg-[var(--nb-yellow)] text-black">
+                                    <i class="fas fa-clock mr-1" aria-hidden="true"></i>Aguardando
+                                </span>
+                                <span th:if="${proc.status.name() == 'UNDER_ANALISYS'}" class="nb-badge bg-[var(--nb-cyan)] text-black">
+                                    <i class="fas fa-spinner mr-1" aria-hidden="true"></i>SOB ANÁLISE
+                                </span>
+                                <span th:if="${proc.status.name() == 'APPROVED'}" class="nb-badge bg-[var(--nb-green)] text-black">
+                                    <i class="fas fa-check mr-1" aria-hidden="true"></i>Aprovado
+                                </span>
+                                <span th:if="${proc.status.name() == 'REJECTED'}" class="nb-badge bg-[#FF6B6B] text-black">
+                                    <i class="fas fa-times mr-1" aria-hidden="true"></i>Rejeitado
+                                </span>
                             </td>
-                            <!-- Coluna de Documento (REQFUNC 16) -->
-                            <td class="px-6 py-4 text-sm">
-                                    <span th:if="${proc.document != null}" class="inline-flex items-center text-green-600">
-                                        <i class="fas fa-file-pdf mr-1"></i>
-                                        <a th:href="@{'/processes/' + ${proc.id} + '/download'}"
-                                           class="hover:underline" title="Baixar documento">
-                                            <span th:text="${proc.documentFilename != null ? proc.documentFilename : 'documento.pdf'}"></span>
-                                        </a>
-                                    </span>
-                                <span th:if="${proc.document == null}" class="text-gray-400">
-                                        <i class="fas fa-minus"></i> Sem anexo
-                                    </span>
+                            <td>
+                                <span th:if="${proc.document != null}" class="inline-flex items-center font-bold">
+                                    <i class="fas fa-file-pdf mr-1" aria-hidden="true"></i>
+                                    <a th:href="@{'/processes/' + ${proc.id} + '/download'}"
+                                       class="underline decoration-[3px] underline-offset-4" title="Baixar documento">
+                                        <span th:text="${proc.documentFilename != null ? proc.documentFilename : 'documento.pdf'}"></span>
+                                    </a>
+                                </span>
+                                <span th:if="${proc.document == null}" class="font-medium opacity-60">
+                                    <i class="fas fa-minus" aria-hidden="true"></i> Sem anexo
+                                </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
+                            <td class="font-mono-nb text-sm">
                                 <span th:text="${#temporals.format(proc.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-center">
-                                <a th:href="@{'/processes/' + ${proc.id}}" class="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors font-semibold text-xs">
-                                    <i class="fas fa-eye mr-1"></i>Detalhes
+                            <td class="text-center">
+                                <a th:href="@{'/processes/' + ${proc.id}}" class="nb-btn nb-btn-sm bg-[var(--nb-green)] text-black">
+                                    <i class="fas fa-eye mr-1" aria-hidden="true"></i>Detalhes
                                 </a>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
 
-                <!-- Sem Processos -->
-                <div th:if="${processes == null || processes.isEmpty()}" class="text-center py-12">
-                    <i class="fas fa-inbox text-gray-400 text-5xl mb-4 block"></i>
-                    <p class="text-gray-500 text-lg">Você ainda não possui processos registrados</p>
-                    <p class="text-gray-400 text-sm mt-2">Comece criando um novo processo abaixo</p>
-                </div>
+            <div th:if="${processes == null || processes.isEmpty()}" class="text-center py-12">
+                <i class="fas fa-inbox text-5xl mb-4 block" aria-hidden="true"></i>
+                <p class="text-lg font-black uppercase">Você ainda não possui processos registrados</p>
+                <p class="font-medium opacity-70 text-sm mt-2">Comece criando um novo processo abaixo</p>
             </div>
         </div>
+    </section>
 
-        <!-- Criar Novo Processo (REQFUNC 1 + REQFUNC 16) -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <i class="fas fa-file-medical"></i>Criar Novo Processo
-                </h2>
-            </div>
+    <section class="nb-card overflow-hidden" aria-labelledby="new-process-title">
+        <div class="bg-[var(--nb-ink)] text-[var(--nb-paper)] px-6 py-4">
+            <h2 id="new-process-title" class="text-2xl font-black uppercase flex items-center gap-2">
+                <i class="fas fa-file-medical" aria-hidden="true"></i>Criar Novo Processo
+            </h2>
+        </div>
 
-            <div class="p-6">
-                <form th:action="@{/processes/create}" method="post" enctype="multipart/form-data" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2">
-                            <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Título <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="title" name="title" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                   placeholder="Digite o título do processo">
-                        </div>
+        <div class="p-6">
+            <form th:action="@{/processes/create}" method="post" enctype="multipart/form-data" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="title" class="nb-label">
+                            Título <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="title" name="title" required
+                               class="nb-input"
+                               placeholder="Digite o título do processo">
+                    </div>
 
-                        <div class="md:col-span-2">
-                            <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Descrição <span class="text-red-500">*</span>
-                            </label>
-                            <textarea id="description" name="description" rows="4" required
-                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                      placeholder="Descreva detalhadamente sua solicitação"></textarea>
-                        </div>
+                    <div class="md:col-span-2">
+                        <label for="description" class="nb-label">
+                            Descrição <span class="text-red-500">*</span>
+                        </label>
+                        <textarea id="description" name="description" rows="4" required
+                                  class="nb-textarea"
+                                  placeholder="Descreva detalhadamente sua solicitação"></textarea>
+                    </div>
 
-                        <div>
-                            <label for="subjectId" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Assunto <span class="text-red-500">*</span>
-                            </label>
-                            <select id="subjectId" name="subjectId" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                <option value="">Selecione um assunto</option>
-                                <option th:each="subject : ${subjects}" th:value="${subject.id}" th:text="${subject.title}"></option>
-                            </select>
-                        </div>
+                    <div>
+                        <label for="subjectId" class="nb-label">
+                            Assunto <span class="text-red-500">*</span>
+                        </label>
+                        <select id="subjectId" name="subjectId" required class="nb-select">
+                            <option value="">Selecione um assunto</option>
+                            <option th:each="subject : ${subjects}" th:value="${subject.id}" th:text="${subject.title}"></option>
+                        </select>
+                    </div>
 
-                        <!-- REQFUNC 16: Campo de Upload de Documento PDF -->
-                        <div>
-                            <label for="documentFile" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Documento PDF
-                                <span class="text-gray-400 font-normal">(opcional)</span>
-                            </label>
-                            <div class="relative">
-                                <input type="file" id="documentFile" name="documentFile" accept="application/pdf,.pdf"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                                       onchange="validateFileUpload(this)">
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                Formato aceito: PDF. Tamanho máximo: 5MB.
-                            </p>
-                            <!-- Área de preview do arquivo selecionado -->
-                            <div id="filePreview" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center text-green-700">
-                                        <i class="fas fa-file-pdf text-xl mr-2"></i>
-                                        <span id="fileName" class="font-medium"></span>
-                                        <span id="fileSize" class="text-sm text-green-600 ml-2"></span>
-                                    </div>
-                                    <button type="button" onclick="clearFileInput()"
-                                            class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                    <div>
+                        <label for="documentFile" class="nb-label">
+                            Documento PDF
+                            <span class="font-medium normal-case">(opcional)</span>
+                        </label>
+                        <input type="file" id="documentFile" name="documentFile" accept="application/pdf,.pdf"
+                               class="nb-input"
+                               onchange="validateFileUpload(this)">
+                        <p class="text-xs font-medium opacity-70 mt-2">
+                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
+                            Formato aceito: PDF. Tamanho máximo: 5MB.
+                        </p>
+                        <div id="filePreview" class="hidden mt-3 p-3 border-[3px] border-[var(--nb-ink)] rounded-xl bg-[var(--nb-green)] text-black shadow-[4px_4px_0_#111]">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center font-bold">
+                                    <i class="fas fa-file-pdf text-xl mr-2" aria-hidden="true"></i>
+                                    <span id="fileName" class="font-medium"></span>
+                                    <span id="fileSize" class="text-sm ml-2"></span>
                                 </div>
-                            </div>
-                            <!-- Área de erro de validação -->
-                            <div id="fileError" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                <span id="fileErrorMessage"></span>
+                                <button type="button" onclick="clearFileInput()" aria-label="Remover arquivo selecionado"
+                                        class="font-black underline decoration-[3px] underline-offset-4">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
                             </div>
                         </div>
+                        <div id="fileError" role="alert" class="hidden mt-3 p-3 border-[3px] border-[var(--nb-ink)] rounded-xl bg-[#FF6B6B] text-black shadow-[4px_4px_0_#111] font-bold">
+                            <i class="fas fa-exclamation-circle mr-1" aria-hidden="true"></i>
+                            <span id="fileErrorMessage"></span>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="flex gap-3 justify-end pt-4 border-t border-gray-200">
-                        <button type="reset" onclick="clearFileInput()"
-                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold">
-                            <i class="fas fa-times mr-2"></i>Cancelar
-                        </button>
-                        <button type="submit"
-                                class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
-                            <i class="fas fa-check mr-2"></i>Criar Processo
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="flex gap-3 justify-end pt-4 border-t-[3px] border-[var(--nb-ink)]">
+                    <button type="reset" onclick="clearFileInput()" class="nb-btn bg-[var(--nb-card)]">
+                        <i class="fas fa-times mr-2" aria-hidden="true"></i>Cancelar
+                    </button>
+                    <button type="submit" class="nb-btn bg-[var(--nb-ink)] !text-[var(--nb-paper)]">
+                        <i class="fas fa-check mr-2" aria-hidden="true"></i>Criar Processo
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
+    </section>
 
     <script>
         // Constantes de validação

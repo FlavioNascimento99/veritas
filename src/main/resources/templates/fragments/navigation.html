@@ -1,69 +1,63 @@
-<nav class="dark:bg-gray-800 sticky top-0 z-50" 
-    th:fragment="navigation(activePage)" 
-    x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', mobileMenuOpen: false }" 
-    x-init="darkMode && document.documentElement.classList.add('dark')"
-    >
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navigation(activePage)"
+     x-data="{ mobileMenuOpen: false }"
+     class="bg-[var(--nb-ink)] text-[var(--nb-paper)] border-b-[3px] border-[var(--nb-ink)]"
+     aria-label="Navegação principal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex items-center justify-between h-14">
+            <p class="font-mono-nb text-[11px] font-bold uppercase tracking-[0.22em] opacity-80 hidden sm:block" aria-hidden="true">
+                // colegiado · processos · votação
+            </p>
 
-            <!-- Menu Desktop -->
-            <div class="hidden md:flex items-center space-x-8">
-                <a th:href="@{/}" 
-                   th:class="${activePage == 'home'} ? 
-                   'text-white dark:text-indigo-300 border-b-2 border-indigo-600 dark:border-indigo-400' 
-                   : 
-                   'text-white dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400'
-                   "
-                   class="px-3 py-2 text-sm font-medium transition duration-300">
-                    <i class="fas fa-home mr-1"></i>Home
+            <div class="hidden md:flex items-center gap-2">
+                <a th:href="@{/}" th:aria-current="${activePage == 'home'} ? 'page' : null"
+                   th:classappend="${activePage == 'home'} ? ' bg-[var(--nb-yellow)] !text-black' : ''"
+                   class="px-4 py-1.5 text-sm font-extrabold uppercase tracking-wide border-[2.5px] border-transparent hover:border-[var(--nb-paper)] rounded-lg transition">
+                    <i class="fas fa-home mr-1" aria-hidden="true"></i>Home
                 </a>
-
-                <a th:href="@{/about}" 
-                   th:class="${activePage == 'about'} ? 
-                   'text-white dark:text-indigo-300 border-b-2 border-indigo-600 dark:border-indigo-400' 
-                   : 
-                   'text-white dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400'"
-                   class="px-3 py-2 text-sm font-medium transition duration-300">
-                    <i class="fas fa-info-circle mr-1"></i>Sobre
+                <a th:href="@{/about}" th:aria-current="${activePage == 'about'} ? 'page' : null"
+                   th:classappend="${activePage == 'about'} ? ' bg-[var(--nb-yellow)] !text-black' : ''"
+                   class="px-4 py-1.5 text-sm font-extrabold uppercase tracking-wide border-[2.5px] border-transparent hover:border-[var(--nb-paper)] rounded-lg transition">
+                    <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>Sobre
                 </a>
-                
-                <a th:href="@{/contact}" 
-                   th:class="${activePage == 'contact'} ? 
-                   'text-white dark:text-indigo-300 border-b-2 border-indigo-600 dark:border-indigo-400' 
-                   : 
-                   'text-white dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400'"
-                   class="px-3 py-2 text-sm font-medium transition duration-300">
-                    <i class="fas fa-envelope mr-1"></i>
-                    Contato
+                <a th:href="@{/contact}" th:aria-current="${activePage == 'contact'} ? 'page' : null"
+                   th:classappend="${activePage == 'contact'} ? ' bg-[var(--nb-yellow)] !text-black' : ''"
+                   class="px-4 py-1.5 text-sm font-extrabold uppercase tracking-wide border-[2.5px] border-transparent hover:border-[var(--nb-paper)] rounded-lg transition">
+                    <i class="fas fa-envelope mr-1" aria-hidden="true"></i>Contato
                 </a>
-
-                <a th:href="@{/login}" 
-                   th:class="${activePage == 'login'} ? 
-                   'text-white dark:text-indigo-300 border-b-2 border-indigo-600 dark:border-indigo-400' 
-                   : 
-                   'text-white dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400'"
-                   class="px-3 py-2 text-sm font-medium transition duration-300">
-                <i class="fa-solid fa-door-closed"></i>
-                    Login
+                <a th:href="@{/login}" th:aria-current="${activePage == 'login'} ? 'page' : null"
+                   th:classappend="${activePage == 'login'} ? ' bg-[var(--nb-yellow)] !text-black' : ''"
+                   class="px-4 py-1.5 text-sm font-extrabold uppercase tracking-wide border-[2.5px] border-transparent hover:border-[var(--nb-paper)] rounded-lg transition">
+                    <i class="fa-solid fa-door-closed mr-1" aria-hidden="true"></i>Login
                 </a>
-
             </div>
+
+            <button type="button" class="md:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border-[2.5px] border-[var(--nb-paper)] font-extrabold text-xs uppercase"
+                    @click="mobileMenuOpen = !mobileMenuOpen" :aria-expanded="mobileMenuOpen" aria-controls="nb-mobile-menu" aria-label="Abrir menu">
+                <i class="fas fa-bars" aria-hidden="true"></i>Menu
+            </button>
+
+            <span class="hidden md:inline-flex nb-tag bg-[var(--nb-green)] !text-black font-mono-nb" aria-hidden="true">v1 · IFPB</span>
         </div>
+    </div>
 
-        <!-- Mobile Menu -->
-        <div x-show="mobileMenuOpen" 
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 transform -translate-y-2"
-             x-transition:enter-end="opacity-100 transform translate-y-0"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 transform translate-y-0"
-             x-transition:leave-end="opacity-0 transform -translate-y-2"
-             class="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-            <div class="px-2 pt-2 pb-3 space-y-1">
-                <a th:href="@{/}" class="block px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400">Home</a>
-                <a th:href="@{/about}" class="block px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400">Sobre</a>
-                <a th:href="@{/contact}" class="block px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400">Contato</a>
-            </div>
+    <div id="nb-mobile-menu" x-show="mobileMenuOpen" x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 -translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-2"
+         class="md:hidden border-t-[2.5px] border-[var(--nb-paper)]">
+        <div class="px-4 py-3 flex flex-col gap-2">
+            <a th:href="@{/}" class="px-3 py-2 rounded-lg font-extrabold uppercase text-sm border-2 border-transparent hover:border-[var(--nb-paper)]">Home</a>
+            <a th:href="@{/about}" class="px-3 py-2 rounded-lg font-extrabold uppercase text-sm border-2 border-transparent hover:border-[var(--nb-paper)]">Sobre</a>
+            <a th:href="@{/contact}" class="px-3 py-2 rounded-lg font-extrabold uppercase text-sm border-2 border-transparent hover:border-[var(--nb-paper)]">Contato</a>
+            <a th:href="@{/login}" class="px-3 py-2 rounded-lg font-extrabold uppercase text-sm bg-[var(--nb-yellow)] !text-black border-2 border-[var(--nb-yellow)]">Login</a>
         </div>
     </div>
 </nav>
+</body>
+</html>

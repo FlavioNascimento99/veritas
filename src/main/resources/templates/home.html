@@ -1,31 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title th:text="${pageTitle ?: 'Veritas'}">Veritas - Homepage</title>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</head>
-<body class="mx-auto max-h-screen overflow-y-auto">
-   <header>
-      <!-- Example of permanent header of application-->
-      <div th:replace="~{fragments/header :: header}"></div>
-   </header>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="min-h-screen flex flex-col antialiased">
+    <a href="#conteudo" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-[#FFDE59] focus:text-black focus:font-extrabold focus:px-4 focus:py-2 focus:border-[3px] focus:border-black">
+        Pular para o conteúdo
+    </a>
 
-   
-   <!-- Rotative content -->
-   <main role="main">
-      <!-- Initial Application Load starts here. -->
-      <div th:replace="~{__${mainContent}__}"></div>
-   </main>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navigation :: navigation(${activePage})}"></div>
 
+    <main id="conteudo" role="main" class="flex-1 w-full nb-grid-bg">
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+            <div th:replace="~{__${mainContent}__}"></div>
+        </div>
+    </main>
 
-   <footer>
-      <!-- Example between insert and replace -->
-      <div th:replace="~{fragments/footer :: footer}"></div>
-      <!-- <div th:replace="fragments/scripts :: scripts"></div> -->
-   </footer>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

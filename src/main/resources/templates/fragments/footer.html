@@ -1,37 +1,35 @@
-<footer class="bg-white border-t border-gray-200" th:fragment="footer">
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-            <!-- Brand Esquerda -->
-            <div class="flex items-center mb-6 md:mb-0">
-                <i class="fas fa-book-open text-2xl text-indigo-600 mr-3"></i>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<footer th:fragment="footer" class="border-t-[3px] border-[var(--nb-ink)] bg-[var(--nb-ink)] text-[var(--nb-paper)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <div class="flex items-start gap-3">
+                <span class="w-11 h-11 inline-flex items-center justify-center bg-[var(--nb-yellow)] text-black border-[3px] border-[var(--nb-paper)] rounded-xl" aria-hidden="true">
+                    <i class="fas fa-book-open text-xl"></i>
+                </span>
                 <div>
-                    <p class="text-lg font-bold text-gray-900">Veritas</p>
-                    <p class="text-xs text-gray-500">Gestão de Processos Acadêmicos</p>
+                    <p class="text-xl font-black uppercase tracking-tight">Veritas</p>
+                    <p class="font-mono-nb text-xs uppercase tracking-[0.18em] opacity-70">Gestão de processos acadêmicos</p>
+                    <p class="mt-2 inline-flex nb-tag bg-[var(--nb-pink)] !text-black">Colegiado · IFPB</p>
                 </div>
             </div>
 
-            <!-- Menu Centro -->
-            <div class="flex items-center space-x-8 mb-6 md:mb-0" sec:authorize="isAuthenticated()">
-                <a th:href="@{/dashboard}" class="text-gray-600 hover:text-indigo-600 text-sm font-medium transition-colors">
-                    Dashboard
-                </a>
-                <a th:href="@{/processes}" class="text-gray-600 hover:text-indigo-600 text-sm font-medium transition-colors">
-                    Processos
-                </a>
-                <a th:href="@{/about}" class="text-gray-600 hover:text-indigo-600 text-sm font-medium transition-colors">
-                    Sobre
-                </a>
-                <a th:href="@{/contact}" class="text-gray-600 hover:text-indigo-600 text-sm font-medium transition-colors">
-                    Contato
-                </a>
-            </div>
+            <nav aria-label="Links do rodapé" class="flex flex-wrap gap-2 md:justify-center">
+                <a th:href="@{/}" class="px-3 py-1.5 text-xs font-extrabold uppercase border-[2.5px] border-[var(--nb-paper)] rounded-lg hover:bg-[var(--nb-yellow)] hover:text-black hover:border-[var(--nb-yellow)] transition">Home</a>
+                <a th:href="@{/about}" class="px-3 py-1.5 text-xs font-extrabold uppercase border-[2.5px] border-[var(--nb-paper)] rounded-lg hover:bg-[var(--nb-yellow)] hover:text-black hover:border-[var(--nb-yellow)] transition">Sobre</a>
+                <a th:href="@{/contact}" class="px-3 py-1.5 text-xs font-extrabold uppercase border-[2.5px] border-[var(--nb-paper)] rounded-lg hover:bg-[var(--nb-yellow)] hover:text-black hover:border-[var(--nb-yellow)] transition">Contato</a>
+                <a sec:authorize="isAuthenticated()" th:href="@{/dashboard}" class="px-3 py-1.5 text-xs font-extrabold uppercase border-[2.5px] border-[var(--nb-paper)] rounded-lg hover:bg-[var(--nb-green)] hover:text-black hover:border-[var(--nb-green)] transition">Dashboard</a>
+            </nav>
 
-            <!-- Copyright Direita -->
-            <div class="text-center md:text-right">
-                <p class="text-xs text-gray-500">
-                    &copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span> Veritas. Todos os direitos reservados.
+            <div class="md:text-right">
+                <p class="font-mono-nb text-xs uppercase tracking-[0.18em] opacity-70">Feito para o colegiado</p>
+                <p class="text-xs font-bold mt-1 opacity-80">
+                    &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Veritas. Todos os direitos reservados.
                 </p>
             </div>
         </div>
     </div>
 </footer>
+</body>
+</html>

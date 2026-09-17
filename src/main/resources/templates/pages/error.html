@@ -1,12 +1,10 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <div class="flex justify-center items-center min-h-screen">
-        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
-            <i class="fas fa-exclamation-triangle text-red-500 text-5xl mb-4"></i>
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">Erro</h1>
-            <p class="text-gray-600 mb-6" th:text="${errorMessage != null ? errorMessage : 'Algo deu errado. Tente novamente.'}"></p>
-            <a href="/dashboard" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
-                <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
-            </a>
-        </div>
-    </div>
+<div th:fragment="content" class="flex justify-center py-10">
+    <section class="nb-card w-full max-w-md p-8 text-center bg-[#FF6B6B]" role="alert" aria-labelledby="error-title">
+        <span class="w-14 h-14 inline-flex items-center justify-center rounded-2xl border-[3px] border-black bg-white text-black text-3xl" aria-hidden="true">
+            <i class="fas fa-exclamation-triangle"></i>
+        </span>
+        <h1 id="error-title" class="mt-4 text-3xl font-black uppercase text-black">Ops! Erro</h1>
+        <p class="mt-2 font-bold text-black" th:text="${errorMessage != null ? errorMessage : 'Algo deu errado. Tente novamente.'}">Algo deu errado. Tente novamente.</p>
+        <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm mt-6 bg-white text-black"><i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar ao dashboard</a>
+    </section>
 </div>

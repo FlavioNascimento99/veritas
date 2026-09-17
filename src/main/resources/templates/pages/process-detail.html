@@ -1,434 +1,348 @@
-<div th:fragment="content" class="min-h-screen bg-gray-50 p-6">
-    <div class="max-w-5xl mx-auto">
-        <!-- Botão Voltar -->
-        <div class="mb-8">
-            <a th:href="@{/dashboard}" class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>Voltar
-            </a>
+<div th:fragment="content" class="flex flex-col gap-6">
+    <div class="w-full max-w-5xl mx-auto flex flex-col gap-6">
+        <div>
+            <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm bg-[var(--nb-card)]"><i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar</a>
         </div>
 
-        <!-- Mensagens Flash -->
-        <div th:if="${successMessage}" class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-3">
-            <i class="fas fa-check-circle"></i>
+        <div th:if="${successMessage}" role="status" class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-green)] text-black shadow-[4px_4px_0_var(--nb-ink)] flex items-center gap-3">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
             <span th:text="${successMessage}"></span>
         </div>
-        <div th:if="${errorMessage}" class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-3">
-            <i class="fas fa-exclamation-circle"></i>
+        <div th:if="${errorMessage}" role="alert" class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[#FF6B6B] text-black shadow-[4px_4px_0_var(--nb-ink)] flex items-center gap-3">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
             <span th:text="${errorMessage}"></span>
         </div>
 
-        <!-- Cabeçalho Principal -->
-        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-            <div class="flex justify-between items-start mb-6">
+        <section class="nb-card overflow-hidden" aria-labelledby="process-title">
+            <div class="bg-[var(--nb-ink)] text-[var(--nb-paper)] px-6 py-4 flex flex-wrap justify-between items-start gap-4">
                 <div class="flex-1">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2" th:text="${process.title ?: process.number}"></h1>
-                    <p class="text-gray-600">Processo #<span th:text="${process.number}"></span></p>
+                    <p class="font-mono-nb text-[11px] font-bold uppercase tracking-[0.2em] opacity-70">■ Processo #<span th:text="${process.number}"></span></p>
+                    <h1 id="process-title" class="text-4xl font-black uppercase tracking-tight" th:text="${process.title ?: process.number}"></h1>
                 </div>
-                <span th:if="${process.status}"
-                      th:classappend="${process.status.name() == 'WAITING'} ? 'bg-yellow-100 text-yellow-800' :
-                                     (${process.status.name() == 'UNDER_ANALISYS'} ? 'bg-blue-100 text-blue-800' :
-                                     (${process.status.name() == 'APPROVED'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'))"
-                      class="px-4 py-2 text-sm font-bold rounded-full whitespace-nowrap"
+                <span th:if="${process.status}" class="nb-badge"
+                      th:classappend="${process.status.name() == 'WAITING'} ? ' bg-[var(--nb-yellow)] text-black' :
+                                     (${process.status.name() == 'UNDER_ANALISYS'} ? ' bg-[var(--nb-cyan)] text-black' :
+                                     (${process.status.name() == 'APPROVED'} ? ' bg-[var(--nb-green)] text-black' : ' bg-[#FF6B6B] !text-black'))"
                       th:text="${process.status.getStatus()}">
                 </span>
             </div>
 
-            <!-- Grid de Informações -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 border-l-4 border-indigo-600">
-                    <p class="text-sm text-indigo-600 font-semibold uppercase tracking-wide">Assunto</p>
-                    <p class="text-lg font-bold text-gray-900 mt-1" th:text="${process.subject?.title ?: 'Sem assunto'}"></p>
-                </div>
+            <div class="p-6 sm:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="nb-card p-4 bg-[var(--nb-purple)]">
+                        <p class="font-mono-nb text-[11px] font-black uppercase text-black">Assunto</p>
+                        <p class="text-lg font-black text-black mt-1" th:text="${process.subject?.title ?: 'Sem assunto'}"></p>
+                    </div>
 
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border-l-4 border-blue-600">
-                    <p class="text-sm text-blue-600 font-semibold uppercase tracking-wide">Requerente</p>
-                    <p class="text-lg font-bold text-gray-900 mt-1" th:text="${process.processCreator?.name ?: 'N/A'}"></p>
-                </div>
+                    <div class="nb-card p-4 bg-[var(--nb-cyan)]">
+                        <p class="font-mono-nb text-[11px] font-black uppercase text-black">Requerente</p>
+                        <p class="text-lg font-black text-black mt-1" th:text="${process.processCreator?.name ?: 'N/A'}"></p>
+                    </div>
 
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border-l-4 border-purple-600">
-                    <p class="text-sm text-purple-600 font-semibold uppercase tracking-wide">Professor Relator</p>
-                    <p class="text-lg font-bold text-gray-900 mt-1" th:text="${process.processRapporteur?.name ?: 'Não atribuído'}"></p>
-                </div>
+                    <div class="nb-card p-4 bg-[var(--nb-pink)]">
+                        <p class="font-mono-nb text-[11px] font-black uppercase text-black">Professor Relator</p>
+                        <p class="text-lg font-black text-black mt-1" th:text="${process.processRapporteur?.name ?: 'Não atribuído'}"></p>
+                    </div>
 
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border-l-4 border-green-600">
-                    <p class="text-sm text-green-600 font-semibold uppercase tracking-wide">Data de Criação</p>
-                    <p class="text-lg font-bold text-gray-900 mt-1" th:text="${process.createdAt != null ? #temporals.format(process.createdAt, 'dd/MM/yyyy') : 'N/A'}"></p>
+                    <div class="nb-card p-4 bg-[var(--nb-green)]">
+                        <p class="font-mono-nb text-[11px] font-black uppercase text-black">Data de Criação</p>
+                        <p class="text-lg font-black text-black mt-1" th:text="${process.createdAt != null ? #temporals.format(process.createdAt, 'dd/MM/yyyy') : 'N/A'}"></p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Descrição -->
-        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                <i class="fas fa-file-alt text-indigo-600 mr-2"></i>Descrição
-            </h2>
-            <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-gray-300">
-                <p class="text-gray-700 leading-relaxed whitespace-pre-wrap"
-                   th:text="${process.description ?: 'Nenhuma descrição disponível'}"></p>
+        <section class="nb-card overflow-hidden" aria-labelledby="process-desc-title">
+            <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-card)]">
+                <h2 id="process-desc-title" class="text-2xl font-black uppercase"><i class="fas fa-file-alt" aria-hidden="true"></i>Descrição</h2>
             </div>
-        </div>
+            <div class="p-6 sm:p-8">
+                <div class="nb-card-flat p-6">
+                    <p class="font-medium leading-relaxed whitespace-pre-wrap" th:text="${process.description ?: 'Nenhuma descrição disponível'}"></p>
+                </div>
+            </div>
+        </section>
 
         <!-- REQFUNC 16: Seção de Documento PDF -->
-        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                <i class="fas fa-file-pdf text-red-600 mr-2"></i>Documento Anexado
-            </h2>
+        <section class="nb-card overflow-hidden" aria-labelledby="process-doc-title">
+            <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-yellow)]">
+                <h2 id="process-doc-title" class="text-2xl font-black uppercase text-black"><i class="fas fa-file-pdf" aria-hidden="true"></i>Documento Anexado</h2>
+            </div>
+            <div class="p-6 sm:p-8 flex flex-col gap-4">
 
-            <!-- Documento existente -->
-            <div th:if="${process.document != null}" class="space-y-4">
-                <div class="bg-green-50 border border-green-200 rounded-lg p-6">
-                    <div class="flex items-center justify-between flex-wrap gap-4">
-                        <div class="flex items-center">
-                            <div class="bg-red-100 p-3 rounded-lg mr-4">
-                                <i class="fas fa-file-pdf text-red-600 text-2xl"></i>
+                <!-- Documento existente -->
+                <div th:if="${process.document != null}" class="flex flex-col gap-4">
+                    <div class="nb-card-flat p-6 bg-[var(--nb-card)]">
+                        <div class="flex items-center justify-between flex-wrap gap-4">
+                            <div class="flex items-center gap-4">
+                                <span class="nb-tag bg-[#FF6B6B] !text-black text-2xl"><i class="fas fa-file-pdf" aria-hidden="true"></i></span>
+                                <div>
+                                    <p class="font-black" th:text="${process.documentFilename ?: 'documento.pdf'}"></p>
+                                    <p class="text-sm font-medium opacity-70">
+                                        Enviado em: <span class="font-mono-nb" th:text="${process.documentUploadDate != null ? #temporals.format(process.documentUploadDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span>
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="font-semibold text-gray-900" th:text="${process.documentFilename ?: 'documento.pdf'}"></p>
-                                <p class="text-sm text-gray-500">
-                                    Enviado em: <span th:text="${process.documentUploadDate != null ? #temporals.format(process.documentUploadDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span>
-                                </p>
+                            <div class="flex flex-wrap gap-2">
+                                <a th:href="@{'/processes/' + ${process.id} + '/download'}" class="nb-btn nb-btn-sm bg-[var(--nb-ink)] !text-[var(--nb-paper)]"><i class="fas fa-download" aria-hidden="true"></i>Baixar PDF</a>
+                                <form th:if="${canUpload != null and canUpload}" th:action="@{'/processes/' + ${process.id} + '/remove-document'}" method="post" class="inline">
+                                    <button type="submit" onclick="return confirm('Tem certeza que deseja remover o documento?')" class="nb-btn nb-btn-sm bg-[#FF6B6B] !text-black"><i class="fas fa-trash" aria-hidden="true"></i>Remover</button>
+                                </form>
                             </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <!-- Botão de Download -->
-                            <a th:href="@{'/processes/' + ${process.id} + '/download'}"
-                               class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
-                                <i class="fas fa-download mr-2"></i>Baixar PDF
-                            </a>
-                            <!-- Botão de Remover (apenas se canUpload) -->
-                            <form th:if="${canUpload != null and canUpload}" th:action="@{'/processes/' + ${process.id} + '/remove-document'}" method="post" class="inline">
-                                <button type="submit"
-                                        onclick="return confirm('Tem certeza que deseja remover o documento?')"
-                                        class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold">
-                                    <i class="fas fa-trash mr-2"></i>Remover
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Sem documento - opção de upload (apenas para dono e status WAITING) -->
-            <div th:if="${process.document == null and canUpload != null and canUpload}" class="space-y-4">
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                    <p class="text-yellow-700 flex items-center">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Nenhum documento anexado. Você pode anexar um PDF do seu requerimento abaixo.
-                    </p>
-                </div>
-
-                <!-- ATENÇÃO: name="documentFile" para evitar conflito com entidade -->
-                <form th:action="@{'/processes/' + ${process.id} + '/upload'}" method="post" enctype="multipart/form-data" class="space-y-4">
-                    <div>
-                        <label for="documentFile" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Selecione o arquivo PDF
-                        </label>
-                        <input type="file" id="documentFile" name="documentFile" accept="application/pdf,.pdf" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                               onchange="validateUploadFile(this)">
-                        <p class="text-xs text-gray-500 mt-2">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Formato aceito: PDF. Tamanho máximo: 5MB.
-                        </p>
-                        <div id="uploadError" class="hidden mt-2 text-red-600 text-sm">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span id="uploadErrorMessage"></span>
-                        </div>
-                    </div>
-                    <button type="submit"
-                            class="inline-flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold">
-                        <i class="fas fa-upload mr-2"></i>Enviar Documento
-                    </button>
-                </form>
-            </div>
-
-            <!-- Sem documento e não pode fazer upload -->
-            <div th:if="${process.document == null and (canUpload == null or !canUpload)}" class="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                <div class="flex items-center text-gray-500">
-                    <i class="fas fa-file-excel text-gray-400 text-2xl mr-3"></i>
-                    <div>
-                        <p class="font-medium">Nenhum documento anexado</p>
-                        <p th:if="${process.status.name() != 'WAITING'}" class="text-sm">
-                            Não é possível anexar documentos após o processo ser distribuído.
+                <!-- Sem documento - opção de upload (apenas para dono e status WAITING) -->
+                <div th:if="${process.document == null and canUpload != null and canUpload}" class="flex flex-col gap-4">
+                    <div class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-yellow)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-info-circle" aria-hidden="true"></i>
+                            Nenhum documento anexado. Você pode anexar um PDF do seu requerimento abaixo.
                         </p>
                     </div>
+
+                    <!-- ATENÇÃO: name="documentFile" para evitar conflito com entidade -->
+                    <form th:action="@{'/processes/' + ${process.id} + '/upload'}" method="post" enctype="multipart/form-data" class="flex flex-col gap-4">
+                        <div>
+                            <label for="documentFile" class="nb-label">Selecione o arquivo PDF</label>
+                            <input type="file" id="documentFile" name="documentFile" accept="application/pdf,.pdf" required
+                                   class="nb-input" onchange="validateUploadFile(this)">
+                            <p class="text-xs font-bold mt-2 opacity-70">
+                                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                Formato aceito: PDF. Tamanho máximo: 5MB.
+                            </p>
+                            <div id="uploadError" class="hidden mt-2 text-[#B00020] font-bold text-sm">
+                                <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                                <span id="uploadErrorMessage"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="nb-btn nb-btn-sm bg-[var(--nb-green)] text-black"><i class="fas fa-upload" aria-hidden="true"></i>Enviar Documento</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sem documento e não pode fazer upload -->
+                <div th:if="${process.document == null and (canUpload == null or !canUpload)}" class="nb-card-flat p-6">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-file-excel text-2xl" aria-hidden="true"></i>
+                        <div>
+                            <p class="font-black">Nenhum documento anexado</p>
+                            <p th:if="${process.status.name() != 'WAITING'}" class="text-sm font-medium opacity-70">
+                                Não é possível anexar documentos após o processo ser distribuído.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section class="nb-card overflow-hidden" aria-labelledby="process-dates-title">
+                <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-cyan)]">
+                    <h2 id="process-dates-title" class="text-2xl font-black uppercase text-black"><i class="fas fa-calendar" aria-hidden="true"></i>Datas Importantes</h2>
+                </div>
+                <div class="p-6 sm:p-8 flex flex-col gap-4">
+                    <div class="flex justify-between items-center gap-3 pb-3 border-b-[3px] border-[var(--nb-ink)]">
+                        <span class="font-bold">Data de Criação:</span>
+                        <span class="font-mono-nb text-sm font-bold" th:text="${process.createdAt != null ? #temporals.format(process.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span>
+                    </div>
+                    <div class="flex justify-between items-center gap-3 pb-3 border-b-[3px] border-[var(--nb-ink)]" th:if="${process.distributedAt != null}">
+                        <span class="font-bold">Data de Distribuição:</span>
+                        <span class="font-mono-nb text-sm font-bold" th:text="${#temporals.format(process.distributedAt, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <div class="flex justify-between items-center gap-3 pb-3" th:if="${process.solvedAt != null}">
+                        <span class="font-bold">Data de Encerramento:</span>
+                        <span class="font-mono-nb text-sm font-bold" th:text="${#temporals.format(process.solvedAt, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="nb-card overflow-hidden" aria-labelledby="process-status-title">
+                <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-purple)]">
+                    <h2 id="process-status-title" class="text-2xl font-black uppercase text-black"><i class="fas fa-info-circle" aria-hidden="true"></i>Informações do Status</h2>
+                </div>
+                <div class="p-6 sm:p-8 flex flex-col gap-4">
+                    <div class="nb-card-flat p-4 bg-[var(--nb-yellow)]">
+                        <p class="font-mono-nb text-[11px] font-black uppercase text-black">Situação atual</p>
+                        <p class="text-lg font-black text-black mt-2" th:text="${process.status.getStatus()}"></p>
+                    </div>
+                    <div class="nb-card-flat p-4">
+                        <p class="font-mono-nb text-[11px] font-black uppercase opacity-70">Tipo de processo</p>
+                        <p class="text-lg font-black mt-2">Processo Acadêmico</p>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <!-- Informações Adicionais -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <!-- Datas Importantes -->
-            <div class="bg-white rounded-lg shadow-md p-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-calendar text-orange-600 mr-2"></i>Datas Importantes
-                </h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <span class="text-gray-600 font-medium">Data de Criação:</span>
-                        <span class="font-semibold text-gray-900" th:text="${process.createdAt != null ? #temporals.format(process.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span>
-                    </div>
-                    <div class="flex justify-between items-center pb-3 border-b border-gray-200" th:if="${process.distributedAt != null}">
-                        <span class="text-gray-600 font-medium">Data de Distribuição:</span>
-                        <span class="font-semibold text-gray-900" th:text="${#temporals.format(process.distributedAt, 'dd/MM/yyyy HH:mm')}"></span>
-                    </div>
-                    <div class="flex justify-between items-center pb-3" th:if="${process.solvedAt != null}">
-                        <span class="text-gray-600 font-medium">Data de Encerramento:</span>
-                        <span class="font-semibold text-gray-900" th:text="${#temporals.format(process.solvedAt, 'dd/MM/yyyy HH:mm')}"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Status do Processo -->
-            <div class="bg-white rounded-lg shadow-md p-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>Informações do Status
-                </h2>
-                <div class="space-y-4">
-                    <div class="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-600">
-                        <p class="text-sm text-indigo-600 font-semibold">SITUAÇÃO ATUAL</p>
-                        <p class="text-lg font-bold text-gray-900 mt-2" th:text="${process.status.getStatus()}"></p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 font-semibold">TIPO DE PROCESSO</p>
-                        <p class="text-lg font-bold text-gray-900 mt-2">Processo Acadêmico</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Seção de Votação -->
         <!-- NOVA: Votação de Professor (Membro do Colegiado) -->
-        <div th:if="${loggedProfessor != null and !isRapporteur and isProfessorMember}" class="bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">
-                <i class="fas fa-vote-yea text-orange-600 mr-2"></i>Seu Voto
-            </h2>
-
-            <!-- Informação sobre a votação -->
-            <div class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg mb-6">
-                <p class="text-blue-700 flex items-center">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <strong>Como membro do colegiado:</strong> Você está votando pelo deferimento ou indeferimento deste processo.
-                </p>
+        <section th:if="${loggedProfessor != null and !isRapporteur and isProfessorMember}" class="nb-card overflow-hidden" aria-labelledby="member-vote-title">
+            <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-cyan)]">
+                <h2 id="member-vote-title" class="text-2xl font-black uppercase text-black"><i class="fas fa-vote-yea" aria-hidden="true"></i>Seu Voto</h2>
             </div>
-
-            <!-- Informação sobre a decisão do relator -->
-            <div class="bg-gray-50 p-6 rounded-lg mb-6 border-l-4" 
-                 th:classappend="${process.rapporteurVote != null and process.rapporteurVote.name() == 'DEFERIMENTO'} ? 'border-green-500' : 'border-red-500'">
-                <p class="text-sm text-gray-600 font-semibold uppercase mb-2">Decisão do Relator</p>
-                <div class="flex items-center gap-2">
-                    <i th:class="${process.rapporteurVote != null and process.rapporteurVote.name() == 'DEFERIMENTO'} ? 'fas fa-check-circle text-green-600' : 'fas fa-times-circle text-red-600'"
-                       class="text-2xl"></i>
-                    <span class="text-lg font-bold"
-                          th:text="${process.rapporteurVote != null ? process.rapporteurVote.valor : 'Aguardando...'}"
-                          th:classappend="${process.rapporteurVote != null and process.rapporteurVote.name() == 'DEFERIMENTO'} ? 'text-green-700' : 'text-red-700'"></span>
-                </div>
-                <p th:if="${process.rapporteurJustification}" class="text-sm text-gray-700 mt-3 italic border-t border-gray-300 pt-3">
-                    <strong>Justificativa:</strong> <span th:text="${process.rapporteurJustification}"></span>
-                </p>
-            </div>
-
-            <!-- Formulário de Votação -->
-            <div th:if="${canVoteProcess}" class="space-y-6">
-                <div class="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded-lg">
-                    <p class="text-yellow-700 flex items-center">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        <strong>Importante:</strong> Seu voto não pode ser alterado após o envio.
+            <div class="p-6 sm:p-8 flex flex-col gap-6">
+                <div class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-cyan)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                    <p class="flex items-center gap-2">
+                        <i class="fas fa-info-circle" aria-hidden="true"></i>
+                        <strong>Como membro do colegiado:</strong> Você está votando pelo deferimento ou indeferimento deste processo.
                     </p>
                 </div>
 
-                <form th:action="@{'/processes/' + ${process.id} + '/vote-professor'}" method="post" class="space-y-6">
-                    <!-- Tipo de Voto -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-4">Seu Voto *</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <label class="relative flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-green-50 hover:border-green-500 transition-all has-[:checked]:bg-green-50 has-[:checked]:border-green-600">
-                                <input type="radio" name="voteType" value="DEFERIDO" required class="sr-only peer">
-                                <div class="flex items-center space-x-3 w-full">
-                                    <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:border-green-600 peer-checked:bg-green-600 flex items-center justify-center">
-                                        <div class="w-2 h-2 bg-white rounded-full hidden peer-checked:block"></div>
-                                    </div>
-                                    <div>
-                                        <span class="font-semibold text-green-700">
-                                            <i class="fas fa-thumbs-up mr-1"></i>CONCORDO
-                                        </span>
-                                        <p class="text-xs text-gray-500">Com a decisão do relator</p>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <label class="relative flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-red-50 hover:border-red-500 transition-all has-[:checked]:bg-red-50 has-[:checked]:border-red-600">
-                                <input type="radio" name="voteType" value="INDEFERIDO" required class="sr-only peer">
-                                <div class="flex items-center space-x-3 w-full">
-                                    <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:border-red-600 peer-checked:bg-red-600 flex items-center justify-center">
-                                        <div class="w-2 h-2 bg-white rounded-full hidden peer-checked:block"></div>
-                                    </div>
-                                    <div>
-                                        <span class="font-semibold text-red-700">
-                                            <i class="fas fa-thumbs-down mr-1"></i>DISCORDO
-                                        </span>
-                                        <p class="text-xs text-gray-500">Da decisão do relator</p>
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
+                <div class="nb-card-flat p-6">
+                    <p class="nb-label">Decisão do Relator</p>
+                    <div class="flex items-center gap-2">
+                        <i th:class="${process.rapporteurVote != null and process.rapporteurVote.name() == 'DEFERIMENTO'} ? 'fas fa-check-circle text-2xl' : 'fas fa-times-circle text-2xl'" aria-hidden="true"></i>
+                        <span class="nb-badge"
+                              th:classappend="${process.rapporteurVote != null and process.rapporteurVote.name() == 'DEFERIMENTO'} ? ' bg-[var(--nb-green)] text-black' : ' bg-[#FF6B6B] !text-black'"
+                              th:text="${process.rapporteurVote != null ? process.rapporteurVote.valor : 'Aguardando...'}"></span>
                     </div>
-
-                    <!-- Justificativa (Opcional) -->
-                    <div>
-                        <label for="professJustification" class="block text-sm font-bold text-gray-900 mb-2">
-                            Justificativa (Opcional)
-                        </label>
-                        <textarea id="professJustification" name="justification" rows="4" maxlength="500"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent resize-none"
-                                  placeholder="Você pode justificar seu voto aqui (máximo 500 caracteres)..."></textarea>
-                        <p class="text-xs text-gray-500 mt-2">Máximo de 500 caracteres</p>
-                    </div>
-
-                    <!-- Botões -->
-                    <div class="flex gap-4 pt-4">
-                        <button type="submit" class="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold py-3 px-6 rounded-lg transition-all">
-                            <i class="fas fa-check mr-2"></i>Enviar Voto
-                        </button>
-                        <a th:href="@{/dashboard}" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-3 px-6 rounded-lg transition-all text-center">
-                            <i class="fas fa-times mr-2"></i>Cancelar
-                        </a>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Já votou -->
-            <div th:if="${hasVotedProcess}" class="bg-green-50 border-l-4 border-green-600 p-6 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-600 text-3xl mr-4"></i>
-                    <div>
-                        <h3 class="text-green-900 font-bold text-lg">Voto Registrado</h3>
-                        <p class="text-green-700">Seu voto foi registrado com sucesso. Você pode visualizar os detalhes do processo.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Não pode votar -->
-            <div th:if="${!canVote}" class="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-info-circle text-yellow-600 text-3xl mr-4"></i>
-                    <div>
-                        <h3 class="text-yellow-900 font-bold text-lg">Votação Indisponível</h3>
-                        <p class="text-yellow-700">Este processo não está disponível para votação no momento.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Seção de Votação do Relator -->
-        <div th:if="${loggedProfessor != null and isRapporteur}" class="bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">
-                <i class="fas fa-vote-yea text-indigo-600 mr-2"></i>Seção de Votação
-            </h2>
-
-            <!-- Já votou -->
-            <div th:if="${hasVoted}" class="bg-green-50 border-l-4 border-green-600 p-6 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-600 text-3xl mr-4"></i>
-                    <div>
-                        <h3 class="text-green-900 font-bold text-lg">Voto Registrado</h3>
-                        <p class="text-green-700">Você já registrou seu voto para este processo.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pode votar -->
-            <div th:if="${!hasVoted and canVote}" class="space-y-6">
-                <div class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg">
-                    <p class="text-blue-700 flex items-center">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        <strong>Atenção:</strong> Como relator, você deve registrar sua decisão. Esta ação não pode ser desfeita.
+                    <p th:if="${process.rapporteurJustification}" class="text-sm font-medium mt-3 italic border-t-[3px] border-[var(--nb-ink)] pt-3">
+                        <strong>Justificativa:</strong> <span th:text="${process.rapporteurJustification}"></span>
                     </p>
                 </div>
 
-                <form th:action="@{'/processes/' + ${process.id} + '/vote'}" method="post" class="space-y-6">
-                    <!-- Tipo de Decisão -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-900 mb-4">Sua Decisão *</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <label class="relative flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-green-50 hover:border-green-500 transition-all has-[:checked]:bg-green-50 has-[:checked]:border-green-600">
-                                <input type="radio" name="voteType" value="DEFERIMENTO" required class="sr-only peer">
-                                <div class="flex items-center space-x-3 w-full">
-                                    <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:border-green-600 peer-checked:bg-green-600 flex items-center justify-center">
-                                        <div class="w-2 h-2 bg-white rounded-full hidden peer-checked:block"></div>
-                                    </div>
-                                    <span class="font-semibold text-green-700">
-                                        <i class="fas fa-check-circle mr-1"></i>DEFERIMENTO
-                                    </span>
-                                </div>
-                            </label>
+                <div th:if="${canVoteProcess}" class="flex flex-col gap-6">
+                    <div class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-yellow)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                            <strong>Importante:</strong> Seu voto não pode ser alterado após o envio.
+                        </p>
+                    </div>
 
-                            <label class="relative flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-red-50 hover:border-red-500 transition-all has-[:checked]:bg-red-50 has-[:checked]:border-red-600">
-                                <input type="radio" name="voteType" value="INDEFERIMENTO" required class="sr-only peer">
-                                <div class="flex items-center space-x-3 w-full">
-                                    <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:border-red-600 peer-checked:bg-red-600 flex items-center justify-center">
-                                        <div class="w-2 h-2 bg-white rounded-full hidden peer-checked:block"></div>
-                                    </div>
-                                    <span class="font-semibold text-red-700">
-                                        <i class="fas fa-times-circle mr-1"></i>INDEFERIMENTO
-                                    </span>
-                                </div>
-                            </label>
+                    <form th:action="@{'/processes/' + ${process.id} + '/vote-professor'}" method="post" class="flex flex-col gap-6">
+                        <div>
+                            <span class="nb-label" id="profess-vote-label">Seu Voto *</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" role="radiogroup" aria-labelledby="profess-vote-label">
+                                <label class="nb-card-flat p-4 cursor-pointer flex items-center gap-3">
+                                    <input type="radio" name="voteType" value="DEFERIDO" required class="h-5 w-5 accent-black">
+                                    <span class="nb-badge bg-[var(--nb-green)] text-black"><i class="fas fa-thumbs-up" aria-hidden="true"></i>CONCORDO</span>
+                                    <span class="text-xs font-bold opacity-70">Com a decisão do relator</span>
+                                </label>
+
+                                <label class="nb-card-flat p-4 cursor-pointer flex items-center gap-3">
+                                    <input type="radio" name="voteType" value="INDEFERIDO" required class="h-5 w-5 accent-black">
+                                    <span class="nb-badge bg-[#FF6B6B] !text-black"><i class="fas fa-thumbs-down" aria-hidden="true"></i>DISCORDO</span>
+                                    <span class="text-xs font-bold opacity-70">Da decisão do relator</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="professJustification" class="nb-label">Justificativa (Opcional)</label>
+                            <textarea id="professJustification" name="justification" rows="4" maxlength="500"
+                                      class="nb-textarea"
+                                      placeholder="Você pode justificar seu voto aqui (máximo 500 caracteres)..."></textarea>
+                            <p class="text-xs font-bold mt-2 opacity-70">Máximo de 500 caracteres</p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <button type="submit" class="nb-btn nb-btn-sm flex-1 bg-[var(--nb-cyan)] text-black"><i class="fas fa-check" aria-hidden="true"></i>Enviar Voto</button>
+                            <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm flex-1 bg-[var(--nb-card)] text-center"><i class="fas fa-times" aria-hidden="true"></i>Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div th:if="${hasVotedProcess}" class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-green)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                    <div class="flex items-center gap-4">
+                        <i class="fas fa-check-circle text-3xl" aria-hidden="true"></i>
+                        <div>
+                            <h3 class="font-black uppercase text-lg">Voto Registrado</h3>
+                            <p>Seu voto foi registrado com sucesso. Você pode visualizar os detalhes do processo.</p>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Justificativa -->
-                    <div>
-                        <label for="justification" class="block text-sm font-bold text-gray-900 mb-2">
-                            Justificativa da Decisão *
-                        </label>
-                        <textarea id="justification" name="justification" required rows="6" maxlength="1000"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent resize-none"
-                                  placeholder="Descreva os fundamentos e argumentos que embasam sua decisão..."></textarea>
-                        <p class="text-xs text-gray-500 mt-2">Máximo de 1000 caracteres</p>
-                    </div>
-
-                    <!-- Botões -->
-                    <div class="flex gap-4 pt-4">
-                        <button type="submit" class="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 px-6 rounded-lg transition-all">
-                            <i class="fas fa-check mr-2"></i>Registrar Decisão
-                        </button>
-                        <a th:href="@{/dashboard}" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-3 px-6 rounded-lg transition-all text-center">
-                            <i class="fas fa-times mr-2"></i>Cancelar
-                        </a>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Não pode votar -->
-            <div th:if="${!canVote and !hasVoted}" class="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-info-circle text-yellow-600 text-3xl mr-4"></i>
-                    <div>
-                        <h3 class="text-yellow-900 font-bold text-lg">Votação Indisponível</h3>
-                        <p class="text-yellow-700">Este processo não está disponível para votação no momento.</p>
+                <div th:if="${!canVote}" class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-yellow)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                    <div class="flex items-center gap-4">
+                        <i class="fas fa-info-circle text-3xl" aria-hidden="true"></i>
+                        <div>
+                            <h3 class="font-black uppercase text-lg">Votação Indisponível</h3>
+                            <p>Este processo não está disponível para votação no momento.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Mensagem para professores não relatores -->
-        <div th:if="${loggedProfessor != null and !isRapporteur}" class="bg-gray-50 border-l-4 border-gray-400 p-6 rounded-lg mb-8">
-            <div class="flex items-center">
-                <i class="fas fa-info-circle text-gray-600 text-3xl mr-4"></i>
+        <section th:if="${loggedProfessor != null and isRapporteur}" class="nb-card overflow-hidden" aria-labelledby="rapporteur-vote-title">
+            <div class="border-b-[3px] border-[var(--nb-ink)] px-6 py-3 bg-[var(--nb-purple)]">
+                <h2 id="rapporteur-vote-title" class="text-2xl font-black uppercase text-black"><i class="fas fa-vote-yea" aria-hidden="true"></i>Seção de Votação</h2>
+            </div>
+            <div class="p-6 sm:p-8 flex flex-col gap-6">
+                <div th:if="${hasVoted}" class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-green)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                    <div class="flex items-center gap-4">
+                        <i class="fas fa-check-circle text-3xl" aria-hidden="true"></i>
+                        <div>
+                            <h3 class="font-black uppercase text-lg">Voto Registrado</h3>
+                            <p>Você já registrou seu voto para este processo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${!hasVoted and canVote}" class="flex flex-col gap-6">
+                    <div class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-cyan)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                            <strong>Atenção:</strong> Como relator, você deve registrar sua decisão. Esta ação não pode ser desfeita.
+                        </p>
+                    </div>
+
+                    <form th:action="@{'/processes/' + ${process.id} + '/vote'}" method="post" class="flex flex-col gap-6">
+                        <div>
+                            <span class="nb-label" id="rapporteur-vote-label">Sua Decisão *</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" role="radiogroup" aria-labelledby="rapporteur-vote-label">
+                                <label class="nb-card-flat p-4 cursor-pointer flex items-center gap-3">
+                                    <input type="radio" name="voteType" value="DEFERIMENTO" required class="h-5 w-5 accent-black">
+                                    <span class="nb-badge bg-[var(--nb-green)] text-black"><i class="fas fa-check-circle" aria-hidden="true"></i>DEFERIMENTO</span>
+                                </label>
+
+                                <label class="nb-card-flat p-4 cursor-pointer flex items-center gap-3">
+                                    <input type="radio" name="voteType" value="INDEFERIMENTO" required class="h-5 w-5 accent-black">
+                                    <span class="nb-badge bg-[#FF6B6B] !text-black"><i class="fas fa-times-circle" aria-hidden="true"></i>INDEFERIMENTO</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="justification" class="nb-label">Justificativa da Decisão *</label>
+                            <textarea id="justification" name="justification" required rows="6" maxlength="1000"
+                                      class="nb-textarea"
+                                      placeholder="Descreva os fundamentos e argumentos que embasam sua decisão..."></textarea>
+                            <p class="text-xs font-bold mt-2 opacity-70">Máximo de 1000 caracteres</p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <button type="submit" class="nb-btn nb-btn-sm flex-1 bg-[var(--nb-ink)] !text-[var(--nb-paper)]"><i class="fas fa-check" aria-hidden="true"></i>Registrar Decisão</button>
+                            <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm flex-1 bg-[var(--nb-card)] text-center"><i class="fas fa-times" aria-hidden="true"></i>Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div th:if="${!canVote and !hasVoted}" class="px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-yellow)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                    <div class="flex items-center gap-4">
+                        <i class="fas fa-info-circle text-3xl" aria-hidden="true"></i>
+                        <div>
+                            <h3 class="font-black uppercase text-lg">Votação Indisponível</h3>
+                            <p>Este processo não está disponível para votação no momento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div th:if="${loggedProfessor != null and !isRapporteur}" class="nb-card-flat p-6">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-info-circle text-3xl" aria-hidden="true"></i>
                 <div>
-                    <h3 class="text-gray-900 font-bold text-lg">Informação</h3>
-                    <p class="text-gray-700">Apenas o professor relator pode registrar a decisão inicial neste processo.</p>
+                    <h3 class="font-black uppercase text-lg">Informação</h3>
+                    <p class="font-medium">Apenas o professor relator pode registrar a decisão inicial neste processo.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Botão Voltar ao Dashboard -->
         <div class="mt-6">
-            <a th:href="@{/dashboard}"
-               class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-md shadow-sm transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>Voltar ao Dashboard
-            </a>
+            <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm bg-[var(--nb-card)]"><i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar ao Dashboard</a>
         </div>
     </div>
 

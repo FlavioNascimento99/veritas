@@ -1,110 +1,87 @@
-<div th:fragment="content" class="p-6 bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto">
-        <!-- Cabeçalho -->
-        <div class="flex justify-between items-center mb-8">
+<div th:fragment="content" class="flex flex-col gap-6">
+    <section class="nb-card overflow-hidden" aria-labelledby="processes-title">
+        <div class="bg-[var(--nb-yellow)] px-6 py-4 border-b-[3px] border-[var(--nb-ink)] flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Gerenciar Processos</h1>
-                <p class="text-gray-600 mt-2">Lista de todos os processos do sistema</p>
+                <p class="font-mono-nb text-[11px] font-bold uppercase tracking-[0.2em] text-black opacity-70">■ Administração</p>
+                <h1 id="processes-title" class="text-3xl font-black uppercase tracking-tight text-black">Gerenciar Processos</h1>
+                <p class="font-medium text-sm text-black mt-2">Lista de todos os processos do sistema</p>
             </div>
-            <a th:href="@{/dashboard}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold">
-                <i class="fas fa-arrow-left mr-2"></i>Retornar ao Dashboard
-            </a>
+            <a th:href="@{/dashboard}" class="nb-btn nb-btn-sm bg-[var(--nb-ink)] !text-[var(--nb-paper)]"><i class="fas fa-arrow-left" aria-hidden="true"></i>Retornar ao Dashboard</a>
         </div>
 
-        <!-- Mensagens de Feedback -->
-        <div th:if="${successMessage}" class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            <span th:text="${successMessage}"></span>
-        </div>
-        <div th:if="${errorMessage}" class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            <span th:text="${errorMessage}"></span>
-        </div>
-
-        <!-- Tabela de Processos -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div th:if="${processes.isEmpty()}" class="p-8 text-center">
-                <p class="text-gray-500 text-lg">Nenhum processo encontrado</p>
+        <div class="p-6">
+            <div th:if="${successMessage}" role="status" class="mb-6 px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[var(--nb-green)] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" role="alert" class="mb-6 px-4 py-3 font-bold border-[3px] border-[var(--nb-ink)] bg-[#FF6B6B] text-black shadow-[4px_4px_0_var(--nb-ink)]">
+                <span th:text="${errorMessage}"></span>
             </div>
 
-            <div th:unless="${processes.isEmpty()}" class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Número</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Título</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Criador</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Data de Criação</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr th:each="process : ${processes}" class="bg-white hover:bg-gray-100 transition-colors duration-200">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                                <span th:text="${process.id}"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:text="${process.title}"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:text="${process.processCreator.name}"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm">
-                                <span th:if="${process.status.toString() == 'WAITING'}" 
-                                      class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                                    EM ESPERA
-                                </span>
-                                <span th:if="${process.status.toString() == 'UNDER_ANALISYS'}" 
-                                      class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                                    SOB ANÁLISE
-                                </span>
-                                <span th:if="${process.status.toString() == 'APPROVED'}" 
-                                      class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
-                                    APROVADO
-                                </span>
-                                <span th:if="${process.status.toString() == 'REJECTED'}" 
-                                      class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">
-                                    REJEITADO
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                <span th:text="${#temporals.format(process.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm">
-                                <a th:href="@{/processes/{id}(id=${process.id})}" 
-                                   class="text-indigo-600 hover:text-indigo-900 font-semibold transition-colors duration-200">
-                                    <i class="fas fa-eye mr-1"></i>Visualizar
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div th:if="${processes.isEmpty()}" class="nb-card-flat p-8 text-center">
+                <p class="text-lg font-bold">Nenhum processo encontrado</p>
+            </div>
+
+            <div th:unless="${processes.isEmpty()}">
+                <div class="nb-table-wrap">
+                    <table class="nb-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Número</th>
+                                <th scope="col">Título</th>
+                                <th scope="col">Criador</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Data de Criação</th>
+                                <th scope="col"><span class="sr-only">Ações</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="process : ${processes}">
+                                <td class="font-mono-nb font-bold">
+                                    <span th:text="${process.number}"></span>
+                                </td>
+                                <td>
+                                    <span th:text="${process.title}"></span>
+                                </td>
+                                <td>
+                                    <span th:text="${process.processCreator.name}"></span>
+                                </td>
+                                <td>
+                                    <span th:if="${process.status.toString() == 'WAITING'}" class="nb-badge bg-[var(--nb-cyan)] text-black">EM ESPERA</span>
+                                    <span th:if="${process.status.toString() == 'UNDER_ANALISYS'}" class="nb-badge bg-[var(--nb-yellow)] text-black">SOB ANÁLISE</span>
+                                    <span th:if="${process.status.toString() == 'APPROVED'}" class="nb-badge bg-[var(--nb-green)] text-black">APROVADO</span>
+                                    <span th:if="${process.status.toString() == 'REJECTED'}" class="nb-badge bg-[#FF6B6B] !text-black">REJEITADO</span>
+                                </td>
+                                <td class="font-mono-nb text-sm">
+                                    <span th:text="${#temporals.format(process.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/processes/{id}(id=${process.id})}" class="font-black underline decoration-[3px] underline-offset-4"><i class="fas fa-eye" aria-hidden="true"></i>Visualizar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Estatísticas -->
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Total de Processos</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2" th:text="${totalProcesses}"></p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Em Espera</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2" 
-                   th:text="${waitingProcesses}"></p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Aprovados</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2" 
-                   th:text="${approvedProcesses}"></p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-600">
-                <h3 class="text-gray-600 text-sm font-semibold uppercase tracking-wide">Rejeitados</h3>
-                <p class="text-3xl font-bold text-gray-900 mt-2" 
-                   th:text="${rejectedProcesses}"></p>
-            </div>
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-6" aria-labelledby="processes-stats-title">
+        <h2 id="processes-stats-title" class="sr-only">Estatísticas de processos</h2>
+        <div class="nb-card p-6 bg-[var(--nb-card)] border-l-8 border-[var(--nb-ink)]">
+            <h3 class="text-sm font-black uppercase tracking-widest">Total de Processos</h3>
+            <p class="text-3xl font-black mt-2" th:text="${totalProcesses}"></p>
         </div>
-    </div>
+        <div class="nb-card p-6 bg-[var(--nb-cyan)]">
+            <h3 class="text-sm font-black uppercase tracking-widest text-black">Em Espera</h3>
+            <p class="text-3xl font-black text-black mt-2" th:text="${waitingProcesses}"></p>
+        </div>
+        <div class="nb-card p-6 bg-[var(--nb-green)]">
+            <h3 class="text-sm font-black uppercase tracking-widest text-black">Aprovados</h3>
+            <p class="text-3xl font-black text-black mt-2" th:text="${approvedProcesses}"></p>
+        </div>
+        <div class="nb-card p-6 bg-[#FF6B6B]">
+            <h3 class="text-sm font-black uppercase tracking-widest text-black">Rejeitados</h3>
+            <p class="text-3xl font-black text-black mt-2" th:text="${rejectedProcesses}"></p>
+        </div>
+    </section>
 </div>

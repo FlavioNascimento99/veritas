@@ -1,26 +1,31 @@
-
-<div th:fragment="content" class="bg-gray-100">
-    <main class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center mb-8">Contact Us</h1>
-
-        <div class="bg-white rounded-lg shadow-md p-8">
-            <form>
-                <div class="mb-4">
-                    <label for="name" class="block text-gray-700 font-bold mb-2">Name</label>
-                    <input type="text" id="name" name="name" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+<div th:fragment="content" class="flex justify-center py-4">
+    <section class="nb-card w-full max-w-2xl overflow-hidden" aria-labelledby="contact-title">
+        <div class="bg-[var(--nb-green)] border-b-[3px] border-[var(--nb-ink)] px-6 py-3 flex items-center justify-between">
+            <p class="font-mono-nb text-xs font-black uppercase tracking-[0.2em] text-black">■ Fale conosco</p>
+            <span class="nb-tag bg-white text-black font-mono-nb">resposta em dias úteis</span>
+        </div>
+        <div class="p-6 sm:p-8">
+            <h1 id="contact-title" class="text-3xl sm:text-4xl font-black uppercase tracking-tight">Entre em contato</h1>
+            <p class="mt-1 font-medium opacity-80">Dúvidas sobre processos, acesso ou colegiados? Escreva para a equipe.</p>
+            <form th:action="@{/contact}" method="post" class="mt-6 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="nb-label">Nome</label>
+                        <input type="text" id="name" name="name" required autocomplete="name" placeholder="Seu nome" class="nb-input">
+                    </div>
+                    <div>
+                        <label for="email" class="nb-label">Email</label>
+                        <input type="email" id="email" name="email" required autocomplete="email" placeholder="voce@ifpb.edu.br" class="nb-input">
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 font-bold mb-2">Email</label>
-                    <input type="email" id="email" name="email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div>
+                    <label for="message" class="nb-label">Mensagem</label>
+                    <textarea id="message" name="message" rows="5" required placeholder="Como podemos ajudar?" class="nb-textarea"></textarea>
                 </div>
-                <div class="mb-4">
-                    <label for="message" class="block text-gray-700 font-bold mb-2">Message</label>
-                    <textarea id="message" name="message" rows="5" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Send Message</button>
-                </div>
+                <button type="submit" class="nb-btn bg-[var(--nb-ink)] !text-[var(--nb-paper)] w-full sm:w-auto">
+                    Enviar mensagem <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                </button>
             </form>
         </div>
-    </main>
+    </section>
 </div>

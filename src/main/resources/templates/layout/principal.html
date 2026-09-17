@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<!-- DEPRECATED: layout vazio mantido por compatibilidade. O layout real é templates/home.html -->
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<body>
+<div th:fragment="layout(content)">
+    <div th:replace="${content}"></div>
+</div>
+</body>
+</html>

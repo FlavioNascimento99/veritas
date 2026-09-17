@@ -1,63 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm" th:fragment="header">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <!-- Logo -->
-            <div class="flex items-center">
-                <i class="fas fa-book-open text-2xl text-indigo-600 mr-3"></i>
-                <h1 class="text-2xl font-bold text-gray-900">Veritas</h1>
+<header th:fragment="header" class="border-b-[3px] border-[var(--nb-ink)] bg-[var(--nb-card)] sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+        <a th:href="@{/}" class="flex items-center gap-3 shrink-0" aria-label="Veritas — início">
+            <span class="w-11 h-11 inline-flex items-center justify-center bg-[var(--nb-ink)] text-[var(--nb-yellow)] border-[3px] border-[var(--nb-ink)] rounded-xl shadow-[3px_3px_0_var(--nb-ink)]" aria-hidden="true">
+                <i class="fas fa-book-open text-xl"></i>
+            </span>
+            <span class="leading-none">
+                <span class="block text-2xl font-black tracking-tight uppercase">Veritas</span>
+                <span class="block text-[11px] font-bold uppercase tracking-[0.18em] opacity-70">Processos acadêmicos</span>
+            </span>
+        </a>
+
+        <div class="flex items-center gap-3">
+            <div sec:authorize="isAuthenticated()" class="hidden sm:flex items-center gap-3">
+                <div class="text-right leading-tight">
+                    <p class="text-sm font-extrabold" sec:authentication="name">usuário</p>
+                    <p class="mt-1">
+                        <span sec:authorize="hasRole('ADMIN')" class="nb-badge bg-[var(--nb-yellow)]"><i class="fas fa-crown text-[10px]"></i>Admin</span>
+                        <span sec:authorize="hasRole('COORDINATOR')" class="nb-badge bg-[var(--nb-pink)]"><i class="fas fa-briefcase text-[10px]"></i>Coordenação</span>
+                        <span sec:authorize="hasRole('PROFESSOR')" class="nb-badge bg-[var(--nb-cyan)]"><i class="fas fa-chalkboard text-[10px]"></i>Professor</span>
+                        <span sec:authorize="hasRole('STUDENT')" class="nb-badge bg-[var(--nb-green)]"><i class="fas fa-graduation-cap text-[10px]"></i>Estudante</span>
+                    </p>
+                </div>
+                <span class="w-10 h-10 inline-flex items-center justify-center rounded-full border-[3px] border-[var(--nb-ink)] bg-[var(--nb-purple)] text-black font-black" aria-hidden="true">
+                    <i class="fas fa-user"></i>
+                </span>
             </div>
 
-            <!-- Menu Desktop -->
-            <nav class="hidden md:flex items-center space-x-1">
-                <a sec:authorize="isAuthenticated()" th:href="@{/dashboard}" class="px-4 py-2 text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200">
-                    <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
-                </a>
-                <p sec:authorize="!isAuthenticated()" class="px-4 py-2 text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200">
-                    Entre em contato para mais informações.
-                </p>
-            </nav>
+            <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="nb-btn nb-btn-sm bg-[var(--nb-yellow)] text-black">
+                <i class="fa-solid fa-door-open" aria-hidden="true"></i>Entrar
+            </a>
 
-
-            <!-- Menu Usuario -->
-            <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex items-center space-x-3">
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-gray-900" sec:authentication="name"></p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('ADMIN')">
-                            <i class="fas fa-crown text-xs mr-1"></i>Administrador
-                        </p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('COORDINATOR')">
-                            <i class="fas fa-briefcase text-xs mr-1"></i>Coordenador
-                        </p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('PROFESSOR')">
-                            <i class="fas fa-chalkboard text-xs mr-1"></i>Professor
-                        </p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('STUDENT')">
-                            <i class="fas fa-graduation-cap text-xs mr-1"></i>Estudante
-                        </p>
-                    </div>
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-bold">
-                        <i class="fas fa-user"></i>
-                    </div>
+            <details sec:authorize="isAuthenticated()" class="nb-details relative">
+                <summary class="nb-btn nb-btn-sm bg-[var(--nb-card)]" aria-label="Abrir menu da conta" aria-haspopup="menu">
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                    <span class="hidden md:inline font-extrabold text-xs uppercase">Conta</span>
+                </summary>
+                <div role="menu" class="absolute right-0 mt-2 w-52 nb-card p-2 z-50">
+                    <a th:href="@{/dashboard}" role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-sm border-2 border-transparent hover:border-[var(--nb-ink)] hover:bg-[var(--nb-yellow)] hover:text-black">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>Dashboard
+                    </a>
+                    <form th:action="@{/logout}" method="post" class="mt-1">
+                        <button type="submit" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-sm border-2 border-transparent hover:border-[var(--nb-ink)] hover:bg-[#FF6B6B] hover:text-black">
+                            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>Sair
+                        </button>
+                    </form>
                 </div>
-                
-                <!-- Dropdown Logout -->
-                <div class="relative group" sec:authorize="isAuthenticated()">
-                    <button class="inline-flex items-center px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                        <form th:action="@{/logout}" method="post" class="logout-form">
-                            <button type="button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 font-medium" onclick="this.closest('form').submit()">
-                                <i class="fas fa-sign-out-alt mr-2"></i>Sair
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            </details>
         </div>
-    </header>
+    </div>
+</header>
 </body>
 </html>
