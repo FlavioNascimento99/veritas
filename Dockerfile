@@ -32,9 +32,10 @@ COPY --from=builder /app/target/*.jar app.jar
 # Expose port (Spring Boot default)
 EXPOSE 8080
 
-# Health check — waits for Spring Boot to be ready
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+# Health check — usa $PORT (Cloudflare injeta PORT) com fallback para 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
 
-# Run application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run application — respeita JAVA_OPTS (limite de heap p/ standard-1/2)
+# e PORT (Cloudflare). JAVA_OPTS já traz MaxRAMPercentage/UseG1GC via worker.
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

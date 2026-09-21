@@ -15,19 +15,25 @@ spring:
   # ===============================
   datasource:
     # Supabase PostgreSQL connection
-    # Format: jdbc:postgresql://host:port/database?sslmode=require
-    url: jdbc:postgresql://${PGHOST}:${PGPORT:5432}/${PGDATABASE:postgres}?sslmode=require
+    # Direto:    PGHOST=db.<ref>.supabase.co PGPORT=5432 PGUSER=postgres
+    # Pooler (recomendado p/ serverless/Cloudflare, IPv4): PGHOST=aws-0-<region>.pooler.supabase.com PGPORT=6543 PGUSER=postgres.<ref>
+    # prepareThreshold=0 desliga prepared statements no lado do servidor (exigido pelo pooler em modo transaction, inofensivo no direto)
+    url: jdbc:postgresql://${PGHOST}:${PGPORT:5432}/${PGDATABASE:postgres}?sslmode=require&prepareThreshold=0
     username: ${PGUSER}
     password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
-    
+
     # Connection Pool Settings
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
+      maximum-pool-size: 10
+      minimum-idle: 2
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      # Não derruba a JVM de imediato se o banco oscilar no cold start;
+      # aguarda até 60s por uma conexão antes de falhar o boot.
+      initialization-fail-timeout: 60000
+      connection-test-query: SELECT 1
 
   # ===============================
   # = JPA / HIBERNATE
@@ -60,7 +66,7 @@ spring:
 # = SERVER CONFIG
 # ===============================
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     context-path: /
   # Shutdown gracefully
@@ -69,6 +75,20 @@ server:
     threads:
       max: 200
       min-spare: 10
+
+# ===============================
+# = ACTUATOR (para health check do container)
+# ===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
 
 # ===============================
 # = LOGGING (PROD)

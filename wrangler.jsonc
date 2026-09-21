@@ -6,13 +6,18 @@
   "observability": {
     "enabled": true
   },
+  "vars": {
+    "SPRING_PROFILES_ACTIVE": "prod",
+    "PGPORT": "5432",
+    "PGDATABASE": "postgres"
+  },
   "containers": [
     {
       "class_name": "VeritasContainer",
       "image": "./Dockerfile",
       "max_instances": 1,
       "name": "veritas-app",
-      "instance_type": "standard-1"
+      "instance_type": "standard-2"
     }
   ],
   "durable_objects": {
