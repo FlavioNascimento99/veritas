@@ -8,7 +8,9 @@
   },
   "vars": {
     "SPRING_PROFILES_ACTIVE": "prod",
-    "PGPORT": "5432",
+    // Pooler Supabase (modo transaction). NÃO voltar para 5432 aqui:
+    // o host direto db.*.supabase.co não é confiável a partir de Containers.
+    "PGPORT": "6543",
     "PGDATABASE": "postgres"
   },
   "containers": [

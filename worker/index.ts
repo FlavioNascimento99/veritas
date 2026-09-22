@@ -70,7 +70,12 @@ export default class extends WorkerEntrypoint {
         { status: 500 },
       );
     }
-    const id = this.env.VERITAS_CONTAINER.idFromName("veritas");
+    // NOTA: envVars do container são fixadas no construtor do Durable Object.
+    // Trocar secrets (PGHOST/PGUSER/PGPASSWORD) NÃO atualiza o DO existente:
+    // é preciso trocar o nome abaixo (v1 -> v2 -> ...) para forçar um DO novo
+    // com o env atual, ou aguardar evicção. Histórico: "veritas" (direct db:5432),
+    // "veritas-v2" (pooler us-west-2:6543).
+    const id = this.env.VERITAS_CONTAINER.idFromName("veritas-v2");
     const container = this.env.VERITAS_CONTAINER.get(id);
     // fetch() inicia o container automaticamente e renova o sleepAfter.
     // Não chame start()/exec() manualmente aqui.
