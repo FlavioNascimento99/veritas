@@ -1,92 +1,86 @@
-<div th:fragment="content" class="bg-gray-100 min-h-screen p-6">
-    <div class="max-w-4xl mx-auto">
-        <!-- Botão Voltar -->
-        <div class="mb-4">
-            <a th:href="@{/dashboard}" class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>Voltar
-            </a>
-        </div>
+<div th:fragment="content" class="page page-medium">
+    <a th:href="@{/dashboard}" class="back-link">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar
+    </a>
 
-        <!-- Header -->
-        <div class="bg-white shadow-sm p-4 rounded-t-lg">
-            <h1 class="text-2xl font-bold text-gray-800">Gerenciar Assuntos de Processos</h1>
-            <p class="text-gray-600">Adicione, visualize e desative os assuntos disponíveis para processos.</p>
+    <div class="page-header">
+        <div>
+            <h1>Gerenciar assuntos de processos</h1>
+            <p class="page-description">Adicione, visualize e desative os assuntos disponíveis para processos.</p>
         </div>
+    </div>
 
-        <!-- Formulário de Novo Assunto -->
-        <div class="bg-white shadow-sm p-6 mt-1">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Novo Assunto</h2>
-            <form th:action="@{/admin/subjects}" th:object="${subject}" method="POST" class="flex items-end gap-4">
-                <!-- Erros globais de validação -->
-                <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    <p class="font-semibold">Corrija os erros abaixo:</p>
-                    <ul class="list-disc list-inside mt-1">
-                        <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
-                    </ul>
-                </div>
-                <div class="flex-grow">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="title" class="block text-sm font-medium text-gray-700">Título do Assunto</label>
-                            <input type="text" th:field="*{title}" id="title" required class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                   th:classappend="${#fields.hasErrors('title')} ? 'border-red-500' : ''">
-                            <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-red-600 text-sm mt-1"></p>
-                        </div>
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">Descrição do Assunto</label>
-                            <input type="text" th:field="*{description}" id="description" required class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
+    <div th:replace="~{fragments/flash :: messages}"></div>
+
+    <div class="section-stack">
+        <section class="card" aria-labelledby="new-subject-title">
+            <h2 id="new-subject-title" class="mb-4">Novo assunto</h2>
+            <form th:action="@{/admin/subjects}" th:object="${subject}" method="POST" class="space-y-4">
+                <div th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
+                    <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                    <div class="alert-body">
+                        <p class="alert-title">Corrija os erros abaixo:</p>
+                        <ul class="mt-1 list-inside list-disc">
+                            <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
+                        </ul>
                     </div>
                 </div>
-                <button type="submit"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                    Adicionar
-                </button>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_auto] md:items-start">
+                    <div class="field">
+                        <label for="title" class="label">Título do assunto</label>
+                        <input type="text" th:field="*{title}" id="title" required class="input"
+                               th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''"
+                               th:attr="aria-invalid=${#fields.hasErrors('title')}, aria-describedby=${#fields.hasErrors('title')} ? 'title-error'">
+                        <p th:if="${#fields.hasErrors('title')}" id="title-error" th:errors="*{title}" class="field-error"></p>
+                    </div>
+                    <div class="field">
+                        <label for="description" class="label">Descrição do assunto</label>
+                        <input type="text" th:field="*{description}" id="description" required class="input">
+                    </div>
+                    <button type="submit" class="btn btn-primary md:mt-6">
+                        <i class="fas fa-plus" aria-hidden="true"></i>Adicionar
+                    </button>
+                </div>
             </form>
-        </div>
+        </section>
 
-        <!-- Tabela de Assuntos Existentes -->
-        <div class="bg-white shadow-lg p-6 rounded-b-lg mt-1">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Assuntos Cadastrados</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-200">
+        <section aria-labelledby="subjects-title">
+            <h2 id="subjects-title" class="mb-4">Assuntos cadastrados</h2>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
                     <tr>
-                        <th class="text-left py-3 px-4 font-semibold text-sm">ID</th>
-                        <th class="text-left py-3 px-4 font-semibold text-sm">Título</th>
-                        <th class="text-left py-3 px-4 font-semibold text-sm">Descrição</th>
-                        <th class="text-left py-3 px-4 font-semibold text-sm">Status</th>
-                        <th class="text-center py-3 px-4 font-semibold text-sm">Ações</th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-right">Ações</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="s : ${subjects}" class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="py-3 px-4" th:text="${s.id}">1</td>
-                        <td class="py-3 px-4" th:text="${s.title}">Título Exemplo</td>
-                        <td class="py-3 px-4" th:text="${s.description}">Aproveitamento de Disciplina</td>
-                        <td class="py-3 px-4">
-                            <span th:if="${s.active}" class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full">Ativo</span>
-                            <span th:unless="${s.active}" class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-full">Inativo</span>
+                    <tr th:each="s : ${subjects}">
+                        <td class="cell-muted tabular-nums" th:text="${s.id}">1</td>
+                        <td class="cell-strong" th:text="${s.title}">Título Exemplo</td>
+                        <td class="cell-muted" th:text="${s.description}">Aproveitamento de Disciplina</td>
+                        <td>
+                            <span th:if="${s.active}" class="badge badge-success">Ativo</span>
+                            <span th:unless="${s.active}" class="badge badge-danger">Inativo</span>
                         </td>
-                        <td class="py-3 px-4 text-center">
+                        <td class="cell-actions">
                             <form th:if="${s.active}" th:action="@{/admin/subjects/{id}/deactivate(id=${s.id})}" method="POST" class="inline">
-                                <button type="submit" class="text-red-500 hover:text-red-700 font-medium">
-                                    Desativar
-                                </button>
+                                <button type="submit" class="btn btn-ghost btn-danger-soft btn-sm">Desativar</button>
                             </form>
                             <form th:unless="${s.active}" th:action="@{/admin/subjects/{id}/reactivate(id=${s.id})}" method="POST" class="inline">
-                                <button type="submit" class="text-green-500 hover:text-green-700 font-medium">
-                                    Reativar
-                                </button>
+                                <button type="submit" class="btn btn-secondary btn-sm">Reativar</button>
                             </form>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(subjects)}">
-                        <td colspan="5" class="text-center py-4 text-gray-500">Nenhum assunto cadastrado.</td>
+                        <td colspan="5" class="cell-empty">Nenhum assunto cadastrado. Use o formulário acima para criar o primeiro.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
 </div>

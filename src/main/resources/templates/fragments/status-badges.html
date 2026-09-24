@@ -1,0 +1,7 @@
+<span th:fragment="process(status)" th:if="${status != null}" class="badge"
+      th:classappend="${status.name() == 'WAITING'} ? 'badge-warning' : (${status.name() == 'UNDER_ANALISYS'} ? 'badge-info' : (${status.name() == 'APPROVED'} ? 'badge-success' : 'badge-danger'))"
+      th:text="${#strings.capitalize(#strings.toLowerCase(status.status))}">Em espera</span>
+
+<span th:fragment="meeting(status)" th:if="${status != null}" class="badge"
+      th:classappend="${status.name() == 'DISPONIVEL'} ? 'badge-info' : (${status.name() == 'EM_ANDAMENTO'} ? 'badge-warning' : '')"
+      th:text="${status.name() == 'DISPONIVEL'} ? 'Disponível' : (${status.name() == 'EM_ANDAMENTO'} ? 'Em andamento' : 'Finalizada')">Disponível</span>

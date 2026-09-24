@@ -1,171 +1,132 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <!-- Cabeçalho -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard do Professor</h1>
-        <form th:action="@{/logout}" method="post">
-            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Sair (Logout)
-            </button>
-        </form>
-    </div>
-
-    <!-- ========== NOVA SEÇÃO 2: Processos Já Votados (Histórico) ========== -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">
-            <i class="fas fa-check-double mr-2 text-green-600"></i>Histórico de Votações
-        </h2>
-
-        <div th:if="${votedProcesses != null and !#lists.isEmpty(votedProcesses)}">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Final</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resultado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data do Voto</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <tr th:each="process : ${votedProcesses}" class="hover:bg-green-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${process.number}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${process.title ?: 'Sem título'}"></td>
-                    
-                    <!-- Status Final do Processo -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span th:if="${process.status}"
-                              th:classappend="${process.status.name() == 'APPROVED'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                              class="px-2 py-1 text-xs font-semibold rounded-full"
-                              th:text="${process.status.getStatus()}">
-                        </span>
-                    </td>
-
-                    <!-- Resultado (DEFERIDO/INDEFERIDO) -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span th:classappend="${process.status.name() == 'APPROVED'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                              class="px-2 py-1 text-xs font-semibold rounded-full">
-                            <i th:class="${process.status.name() == 'APPROVED'} ? 'fas fa-thumbs-up mr-1' : 'fas fa-thumbs-down mr-1'"></i>
-                            <span th:text="${process.status.name() == 'APPROVED'} ? 'DEFERIDO' : 'INDEFERIDO'"></span>
-                        </span>
-                    </td>
-
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
-                        th:text="${process.solvedAt != null ? #temporals.format(process.solvedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
-
-                    <!-- Ações -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <a th:href="@{'/processes/' + ${process.id}}"
-                           class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm transition-colors">
-                            <i class="fas fa-eye mr-1"></i>Detalhes
-                        </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div th:if="${votedProcesses == null or #lists.isEmpty(votedProcesses)}">
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                <i class="fas fa-history text-gray-400 text-3xl mb-3"></i>
-                <p class="text-gray-600 font-medium">Nenhuma votação registrada</p>
-                <p class="text-gray-500 text-sm">Seu histórico de votações aparecerá aqui.</p>
-            </div>
+<div th:fragment="content" class="page">
+    <div class="page-header">
+        <div>
+            <h1>Dashboard do professor</h1>
+            <p class="page-description">Acompanhe seus processos como relator e as reuniões do colegiado.</p>
         </div>
     </div>
 
-    <!-- ========== SEÇÃO 3: Processos para Análise (REQFUNC 3 + 5) - COMO RELATOR ========== -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">
-            <i class="fas fa-clipboard-list mr-2 text-blue-600"></i>Processos para Análise (como Relator)
-        </h2>
+    <div th:replace="~{fragments/flash :: messages}"></div>
 
-        <div th:if="${processes != null and !#lists.isEmpty(processes)}">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Situação do Voto</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado Em</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <tr th:each="process : ${processes}" class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${process.number}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${process.title ?: 'Sem título'}"></td>
-
-                    <!-- Status do Processo -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                            <span th:if="${process.status}"
-                                  th:classappend="${process.status.name() == 'WAITING'} ? 'bg-yellow-100 text-yellow-800' :
-                                                 (${process.status.name() == 'UNDER_ANALISYS'} ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800')"
-                                  class="px-2 py-1 text-xs font-semibold rounded-full"
-                                  th:text="${process.status.getStatus()}">
-                            </span>
-                    </td>
-
-                    <!-- REQFUNC 5: Situação do Voto -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <!-- Processo sob análise e professor é relator -->
-                        <span th:if="${process.status != null and process.status.name() == 'UNDER_ANALISYS' and process.processRapporteur != null and process.rapporteurStatus != null}"
-                              class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full"
-                              th:classappend="${process.rapporteurStatus.name() == 'VOTED'} ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'">
-                            <i th:class="${process.rapporteurStatus.name() == 'VOTED'} ? 'fas fa-check-circle mr-1' : 'fas fa-exclamation-circle mr-1'"></i>
-                            <span th:text="${process.rapporteurStatus.name() == 'VOTED'} ? 'Votado' : 'Aguarda Voto'"></span>
-                        </span>
-
-                        <!-- Outros status -->
-                        <span th:if="${process.status == null or process.status.name() != 'UNDER_ANALISYS' or process.processRapporteur == null or process.rapporteurStatus == null}"
-                              class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
-                                <i class="fas fa-minus-circle mr-1"></i>Não Aplicável
-                            </span>
-                    </td>
-
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
-                        th:text="${#temporals.format(process.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
-
-                    <!-- Ações -->
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <a th:href="@{'/processes/' + ${process.id}}"
-                           th:classappend="${process.status.name() == 'UNDER_ANALISYS'} ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 hover:bg-gray-700'"
-                           class="inline-flex items-center px-3 py-1 text-xs font-medium text-white rounded-md shadow-sm transition-colors">
-                            <i th:class="${process.status.name() == 'UNDER_ANALISYS'} ? 'fas fa-vote-yea mr-1' : 'fas fa-eye mr-1'"></i>
-                            <span th:text="${process.status.name() == 'UNDER_ANALISYS'} ? 'Votar' : 'Detalhes'"></span>
-                        </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div th:if="${processes == null or #lists.isEmpty(processes)}">
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                <i class="fas fa-inbox text-gray-400 text-3xl mb-3"></i>
-                <p class="text-gray-600 font-medium">Nenhum processo atribuído como relator</p>
-                <p class="text-gray-500 text-sm">Quando processos forem distribuídos para você, aparecerão aqui.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========== LINHA SEPARADORA ========== -->
-    <hr class="my-6">
-
-    <!-- ========== SEÇÃO 4: Reuniões do Colegiado (REQFUNC 4) ========== -->
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">
-            <i class="fas fa-users mr-2 text-green-600"></i>Reuniões do Colegiado
-        </h2>
-
-        <!-- Filtro de Reuniões por Status -->
-        <div class="mb-4">
-            <form th:action="@{/dashboard}" method="get" class="flex flex-wrap gap-3 items-end mb-4">
+    <div class="section-stack">
+        <section class="card" aria-labelledby="rapporteur-title">
+            <div class="card-header">
                 <div>
-                    <label for="meetingStatusFilter" class="text-sm text-gray-600 block">Filtrar por Status</label>
-                    <select id="meetingStatusFilter" name="meetingStatus"
-                            class="rounded border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 px-2 py-1">
+                    <h2 id="rapporteur-title">Processos para análise (como relator)</h2>
+                    <p class="card-description">Processos distribuídos para você registrar a decisão inicial.</p>
+                </div>
+            </div>
+
+            <div th:if="${processes != null and !#lists.isEmpty(processes)}" class="table-wrap">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Número</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Situação do voto</th>
+                        <th scope="col">Criado em</th>
+                        <th scope="col" class="text-right">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="process : ${processes}">
+                        <td class="nowrap cell-strong" th:text="${process.number}"></td>
+                        <td class="min-w-48" th:text="${process.title ?: 'Sem título'}"></td>
+                        <td><span th:replace="~{fragments/status-badges :: process(${process.status})}"></span></td>
+                        <td>
+                            <span th:if="${process.status != null and process.status.name() == 'UNDER_ANALISYS' and process.processRapporteur != null and process.rapporteurStatus != null}"
+                                  class="badge"
+                                  th:classappend="${process.rapporteurStatus.name() == 'VOTED'} ? 'badge-success' : 'badge-warning'">
+                                <i th:class="${process.rapporteurStatus.name() == 'VOTED'} ? 'fas fa-circle-check' : 'fas fa-circle-exclamation'" aria-hidden="true"></i>
+                                <span th:text="${process.rapporteurStatus.name() == 'VOTED'} ? 'Votado' : 'Aguarda voto'"></span>
+                            </span>
+                            <span th:if="${process.status == null or process.status.name() != 'UNDER_ANALISYS' or process.processRapporteur == null or process.rapporteurStatus == null}"
+                                  class="badge">Não aplicável</span>
+                        </td>
+                        <td class="nowrap cell-muted" th:text="${#temporals.format(process.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="cell-actions">
+                            <a th:href="@{'/processes/' + ${process.id}}"
+                               th:classappend="${process.status.name() == 'UNDER_ANALISYS'} ? 'btn-primary' : 'btn-secondary'"
+                               class="btn btn-sm">
+                                <i th:class="${process.status.name() == 'UNDER_ANALISYS'} ? 'fas fa-check-to-slot' : 'fas fa-eye'" aria-hidden="true"></i>
+                                <span th:text="${process.status.name() == 'UNDER_ANALISYS'} ? 'Votar' : 'Detalhes'"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${processes == null or #lists.isEmpty(processes)}" class="empty-state">
+                <i class="fas fa-inbox empty-state-icon" aria-hidden="true"></i>
+                <h3>Nenhum processo atribuído como relator</h3>
+                <p class="empty-state-text">Quando processos forem distribuídos para você, aparecerão aqui.</p>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="history-title">
+            <div class="card-header">
+                <div>
+                    <h2 id="history-title">Histórico de votações</h2>
+                    <p class="card-description">Processos em que você já registrou voto.</p>
+                </div>
+            </div>
+
+            <div th:if="${votedProcesses != null and !#lists.isEmpty(votedProcesses)}" class="table-wrap">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Número</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Status final</th>
+                        <th scope="col">Resultado</th>
+                        <th scope="col">Data do voto</th>
+                        <th scope="col" class="text-right">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="process : ${votedProcesses}">
+                        <td class="nowrap cell-strong" th:text="${process.number}"></td>
+                        <td class="min-w-48" th:text="${process.title ?: 'Sem título'}"></td>
+                        <td><span th:replace="~{fragments/status-badges :: process(${process.status})}"></span></td>
+                        <td>
+                            <span class="badge" th:classappend="${process.status.name() == 'APPROVED'} ? 'badge-success' : 'badge-danger'">
+                                <i th:class="${process.status.name() == 'APPROVED'} ? 'fas fa-thumbs-up' : 'fas fa-thumbs-down'" aria-hidden="true"></i>
+                                <span th:text="${process.status.name() == 'APPROVED'} ? 'Deferido' : 'Indeferido'"></span>
+                            </span>
+                        </td>
+                        <td class="nowrap cell-muted"
+                            th:text="${process.solvedAt != null ? #temporals.format(process.solvedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
+                        <td class="cell-actions">
+                            <a th:href="@{'/processes/' + ${process.id}}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-eye" aria-hidden="true"></i>Detalhes
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${votedProcesses == null or #lists.isEmpty(votedProcesses)}" class="empty-state">
+                <i class="fas fa-clock-rotate-left empty-state-icon" aria-hidden="true"></i>
+                <h3>Nenhuma votação registrada</h3>
+                <p class="empty-state-text">Seu histórico de votações aparecerá aqui.</p>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="collegiate-meetings-title">
+            <div class="card-header">
+                <div>
+                    <h2 id="collegiate-meetings-title">Reuniões do colegiado</h2>
+                    <p class="card-description">Reuniões do seu colegiado, com acesso à votação das sessões em andamento.</p>
+                </div>
+            </div>
+
+            <form th:action="@{/dashboard}" method="get" class="mb-4 flex flex-wrap items-end gap-3">
+                <div class="field w-full sm:w-60">
+                    <label for="meetingStatusFilter" class="label">Filtrar por status</label>
+                    <select id="meetingStatusFilter" name="meetingStatus" class="input">
                         <option value="">Todas</option>
                         <option th:each="s : ${meetingStatuses}"
                                 th:value="${s.name()}"
@@ -174,113 +135,98 @@
                         </option>
                     </select>
                 </div>
-                <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">
-                    Filtrar
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter" aria-hidden="true"></i>Filtrar
                 </button>
-                <a th:href="@{/dashboard}" class="ml-2 text-sm text-gray-600 hover:underline">Limpar Filtro</a>
+                <a th:href="@{/dashboard}" class="btn btn-ghost">Limpar filtro</a>
             </form>
-        </div>
 
-        <!-- Tabela de Reuniões do Colegiado -->
-        <div th:if="${collegiateMeetings != null and !#lists.isEmpty(collegiateMeetings)}">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Colegiado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Criação</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Processos</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <tr th:each="meeting : ${collegiateMeetings}" class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${meeting.id}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
-                        th:text="${meeting.collegiate != null ? meeting.collegiate.description : 'N/A'}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
-                        th:text="${meeting.createdAt != null ? #temporals.format(meeting.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <!-- Badge de status com cores diferenciadas -->
-                        <span th:if="${meeting.status != null}"
-                              th:classappend="${meeting.status.name() == 'DISPONÍVEL'} ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'"
-                              class="px-2 py-1 text-xs font-semibold rounded-full"
-                              th:text="${meeting.status.status}">
-                            </span>
-                        <span th:if="${meeting.status == null}" class="text-gray-500">N/A</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
-                        th:text="${meeting.processes != null ? #lists.size(meeting.processes) : 0}"></td>
-                </tr>
-                </tbody>
-            </table>
-            <!-- Botão de Votação para Reuniões em Andamento -->
-            <div class="mt-4">
-                <div th:each="meeting : ${collegiateMeetings}" class="mb-2">
-                    <a th:if="${meeting.status.name() == 'EM_ANDAMENTO'}" 
+            <div th:if="${collegiateMeetings != null and !#lists.isEmpty(collegiateMeetings)}" class="table-wrap">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Colegiado</th>
+                        <th scope="col">Data de criação</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-right">Processos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="meeting : ${collegiateMeetings}">
+                        <td class="cell-strong tabular-nums" th:text="${meeting.id}"></td>
+                        <td th:text="${meeting.collegiate != null ? meeting.collegiate.description : 'N/A'}"></td>
+                        <td class="nowrap cell-muted"
+                            th:text="${meeting.createdAt != null ? #temporals.format(meeting.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
+                        <td>
+                            <span th:replace="~{fragments/status-badges :: meeting(${meeting.status})}"></span>
+                            <span th:if="${meeting.status == null}" class="cell-muted">N/A</span>
+                        </td>
+                        <td class="num" th:text="${meeting.processes != null ? #lists.size(meeting.processes) : 0}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${collegiateMeetings != null and !#lists.isEmpty(collegiateMeetings)}" class="mt-4 flex flex-wrap gap-2">
+                <th:block th:each="meeting : ${collegiateMeetings}">
+                    <a th:if="${meeting.status.name() == 'EM_ANDAMENTO'}"
                        th:href="@{/dashboard/meetings/{id}/vote(id=${meeting.id})}"
-                       class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm">
-                        <i class="fas fa-vote-yea"></i> Votar na Reunião (ID: <span th:text="${meeting.id}"></span>)
+                       class="btn btn-primary">
+                        <i class="fas fa-check-to-slot" aria-hidden="true"></i>Votar na reunião (ID: <span th:text="${meeting.id}"></span>)
                     </a>
+                </th:block>
+            </div>
+
+            <div th:if="${collegiateMeetings == null or #lists.isEmpty(collegiateMeetings)}" class="empty-state">
+                <i class="fas fa-calendar-xmark empty-state-icon" aria-hidden="true"></i>
+                <h3>Nenhuma reunião encontrada</h3>
+                <p class="empty-state-text">Não há reuniões para o seu colegiado com os filtros aplicados.</p>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="scheduled-title">
+            <div class="card-header">
+                <div>
+                    <h2 id="scheduled-title">Minhas reuniões agendadas</h2>
+                    <p class="card-description">Reuniões nas quais você foi escalado para participar.</p>
                 </div>
             </div>
-        </div>
 
-        <div th:if="${collegiateMeetings == null or #lists.isEmpty(collegiateMeetings)}">
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                <i class="fas fa-calendar-times text-gray-400 text-3xl mb-3"></i>
-                <p class="text-gray-600 font-medium">Nenhuma reunião encontrada</p>
-                <p class="text-gray-500 text-sm">Não há reuniões para o seu colegiado com os filtros aplicados.</p>
+            <div th:if="${scheduledMeetings != null and !#lists.isEmpty(scheduledMeetings)}" class="table-wrap">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Colegiado</th>
+                        <th scope="col">Data agendada</th>
+                        <th scope="col" class="text-right">Processos em pauta</th>
+                        <th scope="col" class="text-right">Participantes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="meeting : ${scheduledMeetings}">
+                        <td class="cell-strong tabular-nums" th:text="${meeting.id}"></td>
+                        <td th:text="${meeting.collegiate != null ? meeting.collegiate.description : 'N/A'}"></td>
+                        <td class="nowrap cell-muted"
+                            th:text="${meeting.createdAt != null ? #temporals.format(meeting.createdAt, 'dd/MM/yyyy HH:mm') : 'A definir'}"></td>
+                        <td class="num">
+                            <span th:text="${meeting.processes != null ? #lists.size(meeting.processes) : 0}"></span>
+                            <span class="cell-muted">processo(s)</span>
+                        </td>
+                        <td class="num">
+                            <span th:text="${meeting.participants != null ? #lists.size(meeting.participants) : 0}"></span>
+                            <span class="cell-muted">membro(s)</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
-    </div>
 
-    <!-- ========== SEÇÃO 5: Reuniões Agendadas (Escalado para Participar) (REQFUNC 6) ========== -->
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">
-            <i class="fas fa-calendar-check mr-2 text-purple-600"></i>Minhas Reuniões Agendadas
-        </h2>
-        <p class="text-sm text-gray-500 mb-4">Reuniões nas quais você foi escalado para participar.</p>
-
-        <!-- Tabela de Reuniões Escaladas -->
-        <div th:if="${scheduledMeetings != null and !#lists.isEmpty(scheduledMeetings)}">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Colegiado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Agendada</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Processos em Pauta</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participantes</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                <tr th:each="meeting : ${scheduledMeetings}" class="hover:bg-purple-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${meeting.id}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
-                        th:text="${meeting.collegiate != null ? meeting.collegiate.description : 'N/A'}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
-                        th:text="${meeting.createdAt != null ? #temporals.format(meeting.createdAt, 'dd/MM/yyyy HH:mm') : 'A definir'}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        <span th:text="${meeting.processes != null ? #lists.size(meeting.processes) : 0}"></span>
-                        <span class="text-gray-400">processo(s)</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        <span th:text="${meeting.participants != null ? #lists.size(meeting.participants) : 0}"></span>
-                        <span class="text-gray-400">membro(s)</span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Mensagem quando não há reuniões agendadas -->
-        <div th:if="${scheduledMeetings == null or #lists.isEmpty(scheduledMeetings)}"
-             class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-            <i class="fas fa-calendar-times text-gray-400 text-3xl mb-3"></i>
-            <p class="text-gray-600 font-medium">Nenhuma reunião agendada</p>
-            <p class="text-gray-500 text-sm">Você não está escalado para nenhuma reunião agendada no momento.</p>
-        </div>
+            <div th:if="${scheduledMeetings == null or #lists.isEmpty(scheduledMeetings)}" class="empty-state">
+                <i class="fas fa-calendar-xmark empty-state-icon" aria-hidden="true"></i>
+                <h3>Nenhuma reunião agendada</h3>
+                <p class="empty-state-text">Você não está escalado para nenhuma reunião agendada no momento.</p>
+            </div>
+        </section>
     </div>
 </div>
-

@@ -1,200 +1,153 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Criar Nova Reunião</h1>
-        <form th:action="@{/logout}" method="post">
-            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Sair (Logout)
-            </button>
-        </form>
+<div th:fragment="content" class="page page-medium">
+    <a th:href="@{/dashboard/meetings}" class="back-link">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar para reuniões
+    </a>
+
+    <div class="page-header">
+        <div>
+            <h1 th:text="${meeting == null} ? 'Criar nova reunião' : 'Editar reunião'">Criar nova reunião</h1>
+            <p class="page-description">Monte a pauta e escolha o colegiado que participará da votação.</p>
+        </div>
     </div>
 
-    <!-- Botão Voltar -->
-    <div class="mb-6">
-        <a th:href="@{/dashboard/meetings}" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 inline-flex items-center gap-2">
-            <i class="fas fa-arrow-left"></i> Voltar
-        </a>
-    </div>
+    <div th:replace="~{fragments/flash :: messages}"></div>
 
-    <!-- Formulário de Criação/Edição -->
-    <div class="bg-white p-8 rounded-lg shadow-md max-w-4xl">
-        <!-- Formulário para CRIAÇÃO -->
-        <form th:if="${meeting == null}" method="POST" 
-              th:action="@{/dashboard/create-meeting}"
-              class="space-y-6">
-            
-            <!-- Aviso sobre data/hora -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p class="text-sm text-blue-800">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>A reunião será criada com a data e hora atual do sistema.</strong>
-                </p>
-            </div>
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div class="card min-w-0">
+            <form th:if="${meeting == null}" method="POST"
+                  th:action="@{/dashboard/create-meeting}"
+                  class="space-y-5">
 
-            <!-- Descrição da Reunião -->
-            <div>
-                <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-file-alt"></i> Descrição da Reunião
-                </label>
-                <textarea id="description" name="description" rows="3" maxlength="500"
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                          placeholder="Ex: Votação de processos administrativos (opcional)"></textarea>
-                <p class="text-xs text-gray-500 mt-1">Máximo 500 caracteres. Se deixado em branco, uma descrição será gerada automaticamente.</p>
-            </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-circle-info" aria-hidden="true"></i>
+                    <p class="alert-body">A reunião será criada com a data e hora atual do sistema.</p>
+                </div>
 
-            <!-- Processos em Pauta -->
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-3">
-                    <i class="fas fa-list"></i> Processos em Pauta *
-                    <span class="text-xs text-gray-500 ml-2">(<span th:text="${allProcesses.size()}"></span> disponíveis)</span>
-                </label>
-                <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 space-y-3 max-h-96 overflow-y-auto">
-                    <div th:each="process : ${allProcesses}">
-                        <th:block th:if="${process.status.name() == 'UNDER_ANALISYS' and process.rapporteurVote != null}">
-                            <label class="flex items-start space-x-3 hover:bg-white p-3 rounded cursor-pointer transition border border-transparent hover:border-indigo-300">
-                                <input type="checkbox" name="processIds" th:value="${process.id}" 
-                                       class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-900" th:text="'#' + ${process.number} + ' - ' + ${process.title}"></p>
-                                    <div class="flex gap-4 mt-1 text-xs text-gray-500">
-                                        <span>Relator: <strong th:text="${process.processRapporteur != null ? process.processRapporteur.name : 'Não informado'}"></strong></span>
-                                        <span th:if="${process.rapporteurVote != null}" class="text-green-600">✓ Votado</span>
-                                    </div>
-                                </div>
+                <div class="field">
+                    <label for="description" class="label">Descrição da reunião <span class="label-hint">(opcional)</span></label>
+                    <textarea id="description" name="description" rows="3" maxlength="500" class="input"
+                              aria-describedby="descriptionHelp"
+                              placeholder="Ex: Votação de processos administrativos (opcional)"></textarea>
+                    <p id="descriptionHelp" class="help">Máximo 500 caracteres. Se deixado em branco, uma descrição será gerada automaticamente.</p>
+                </div>
+
+                <fieldset class="field">
+                    <legend class="label mb-1.5">
+                        Processos em pauta <span class="required-mark" aria-hidden="true">*</span>
+                        <span class="label-hint">(<span th:text="${allProcesses.size()}"></span> disponíveis)</span>
+                    </legend>
+                    <div class="choice-list">
+                        <th:block th:each="process : ${allProcesses}">
+                            <label th:if="${process.status.name() == 'UNDER_ANALISYS' and process.rapporteurVote != null}" class="choice-row">
+                                <input type="checkbox" name="processIds" th:value="${process.id}">
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-medium" th:text="'#' + ${process.number} + ' - ' + ${process.title}"></span>
+                                    <span class="mt-0.5 flex flex-wrap gap-x-4 text-xs text-fg-secondary">
+                                        <span>Relator: <span class="font-medium text-fg" th:text="${process.processRapporteur != null ? process.processRapporteur.name : 'Não informado'}"></span></span>
+                                        <span th:if="${process.rapporteurVote != null}" class="text-success"><i class="fas fa-check" aria-hidden="true"></i> Votado</span>
+                                    </span>
+                                </span>
                             </label>
                         </th:block>
+                        <div th:if="${#lists.isEmpty(allProcesses)}" class="choice-empty">
+                            <i class="fas fa-inbox mb-2 block text-lg text-fg-tertiary" aria-hidden="true"></i>
+                            Nenhum processo elegível para pauta
+                        </div>
                     </div>
-                    <div th:if="${#lists.isEmpty(allProcesses)}" class="text-center py-8 text-gray-500">
-                        <p><i class="fas fa-inbox text-2xl mb-2"></i></p>
-                        <p>Nenhum processo elegível para pauta</p>
+                    <p class="help">Apenas processos que não estão em outras reuniões são exibidos.</p>
+                </fieldset>
+
+                <div class="field">
+                    <label for="collegiateId" class="label">
+                        Colegiado <span class="required-mark" aria-hidden="true">*</span>
+                    </label>
+                    <select id="collegiateId" name="collegiateId" required class="input" aria-describedby="collegiateHelp">
+                        <option value="">Selecione um colegiado</option>
+                        <option th:each="collegiate : ${collegiates}"
+                                th:value="${collegiate.id}"
+                                th:text="${collegiate.description + ' (' + collegiate.collegiateMemberList.size() + ' membros)'}">
+                        </option>
+                    </select>
+                    <p id="collegiateHelp" class="help">Todos os membros do colegiado selecionado serão participantes automaticamente.</p>
+                </div>
+
+                <div class="form-actions form-actions-bordered">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check" aria-hidden="true"></i>Criar reunião
+                    </button>
+                    <a th:href="@{/dashboard/meetings}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+
+            <form th:if="${meeting != null}" method="POST"
+                  th:action="@{/dashboard/meetings/{id}(id=${meeting.id})}"
+                  class="space-y-5">
+
+                <div class="alert alert-info">
+                    <i class="fas fa-circle-info" aria-hidden="true"></i>
+                    <p class="alert-body">Editando reunião. Altere os processos conforme necessário.</p>
+                </div>
+
+                <div class="field">
+                    <label for="description" class="label">Descrição da reunião <span class="label-hint">(opcional)</span></label>
+                    <textarea id="description" name="description" rows="4"
+                              th:value="${meeting.description != null ? meeting.description : ''}"
+                              placeholder="Descreva o propósito e contexto da reunião..."
+                              class="input" aria-describedby="editDescriptionHelp"></textarea>
+                    <p id="editDescriptionHelp" class="help">Deixe vazio para manter a descrição atual.</p>
+                </div>
+
+                <fieldset class="field">
+                    <legend class="label mb-1.5">Processos sob análise</legend>
+                    <div id="processes" class="choice-list max-h-64">
+                        <p class="choice-empty" th:if="${#lists.isEmpty(allProcesses)}">
+                            Nenhum processo elegível disponível
+                        </p>
+                        <label th:each="process : ${allProcesses}" class="choice-row">
+                            <input type="checkbox" name="processIds" th:value="${process.id}"
+                                   th:checked="${meeting != null and meeting.processes != null and #lists.contains(meeting.processes, process)}">
+                            <span class="font-medium" th:text="'#' + ${process.number} + ' - ' + ${process.title}"></span>
+                        </label>
                     </div>
+                    <p class="help">Selecione os processos que serão analisados na reunião.</p>
+                </fieldset>
+
+                <fieldset class="field">
+                    <legend class="label mb-1.5">Professores participantes</legend>
+                    <div id="professors" class="choice-list max-h-64">
+                        <p class="choice-empty" th:if="${#lists.isEmpty(professors)}">
+                            Nenhum professor no colegiado
+                        </p>
+                        <label th:each="professor : ${professors}" class="choice-row">
+                            <input type="checkbox" name="professorIds" th:value="${professor.id}"
+                                   th:checked="${meeting != null and meeting.participants != null and #lists.contains(meeting.participants, professor)}">
+                            <span>
+                                <span class="font-medium" th:text="${professor.name}"></span>
+                                <span class="text-fg-secondary">(<span th:text="${professor.login}"></span>)</span>
+                            </span>
+                        </label>
+                    </div>
+                    <p class="help">Selecione os professores que participarão da votação.</p>
+                </fieldset>
+
+                <div class="form-actions form-actions-bordered">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check" aria-hidden="true"></i>Atualizar reunião
+                    </button>
+                    <a th:href="@{/dashboard/meetings}" class="btn btn-secondary">Cancelar</a>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle"></i> Apenas processos que não estão em outras reuniões são exibidos
-                </p>
-            </div>
+            </form>
+        </div>
 
-            <!-- Seleção de Colegiado -->
-            <div>
-                <label for="collegiateId" class="block text-sm font-semibold text-gray-700 mb-3">
-                    <i class="fas fa-graduation-cap"></i> Colegiado * 
-                    <span class="text-xs text-gray-500 ml-2">(Todos os membros participarão)</span>
-                </label>
-                <select id="collegiateId" name="collegiateId" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">-- Selecione um colegiado --</option>
-                    <option th:each="collegiate : ${collegiates}" 
-                            th:value="${collegiate.id}"
-                            th:text="${collegiate.description + ' (' + collegiate.collegiateMemberList.size() + ' membros)'}">
-                    </option>
-                </select>
-                <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle"></i> Todos os membros do colegiado selecionado serão participantes automaticamente
-                </p>
-            </div>
-
-            <!-- Botões de Ação -->
-            <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                <a th:href="@{/dashboard/meetings}" class="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
-                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium flex items-center gap-2"><i class="fas fa-check"></i> Criar Reunião
-                </button>
-            </div>
-        </form>
-
-        <!-- Formulário para EDIÇÃO -->
-        <form th:if="${meeting != null}" method="POST" 
-              th:action="@{/dashboard/meetings/{id}(id=${meeting.id})}"
-              class="space-y-6">
-            
-            <!-- Aviso sobre edição -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p class="text-sm text-blue-800">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>Editando reunião. Altere os processos conforme necessário.</strong>
-                </p>
-            </div>
-
-            <!-- Descrição da Reunião (idêntico ao formulário de criação) -->
-            <div>
-                <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-align-left"></i> Descrição da Reunião
-                </label>
-                <textarea id="description" name="description" rows="4" 
-                          th:value="${meeting.description != null ? meeting.description : ''}"
-                          placeholder="Descreva o propósito e contexto da reunião..."
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle"></i> Opcional. Deixe vazio para manter a descrição atual
-                </p>
-            </div>
-
-            <!-- Processos (idêntico ao formulário de criação) -->
-            <div>
-                <label for="processes" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-list"></i> Processos SOB ANÁLISE
-                </label>
-                <div id="processes" class="space-y-2 border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-64 overflow-y-auto">
-                    <p class="text-gray-500 text-sm" th:if="${#lists.isEmpty(allProcesses)}">
-                        <i class="fas fa-info-circle"></i> Nenhum processo elegível disponível
-                    </p>
-                    <label th:each="process : ${allProcesses}" class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
-                        <input type="checkbox" name="processIds" th:value="${process.id}" 
-                               th:checked="${meeting != null and meeting.processes != null and #lists.contains(meeting.processes, process)}"
-                               class="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
-                        <span class="text-sm text-gray-700">
-                            <strong th:text="'#' + ${process.number} + ' - ' + ${process.title}"></strong>
-                        </span>
-                    </label>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle"></i> Selecione os processos que serão analisados na reunião
-                </p>
-            </div>
-
-            <!-- Participantes (Professores) -->
-            <div>
-                <label for="professors" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-users"></i> Professores Participantes
-                </label>
-                <div id="professors" class="space-y-2 border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-64 overflow-y-auto">
-                    <p class="text-gray-500 text-sm" th:if="${#lists.isEmpty(professors)}">
-                        <i class="fas fa-info-circle"></i> Nenhum professor no colegiado
-                    </p>
-                    <label th:each="professor : ${professors}" class="flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
-                        <input type="checkbox" name="professorIds" th:value="${professor.id}" 
-                               th:checked="${meeting != null and meeting.participants != null and #lists.contains(meeting.participants, professor)}"
-                               class="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
-                        <span class="text-sm text-gray-700">
-                            <strong th:text="${professor.name}"></strong> (<span th:text="${professor.login}"></span>)
-                        </span>
-                    </label>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle"></i> Selecione os professores que participarão da votação
-                </p>
-            </div>
-
-            <!-- Botões de Ação -->
-            <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                <a th:href="@{/dashboard/meetings}" class="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
-                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium flex items-center gap-2"><i class="fas fa-check"></i> Atualizar Reunião
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Informações Adicionais -->
-    <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h3 class="font-semibold text-blue-900 mb-2"><i class="fas fa-lightbulb"></i> Dicas</h3>
-        <ul class="text-sm text-blue-800 space-y-1">
-            <li>✓ Apenas processos sob análise (UNDER_ANALISYS) com relator votado são elegíveis</li>
-            <li>✓ A reunião será criada com status DISPONÍVEL automaticamente</li>
-            <li>✓ Você pode editar a reunião antes de finalizá-la</li>
-        </ul>
+        <aside class="card" aria-labelledby="tips-title">
+            <h2 id="tips-title" class="mb-3 flex items-center gap-2 text-base">
+                <i class="fas fa-lightbulb text-primary" aria-hidden="true"></i>Dicas
+            </h2>
+            <ul class="space-y-2 text-[13px] text-fg-secondary">
+                <li class="flex gap-2"><i class="fas fa-check mt-1 text-success" aria-hidden="true"></i>Apenas processos sob análise (UNDER_ANALISYS) com relator votado são elegíveis</li>
+                <li class="flex gap-2"><i class="fas fa-check mt-1 text-success" aria-hidden="true"></i>A reunião será criada com status DISPONÍVEL automaticamente</li>
+                <li class="flex gap-2"><i class="fas fa-check mt-1 text-success" aria-hidden="true"></i>Você pode editar a reunião antes de finalizá-la</li>
+            </ul>
+        </aside>
     </div>
 </div>
-

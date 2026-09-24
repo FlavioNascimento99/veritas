@@ -1,0 +1,85 @@
+@layer app-base {
+  html {
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: var(--font-family-sans);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: 1.625rem;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+  }
+
+  h2 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--primary-subtle);
+    color: var(--primary-subtle-text);
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    accent-color: var(--primary);
+  }
+
+  button:not(:disabled),
+  [role="button"],
+  label:has(input[type="checkbox"], input[type="radio"]),
+  select {
+    cursor: pointer;
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

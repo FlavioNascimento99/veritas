@@ -1,31 +1,63 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title th:text="${pageTitle ?: 'Veritas'}">Veritas - Homepage</title>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+   <title th:text="${pageTitle ?: 'Veritas'}">Veritas</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+   <!-- tokens.css declares the cascade layer order, so the app stylesheets must precede the Tailwind script. -->
+   <link rel="stylesheet" th:href="@{/css/tokens.css}">
+   <link rel="stylesheet" th:href="@{/css/base.css}">
+   <link rel="stylesheet" th:href="@{/css/shell.css}">
+   <link rel="stylesheet" th:href="@{/css/controls.css}">
+   <link rel="stylesheet" th:href="@{/css/display.css}">
+   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.4/dist/cdn.min.js" defer></script>
+   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3"></script>
+   <style type="text/tailwindcss">
+      @theme inline {
+         --font-sans: var(--font-family-sans);
+         --font-mono: var(--font-family-mono);
+         --color-background: var(--background);
+         --color-surface: var(--surface);
+         --color-surface-secondary: var(--surface-secondary);
+         --color-border: var(--border);
+         --color-border-strong: var(--border-strong);
+         --color-fg: var(--text-primary);
+         --color-fg-secondary: var(--text-secondary);
+         --color-fg-tertiary: var(--text-tertiary);
+         --color-primary: var(--primary);
+         --color-primary-hover: var(--primary-hover);
+         --color-primary-subtle: var(--primary-subtle);
+         --color-primary-subtle-text: var(--primary-subtle-text);
+         --color-success: var(--success);
+         --color-success-subtle: var(--success-subtle);
+         --color-warning: var(--warning);
+         --color-warning-subtle: var(--warning-subtle);
+         --color-danger: var(--danger);
+         --color-danger-subtle: var(--danger-subtle);
+         --color-info: var(--info);
+         --color-info-subtle: var(--info-subtle);
+         --radius-sm: var(--rounded-sm);
+         --radius-md: var(--rounded-md);
+         --radius-lg: var(--rounded-lg);
+         --shadow-popover: var(--elevation-popover);
+         --shadow-modal: var(--elevation-modal);
+         --container-page: var(--layout-max);
+      }
+   </style>
 </head>
-<body class="mx-auto max-h-screen overflow-y-auto">
-   <header>
-      <!-- Example of permanent header of application-->
-      <div th:replace="~{fragments/header :: header}"></div>
-   </header>
+<body>
+   <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 btn btn-secondary">Pular para o conteúdo</a>
 
-   
-   <!-- Rotative content -->
-   <main role="main">
-      <!-- Initial Application Load starts here. -->
+   <header th:replace="~{fragments/header :: header}"></header>
+
+   <main id="main-content" class="flex flex-1 flex-col focus-visible:outline-none" tabindex="-1">
       <div th:replace="~{__${mainContent}__}"></div>
    </main>
 
-
-   <footer>
-      <!-- Example between insert and replace -->
-      <div th:replace="~{fragments/footer :: footer}"></div>
-      <!-- <div th:replace="fragments/scripts :: scripts"></div> -->
-   </footer>
+   <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

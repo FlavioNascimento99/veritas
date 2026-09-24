@@ -1,134 +1,101 @@
-<div th:fragment="content" class="min-h-screen bg-gray-100 py-12 px-4">
-    <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8">
-            <a th:href="@{/admin/collegiates}" class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold transition-colors mb-4">
-                <i class="fas fa-arrow-left mr-2"></i>Voltar à Lista
-            </a>
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Visualizar Colegiado</h1>
-            <p class="text-gray-600">Detalhes e gerenciamento do colegiado</p>
-        </div>
+<div th:fragment="content" class="page page-medium">
+    <a th:href="@{/admin/collegiates}" class="back-link">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar à lista
+    </a>
 
-        <!-- Status Badge -->
-        <div class="mb-6">
-            <span th:if="${collegiate.closedAt == null}" class="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                <i class="fas fa-check-circle mr-2"></i>ATIVO
-            </span>
-            <span th:if="${collegiate.closedAt != null}" class="px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
-                <i class="fas fa-times-circle mr-2"></i>ENCERRADO
-            </span>
-        </div>
-
-        <!-- Informações Principais -->
-        <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Descrição -->
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900 mb-2">Descrição</h2>
-                    <p class="text-gray-700" th:text="${collegiate.description}"></p>
-                </div>
-
-                <!-- Relator -->
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900 mb-2">Relator</h2>
-                    <div th:if="${collegiate.rapporteur != null}" class="flex items-center">
-                        <i class="fas fa-user-tie text-purple-600 mr-3"></i>
-                        <div>
-                            <p class="text-gray-900 font-medium" th:text="${collegiate.rapporteur.name}"></p>
-                            <p class="text-gray-500 text-sm" th:text="${collegiate.rapporteur.register}"></p>
-                        </div>
-                    </div>
-                    <div th:if="${collegiate.rapporteur == null}" class="text-gray-500 italic">
-                        Nenhum relator atribuído
-                    </div>
-                </div>
-
-                <!-- Data de Criação -->
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900 mb-2">Data de Criação</h2>
-                    <p class="text-gray-700" th:text="${#temporals.format(collegiate.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
-                </div>
-
-                <!-- Data de Encerramento -->
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900 mb-2">Data de Encerramento</h2>
-                    <p th:if="${collegiate.closedAt != null}" class="text-gray-700" th:text="${#temporals.format(collegiate.closedAt, 'dd/MM/yyyy HH:mm')}"></p>
-                    <p th:if="${collegiate.closedAt == null}" class="text-gray-500 italic">Ainda não encerrado</p>
-                </div>
+    <div class="page-header">
+        <div>
+            <div class="flex flex-wrap items-center gap-3">
+                <h1>Visualizar colegiado</h1>
+                <span th:if="${collegiate.closedAt == null}" class="badge badge-success">
+                    <i class="fas fa-circle-check" aria-hidden="true"></i>Ativo
+                </span>
+                <span th:if="${collegiate.closedAt != null}" class="badge">
+                    <i class="fas fa-circle-xmark" aria-hidden="true"></i>Encerrado
+                </span>
             </div>
+            <p class="page-description">Detalhes e gerenciamento do colegiado.</p>
         </div>
+        <div class="page-actions">
+            <a th:href="@{/admin/collegiates}" class="btn btn-secondary">Fechar</a>
+            <a th:href="@{/admin/collegiates/{id}/edit(id=${collegiate.id})}" class="btn btn-primary">
+                <i class="fas fa-pen" aria-hidden="true"></i>Editar colegiado
+            </a>
+        </div>
+    </div>
 
-        <!-- Membros do Colegiado -->
-        <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                <i class="fas fa-users text-purple-600 mr-2"></i>Membros do Colegiado
-            </h2>
-            <div th:if="${collegiate.collegiateMemberList == null or collegiate.collegiateMemberList.isEmpty()}" class="text-gray-500 italic py-4">
+    <div th:replace="~{fragments/flash :: messages}"></div>
+
+    <div class="section-stack">
+        <section class="card" aria-labelledby="collegiate-info-title">
+            <h2 id="collegiate-info-title" class="mb-4">Informações</h2>
+            <dl class="meta-grid">
+                <div class="sm:col-span-2">
+                    <dt class="meta-label">Descrição</dt>
+                    <dd class="meta-value font-normal" th:text="${collegiate.description}"></dd>
+                </div>
+                <div>
+                    <dt class="meta-label">Relator</dt>
+                    <dd th:if="${collegiate.rapporteur != null}" class="meta-value">
+                        <span th:text="${collegiate.rapporteur.name}"></span>
+                        <span class="block text-[13px] font-normal text-fg-secondary" th:text="${collegiate.rapporteur.register}"></span>
+                    </dd>
+                    <dd th:if="${collegiate.rapporteur == null}" class="meta-value font-normal text-fg-secondary">Nenhum relator atribuído</dd>
+                </div>
+                <div>
+                    <dt class="meta-label">Data de criação</dt>
+                    <dd class="meta-value tabular-nums" th:text="${#temporals.format(collegiate.createdAt, 'dd/MM/yyyy HH:mm')}"></dd>
+                </div>
+                <div>
+                    <dt class="meta-label">Data de encerramento</dt>
+                    <dd th:if="${collegiate.closedAt != null}" class="meta-value tabular-nums" th:text="${#temporals.format(collegiate.closedAt, 'dd/MM/yyyy HH:mm')}"></dd>
+                    <dd th:if="${collegiate.closedAt == null}" class="meta-value font-normal text-fg-secondary">Ainda não encerrado</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="card" aria-labelledby="members-title">
+            <h2 id="members-title" class="mb-4">Membros do colegiado</h2>
+            <p th:if="${collegiate.collegiateMemberList == null or collegiate.collegiateMemberList.isEmpty()}" class="text-fg-secondary">
                 Nenhum membro atribuído
-            </div>
-            <div th:if="${collegiate.collegiateMemberList != null and !collegiate.collegiateMemberList.isEmpty()}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div th:each="member : ${collegiate.collegiateMemberList}" class="border border-gray-200 rounded-lg p-4 hover:border-purple-400 transition-colors">
-                    <div class="flex items-start">
-                        <i class="fas fa-user-circle text-purple-600 text-2xl mr-3 mt-1"></i>
-                        <div class="flex-1">
-                            <p class="font-semibold text-gray-900" th:text="${member.name}"></p>
-                            <p class="text-sm text-gray-600" th:text="${member.register}"></p>
-                            <p class="text-xs text-gray-500 mt-1" th:text="${member.login}"></p>
-                        </div>
+            </p>
+            <ul th:if="${collegiate.collegiateMemberList != null and !collegiate.collegiateMemberList.isEmpty()}" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <li th:each="member : ${collegiate.collegiateMemberList}" class="flex items-start gap-3 rounded-md border border-border p-3">
+                    <span class="avatar text-xs" aria-hidden="true"><i class="fas fa-user"></i></span>
+                    <div class="min-w-0">
+                        <p class="truncate font-medium" th:text="${member.name}"></p>
+                        <p class="text-[13px] text-fg-secondary" th:text="${member.register}"></p>
+                        <p class="truncate text-xs text-fg-secondary" th:text="${member.login}"></p>
                     </div>
-                </div>
-            </div>
-        </div>
+                </li>
+            </ul>
+        </section>
 
-        <!-- Reuniões e Processos Ligados -->
-        <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                <i class="fas fa-calendar-alt text-purple-600 mr-2"></i>Reuniões e Processos
-            </h2>
-            <div th:if="${meetings == null or meetings.isEmpty()}" class="text-gray-500 italic py-4">
+        <section class="card" aria-labelledby="meetings-title">
+            <h2 id="meetings-title" class="mb-4">Reuniões e processos</h2>
+            <p th:if="${meetings == null or meetings.isEmpty()}" class="text-fg-secondary">
                 Nenhuma reunião agendada para este colegiado
-            </div>
-            <div th:if="${meetings != null and !meetings.isEmpty()}" class="space-y-4">
-                <div th:each="meeting : ${meetings}" class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                    <div class="flex items-start justify-between mb-3">
+            </p>
+            <ul th:if="${meetings != null and !meetings.isEmpty()}" class="divide-y divide-border">
+                <li th:each="meeting : ${meetings}" class="py-4 first:pt-0 last:pb-0">
+                    <div class="flex flex-wrap items-start justify-between gap-2">
                         <div>
-                            <h3 class="font-semibold text-gray-900">Reunião #<span th:text="${meeting.id}"></span></h3>
-                            <p class="text-sm text-gray-600" th:text="${#temporals.format(meeting.scheduledDate, 'dd/MM/yyyy HH:mm')}"></p>
+                            <h3>Reunião #<span th:text="${meeting.id}"></span></h3>
+                            <p class="text-[13px] text-fg-secondary tabular-nums" th:text="${#temporals.format(meeting.scheduledDate, 'dd/MM/yyyy HH:mm')}"></p>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold"
-                              th:classappend="${meeting.status.name() == 'DISPONÍVEL' ? 'bg-blue-100 text-blue-800' :
-                                             (meeting.status.name() == 'FINALIZADA' ? 'bg-green-100 text-green-800' :
-                                             'bg-gray-100 text-gray-800')}"
-                             th:text="${meeting.status}"></span>
+                        <span th:replace="~{fragments/status-badges :: meeting(${meeting.status})}"></span>
                     </div>
-                    
-                    <div class="mt-3 border-t pt-3">
-                        <p class="text-sm font-semibold text-gray-700 mb-2">Processos em Pauta:</p>
-                        <div th:if="${meeting.processes == null or meeting.processes.isEmpty()}" class="text-gray-500 italic text-sm">
-                            Nenhum processo
-                        </div>
-                        <div th:if="${meeting.processes != null and !meeting.processes.isEmpty()}" class="flex flex-wrap gap-2">
-                            <a th:each="process : ${meeting.processes}" 
-                               th:href="@{/processes/{id}(id=${process.id})}"
-                               class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded text-sm hover:bg-indigo-200 transition-colors">
-                                <i class="fas fa-file-alt mr-1"></i><span th:text="${process.number}"></span>
-                            </a>
-                        </div>
+                    <p class="mt-3 mb-2 text-[13px] font-medium">Processos em pauta</p>
+                    <p th:if="${meeting.processes == null or meeting.processes.isEmpty()}" class="text-[13px] text-fg-secondary">Nenhum processo</p>
+                    <div th:if="${meeting.processes != null and !meeting.processes.isEmpty()}" class="flex flex-wrap gap-2">
+                        <a th:each="process : ${meeting.processes}"
+                           th:href="@{/processes/{id}(id=${process.id})}"
+                           class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-lines" aria-hidden="true"></i><span th:text="${process.number}"></span>
+                        </a>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botões de Ação -->
-        <div class="flex gap-4">
-            <a th:href="@{/admin/collegiates/{id}/edit(id=${collegiate.id})}" 
-               class="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
-                <i class="fas fa-edit mr-2"></i>Editar Colegiado
-            </a>
-            <a th:href="@{/admin/collegiates}" 
-               class="inline-flex items-center px-6 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors font-semibold">
-                <i class="fas fa-times mr-2"></i>Fechar
-            </a>
-        </div>
+                </li>
+            </ul>
+        </section>
     </div>
 </div>
