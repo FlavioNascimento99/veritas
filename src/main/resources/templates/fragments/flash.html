@@ -1,0 +1,16 @@
+<th:block th:fragment="messages">
+    <div th:if="${successMessage}" class="alert alert-success mb-6" role="status" x-data="{ open: true }" x-show="open">
+        <i class="fas fa-circle-check" aria-hidden="true"></i>
+        <p class="alert-body" th:text="${successMessage}"></p>
+        <button type="button" class="alert-dismiss" @click="open = false" aria-label="Fechar mensagem">
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger mb-6" role="alert" x-data="{ open: true }" x-show="open">
+        <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+        <p class="alert-body" th:text="${errorMessage}"></p>
+        <button type="button" class="alert-dismiss" @click="open = false" aria-label="Fechar mensagem">
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+        </button>
+    </div>
+</th:block>

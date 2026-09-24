@@ -1,81 +1,100 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard do Administrador</h1>
-        <form th:action="@{/logout}" method="post">
-            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Sair (Logout)
-            </button>
-        </form>
-    </div>
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Visão Geral</h2>
-        <p class="text-gray-600 mb-6">Resumo rápido das entidades e ações administrativas.</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div class="p-4 bg-blue-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Estudantes</div>
-                <div class="text-2xl font-bold text-blue-800" th:text="${studentsCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/students}" class="text-blue-600 hover:underline">Ver todos</a></div>
-            </div>
-
-            <div class="p-4 bg-green-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Professores</div>
-                <div class="text-2xl font-bold text-green-800" th:text="${professorsCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/professors}" class="text-green-600 hover:underline">Ver todos</a></div>
-            </div>
-
-            <div class="p-4 bg-yellow-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Assuntos</div>
-                <div class="text-2xl font-bold text-yellow-800" th:text="${subjectsCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/subjects}" class="text-yellow-600 hover:underline">Gerenciar</a></div>
-            </div>
-
-            <div class="p-4 bg-indigo-50 rounded-lg shadow">
-                <div class="text-sm text-gray-500">Processos</div>
-                <div class="text-2xl font-bold text-indigo-800" th:text="${processesCount ?: 0}">0</div>
-                <div class="text-sm mt-2"><a th:href="@{/admin/processes}" class="text-indigo-600 hover:underline">Ver processos</a></div>
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Ações rápidas</h3>
-            <div class="flex flex-wrap gap-3">
-                <a th:href="@{/admin/students/new}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded">Novo Estudante</a>
-                <a th:href="@{/admin/professors/new}" class="inline-block bg-green-600 text-white px-4 py-2 rounded">Novo Professor</a>
-                <a th:href="@{/admin/subjects}" class="inline-block bg-yellow-600 text-white px-4 py-2 rounded">Gerenciar Assuntos</a>
-                <a th:href="@{/admin/collegiates}" class="inline-block bg-purple-600 text-white px-4 py-2 rounded">Gerenciar Colegiados</a>
-            </div>
-        </div>
-
+<div th:fragment="content" class="page">
+    <div class="page-header">
         <div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Processos recentes</h3>
-            <div th:if="${recentProcesses != null and #lists.isEmpty(recentProcesses) == false}">
-                <table class="min-w-full divide-y divide-gray-200">
+            <h1>Dashboard do administrador</h1>
+            <p class="page-description">Resumo rápido das entidades e ações administrativas.</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/flash :: messages}"></div>
+
+    <div class="section-stack">
+        <section aria-labelledby="overview-title">
+            <h2 id="overview-title" class="sr-only">Visão geral</h2>
+            <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <div class="stat">
+                    <span class="stat-label">Estudantes</span>
+                    <span class="stat-value" th:text="${studentsCount ?: 0}">0</span>
+                    <a th:href="@{/admin/students}" class="link mt-1 w-fit text-xs">Ver todos</a>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Professores</span>
+                    <span class="stat-value" th:text="${professorsCount ?: 0}">0</span>
+                    <a th:href="@{/admin/professors}" class="link mt-1 w-fit text-xs">Ver todos</a>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Assuntos</span>
+                    <span class="stat-value" th:text="${subjectsCount ?: 0}">0</span>
+                    <a th:href="@{/admin/subjects}" class="link mt-1 w-fit text-xs">Gerenciar</a>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Processos</span>
+                    <span class="stat-value" th:text="${processesCount ?: 0}">0</span>
+                    <a th:href="@{/admin/processes}" class="link mt-1 w-fit text-xs">Ver processos</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="quick-actions-title">
+            <div class="card-header">
+                <div>
+                    <h2 id="quick-actions-title">Ações rápidas</h2>
+                    <p class="card-description">Atalhos para os cadastros mais usados.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a th:href="@{/admin/students/new}" class="btn btn-secondary">
+                    <i class="fas fa-user-graduate" aria-hidden="true"></i>Novo estudante
+                </a>
+                <a th:href="@{/admin/professors/new}" class="btn btn-secondary">
+                    <i class="fas fa-chalkboard-user" aria-hidden="true"></i>Novo professor
+                </a>
+                <a th:href="@{/admin/subjects}" class="btn btn-secondary">
+                    <i class="fas fa-tags" aria-hidden="true"></i>Gerenciar assuntos
+                </a>
+                <a th:href="@{/admin/collegiates}" class="btn btn-secondary">
+                    <i class="fas fa-people-group" aria-hidden="true"></i>Gerenciar colegiados
+                </a>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="recent-title">
+            <div class="card-header">
+                <h2 id="recent-title">Processos recentes</h2>
+                <a th:href="@{/admin/processes}" class="btn btn-ghost btn-sm">Ver todos</a>
+            </div>
+            <div th:if="${recentProcesses != null and #lists.isEmpty(recentProcesses) == false}" class="table-wrap">
+                <table class="table">
                     <thead>
                     <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudante</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado em</th>
-                        <th class="px-4 py-2"></th>
+                        <th scope="col">Número</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Estudante</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Criado em</th>
+                        <th scope="col"><span class="sr-only">Ações</span></th>
                     </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody>
                     <tr th:each="proc : ${recentProcesses}">
-                        <td class="px-4 py-2" th:text="${proc.number}">--</td>
-                        <td class="px-4 py-2" th:text="${proc.title}">--</td>
-                        <td class="px-4 py-2" th:text="${proc.processCreator != null ? proc.processCreator.name : '—'}">—</td>
-                        <td class="px-4 py-2" th:text="${proc.status}">—</td>
-                        <td class="px-4 py-2" th:text="${#temporals.format(proc.createdAt, 'dd/MM/yyyy HH:mm')}">--</td>
-                        <td class="px-4 py-2"><a th:href="@{/processes/{id}(id=${proc.id})}" class="text-indigo-600 hover:underline">Detalhes</a></td>
+                        <td class="cell-strong nowrap" th:text="${proc.number}">--</td>
+                        <td th:text="${proc.title}">--</td>
+                        <td class="cell-muted" th:text="${proc.processCreator != null ? proc.processCreator.name : '—'}">—</td>
+                        <td><span th:replace="~{fragments/status-badges :: process(${proc.status})}"></span></td>
+                        <td class="cell-muted nowrap" th:text="${#temporals.format(proc.createdAt, 'dd/MM/yyyy HH:mm')}">--</td>
+                        <td class="cell-actions"><a th:href="@{/processes/{id}(id=${proc.id})}" class="link">Detalhes</a></td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div th:if="${recentProcesses == null or #lists.isEmpty(recentProcesses)}">
-                <p class="text-gray-600">Nenhum processo recente encontrado.</p>
+            <div th:if="${recentProcesses == null or #lists.isEmpty(recentProcesses)}" class="empty-state">
+                <i class="fas fa-folder-open empty-state-icon" aria-hidden="true"></i>
+                <h3>Nenhum processo recente encontrado</h3>
+                <p class="empty-state-text">Os processos abertos pelos estudantes aparecem aqui assim que forem criados.</p>
+                <div class="empty-state-actions">
+                    <a th:href="@{/admin/processes}" class="btn btn-secondary">Ver todos os processos</a>
+                </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,80 +7,69 @@
 </head>
 <body>
 
-<div th:fragment="content" class="p-6 bg-gray-50 min-h-screen">
-    <div class="max-w-3xl mx-auto">
-        <!-- Cabeçalho -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Criar Novo Colegiado</h1>
-            <p class="text-gray-600 mt-2">Defina uma descrição e selecione os membros (número ÍMPAR)</p>
+<div th:fragment="content" class="page page-narrow">
+    <a th:href="@{/dashboard/collegiates}" class="back-link">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar para colegiados
+    </a>
+
+    <div class="page-header">
+        <div>
+            <h1>Criar novo colegiado</h1>
+            <p class="page-description">Defina uma descrição e selecione os membros (número ímpar).</p>
         </div>
+    </div>
 
-        <!-- Formulário -->
-        <div class="bg-white rounded-lg shadow-md p-8">
-            <form th:action="@{/dashboard/collegiates}" method="POST" class="space-y-6">
-                
-                <!-- Descrição -->
-                <div>
-                    <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-file-alt mr-2"></i> Descrição *
-                    </label>
-                    <textarea id="description" 
-                              name="description" 
-                              rows="3"
-                              required
-                              placeholder="Ex: Colegiado de Análise de Processos Administrativos"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                    <p class="text-xs text-gray-500 mt-1">Descreva o propósito do colegiado</p>
-                </div>
+    <div th:replace="~{fragments/flash :: messages}"></div>
 
-                <!-- Membros -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        <i class="fas fa-users mr-2"></i> Membros * 
-                        <span class="text-xs text-gray-500 ml-2">(Deve ser número ÍMPAR para evitar empates)</span>
+    <div class="card">
+        <form th:action="@{/dashboard/collegiates}" method="POST" class="space-y-5">
+            <div class="field">
+                <label for="description" class="label">Descrição <span class="required-mark" aria-hidden="true">*</span></label>
+                <textarea id="description"
+                          name="description"
+                          rows="3"
+                          required
+                          aria-describedby="descriptionHelp"
+                          placeholder="Ex: Colegiado de Análise de Processos Administrativos"
+                          class="input"></textarea>
+                <p id="descriptionHelp" class="help">Descreva o propósito do colegiado.</p>
+            </div>
+
+            <fieldset class="field">
+                <legend class="label mb-1.5">
+                    Membros <span class="required-mark" aria-hidden="true">*</span>
+                    <span class="label-hint">(deve ser número ímpar para evitar empates)</span>
+                </legend>
+                <div class="choice-list">
+                    <label th:each="prof : ${professors}" class="choice-row">
+                        <input type="checkbox"
+                               name="collegiateMemberList"
+                               th:value="${prof.id}">
+                        <span class="min-w-0 flex-1">
+                            <span class="block font-medium" th:text="${prof.name}"></span>
+                            <span class="block text-xs text-fg-secondary" th:text="${prof.login}"></span>
+                        </span>
+                        <span th:if="${prof.coordinator}" class="badge badge-primary">Coordenador</span>
                     </label>
-                    <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 space-y-3 max-h-96 overflow-y-auto">
-                        <div th:each="prof : ${professors}">
-                            <label class="flex items-start space-x-3 hover:bg-white p-3 rounded cursor-pointer transition border border-transparent hover:border-indigo-300">
-                                <input type="checkbox" 
-                                       name="collegiateMemberList" 
-                                       th:value="${prof.id}"
-                                       class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-900" th:text="${prof.name}"></p>
-                                    <p class="text-xs text-gray-500" th:text="${prof.login}"></p>
-                                </div>
-                                <span th:if="${prof.coordinator}" class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                                    Coordenador
-                                </span>
-                            </label>
-                        </div>
-                        <div th:if="${#lists.isEmpty(professors)}" class="text-center py-8 text-gray-500">
-                            <p>Nenhum professor disponível</p>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2">
-                        <i class="fas fa-info-circle mr-1"></i> Selecione um número ÍMPAR de professores (1, 3, 5, 7, etc.)
-                    </p>
-                    <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p class="text-xs text-blue-800">
-                            <i class="fas fa-lightbulb mr-1"></i>
-                            <strong>Dica:</strong> O número ímpar de membros garante que não haja empate nas votações
-                        </p>
+                    <div th:if="${#lists.isEmpty(professors)}" class="choice-empty">
+                        Nenhum professor disponível
                     </div>
                 </div>
+                <p class="help">Selecione um número ímpar de professores (1, 3, 5, 7, etc.).</p>
+            </fieldset>
 
-                <!-- Botões -->
-                <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                    <a th:href="@{/dashboard/collegiates}" class="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors duration-200">
-                        <i class="fas fa-times mr-2"></i> Cancelar
-                    </a>
-                    <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium flex items-center gap-2 transition-colors duration-200">
-                        <i class="fas fa-check"></i> Criar Colegiado
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb" aria-hidden="true"></i>
+                <p class="alert-body"><strong>Dica:</strong> o número ímpar de membros garante que não haja empate nas votações.</p>
+            </div>
+
+            <div class="form-actions form-actions-bordered">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check" aria-hidden="true"></i>Criar colegiado
+                </button>
+                <a th:href="@{/dashboard/collegiates}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -1,162 +1,132 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Apregoação de Processos</h1>
-        <form th:action="@{/logout}" method="post">
-            <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                Sair (Logout)
-            </button>
-        </form>
-    </div>
+<div th:fragment="content" class="page page-medium">
+    <a th:href="@{/dashboard/meetings}" class="back-link">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar para reuniões
+    </a>
 
-    <!-- Info de Reunião Ativa -->
-    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-        <h2 class="text-lg font-semibold text-green-900 mb-2">
-            <i class="fas fa-gavel"></i> Reunião Em Andamento
-        </h2>
-        <div class="text-sm text-green-800 space-y-1">
-            <p><strong>Reunião:</strong> <span th:text="${meeting.description}"></span></p>
-            <p><strong>Status:</strong> <span class="px-2 py-1 bg-orange-200 text-orange-800 rounded text-xs font-bold">EM ANDAMENTO</span></p>
-            <p><strong>Colegiado:</strong> <span th:text="${meeting.collegiate.description}"></span></p>
-            <p><strong>Processos na Pauta:</strong> <span th:text="${meeting.processes.size()}"></span></p>
+    <div class="page-header">
+        <div>
+            <h1>Apregoação de processos</h1>
+            <p class="page-description">Apregoe cada processo da pauta para calcular e finalizar o resultado.</p>
         </div>
     </div>
 
-    <!-- Botão Voltar -->
-    <div class="mb-6">
-        <a th:href="@{/dashboard/meetings}" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 inline-flex items-center gap-2">
-            <i class="fas fa-arrow-left"></i> Voltar
-        </a>
-    </div>
+    <div th:replace="~{fragments/flash :: messages}"></div>
 
-    <!-- Mensagens Flash -->
-    <div th:if="${successMessage}" class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-        <i class="fas fa-check"></i> <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-        <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
-    </div>
+    <div class="section-stack">
+        <section class="card" aria-labelledby="meeting-info-title">
+            <div class="card-header">
+                <h2 id="meeting-info-title">Reunião em andamento</h2>
+                <span class="badge badge-warning">Em andamento</span>
+            </div>
+            <dl class="meta-grid">
+                <div>
+                    <dt class="meta-label">Reunião</dt>
+                    <dd class="meta-value" th:text="${meeting.description}"></dd>
+                </div>
+                <div>
+                    <dt class="meta-label">Colegiado</dt>
+                    <dd class="meta-value" th:text="${meeting.collegiate.description}"></dd>
+                </div>
+                <div>
+                    <dt class="meta-label">Processos na pauta</dt>
+                    <dd class="meta-value tabular-nums" th:text="${meeting.processes.size()}"></dd>
+                </div>
+            </dl>
+        </section>
 
-    <!-- Processos para Apregoação -->
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h3 class="text-2xl font-bold text-gray-800 mb-4">
-            <i class="fas fa-gavel"></i> Processos para Apregoação
-        </h3>
+        <section aria-labelledby="announce-title">
+            <h2 id="announce-title" class="mb-4">Processos para apregoação</h2>
 
-        <div th:if="${meeting.processes != null and !meeting.processes.isEmpty()}">
-            <div class="space-y-4">
-                <div th:each="process : ${meeting.processes}" 
-                     class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200 shadow">
-                    
-                    <!-- Cabeçalho do Processo -->
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h4 class="text-lg font-bold text-gray-800">
-                                <span th:text="${'#' + process.number + ' - ' + process.title}"></span>
-                            </h4>
-                            <p class="text-sm text-gray-600 mt-1" th:text="${process.description}"></p>
+            <div th:if="${meeting.processes != null and !meeting.processes.isEmpty()}" class="space-y-4">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="stat">
+                        <span class="stat-label">Total de processos</span>
+                        <span class="stat-value" th:text="${meeting.processes.size()}"></span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Apregoados</span>
+                        <span class="stat-value" th:text="${meeting.processes.size() - meeting.processes.?[status.name() == 'UNDER_ANALISYS'].size()}"></span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Pendentes</span>
+                        <span class="stat-value" th:text="${meeting.processes.?[status.name() == 'UNDER_ANALISYS'].size()}"></span>
+                    </div>
+                </div>
+
+                <article th:each="process : ${meeting.processes}" class="card">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h3 th:text="${'#' + process.number + ' - ' + process.title}"></h3>
+                            <p class="mt-1 text-fg-secondary" th:text="${process.description}"></p>
                         </div>
-                        <span th:class="'px-3 py-1 rounded-full text-sm font-bold ' + 
-                                       (${process.status.name() == 'UNDER_ANALISYS'} ? 'bg-yellow-200 text-yellow-800' : 
-                                        ${process.status.name() == 'APPROVED'} ? 'bg-green-200 text-green-800' : 
-                                        'bg-red-200 text-red-800')"
-                              th:text="${process.status.name()}">
-                        </span>
+                        <span th:replace="~{fragments/status-badges :: process(${process.status})}"></span>
                     </div>
 
-                    <!-- Informações Críticas -->
-                    <div class="bg-white rounded p-4 mb-4 space-y-3">
-                        <div class="border-b pb-3">
-                            <strong class="text-gray-700">Relator:</strong>
-                            <span class="text-gray-600" th:text="${process.processRapporteur != null ? process.processRapporteur.name : 'Não designado'}"></span>
+                    <dl class="inset mt-4 space-y-2">
+                        <div class="flex flex-wrap gap-x-2">
+                            <dt class="text-fg-secondary">Relator:</dt>
+                            <dd class="font-medium" th:text="${process.processRapporteur != null ? process.processRapporteur.name : 'Não designado'}"></dd>
                         </div>
-                        <div class="border-b pb-3">
-                            <strong class="text-gray-700">Decisão do Relator:</strong>
-                            <span th:if="${process.rapporteurVote}" 
-                                  th:class="'px-2 py-1 rounded text-sm font-bold ' + 
-                                           (${process.rapporteurVote.name() == 'DEFERIMENTO'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')"
-                                  th:text="${process.rapporteurVote.name()}"></span>
-                            <span th:if="${!process.rapporteurVote}" class="text-gray-500">Não registrada</span>
+                        <div class="flex flex-wrap items-center gap-x-2">
+                            <dt class="text-fg-secondary">Decisão do relator:</dt>
+                            <dd>
+                                <span th:if="${process.rapporteurVote != null}" class="badge"
+                                      th:classappend="${process.rapporteurVote.name() == 'DEFERIMENTO'} ? 'badge-success' : 'badge-danger'"
+                                      th:text="${process.rapporteurVote.name() == 'DEFERIMENTO'} ? 'Deferimento' : 'Indeferimento'"></span>
+                                <span th:if="${process.rapporteurVote == null}" class="text-fg-secondary">Não registrada</span>
+                            </dd>
                         </div>
-                        <div th:if="${process.rapporteurJustification}" class="pb-3">
-                            <strong class="text-gray-700">Justificativa:</strong>
-                            <p class="text-gray-600 text-sm italic mt-1" th:text="${process.rapporteurJustification}"></p>
+                        <div th:if="${process.rapporteurJustification}">
+                            <dt class="text-fg-secondary">Justificativa:</dt>
+                            <dd class="mt-1" th:text="${process.rapporteurJustification}"></dd>
                         </div>
-                        
-                        <!-- Resumo de Votos -->
-                        <div class="bg-blue-50 rounded p-3 border border-blue-200">
-                            <strong class="text-blue-900 block mb-2"><i class="fas fa-chart-pie"></i> Resultado da Votação</strong>
-                            <div class="text-sm space-y-1">
-                                <p class="text-blue-800" th:if="${process.status.name() == 'UNDER_ANALISYS'}">
-                                    ⏳ <strong>Aguardando Apregoação</strong> - Votos registrados
-                                </p>
-                                <p class="text-green-800" th:if="${process.status.name() == 'APPROVED'}">
-                                    ✅ <strong>APROVADO</strong> - Decisão finalizada
-                                </p>
-                                <p class="text-red-800" th:if="${process.status.name() == 'REJECTED'}">
-                                    ❌ <strong>REJEITADO</strong> - Decisão finalizada
-                                </p>
-                            </div>
+                        <div class="flex flex-wrap items-center gap-x-2 border-t border-border pt-2">
+                            <dt class="text-fg-secondary">Resultado da votação:</dt>
+                            <dd class="font-medium">
+                                <span th:if="${process.status.name() == 'UNDER_ANALISYS'}">Aguardando apregoação, votos registrados</span>
+                                <span th:if="${process.status.name() == 'APPROVED'}" class="text-success">Aprovado, decisão finalizada</span>
+                                <span th:if="${process.status.name() == 'REJECTED'}" class="text-danger">Rejeitado, decisão finalizada</span>
+                            </dd>
                         </div>
-                    </div>
+                    </dl>
 
-                    <!-- Botão de Apregoação -->
-                    <div th:if="${process.status.name() == 'UNDER_ANALISYS'}" class="mt-4">
-                        <form method="POST" 
-                              th:action="@{/dashboard/meetings/{id}/processes/{pid}/announce(id=${meeting.id}, pid=${process.id})}"
-                              onsubmit="return confirm('Tem certeza que deseja apregoar este processo? Isso calculará e finalizará o resultado da votação.');">
-                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center gap-2"><i class="fas fa-gavel"></i> Apregoar Processo
-                            </button>
-                        </form>
-                    </div>
+                    <form th:if="${process.status.name() == 'UNDER_ANALISYS'}" class="mt-4" method="POST"
+                          th:action="@{/dashboard/meetings/{id}/processes/{pid}/announce(id=${meeting.id}, pid=${process.id})}"
+                          onsubmit="return confirm('Tem certeza que deseja apregoar este processo? Isso calculará e finalizará o resultado da votação.');">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block sm:w-auto">
+                            <i class="fas fa-gavel" aria-hidden="true"></i>Apregoar processo
+                        </button>
+                    </form>
 
-                    <!-- Status de Apregoação -->
-                    <div th:if="${process.status.name() != 'UNDER_ANALISYS'}" class="bg-green-100 border border-green-300 rounded p-3 mt-4">
-                        <p class="text-sm text-green-800">
-                            <i class="fas fa-check-circle text-green-600"></i>
-                            <strong>Processo Apregoado</strong> - Resultado: <span th:text="${process.status.name()}"></span>
+                    <div th:if="${process.status.name() != 'UNDER_ANALISYS'}" class="alert alert-success mt-4">
+                        <i class="fas fa-circle-check" aria-hidden="true"></i>
+                        <p class="alert-body">
+                            <strong>Processo apregoado</strong>. Resultado:
+                            <span th:replace="~{fragments/status-badges :: process(${process.status})}"></span>
                         </p>
                     </div>
-                </div>
+                </article>
             </div>
 
-            <!-- Resumo Geral -->
-            <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <h4 class="font-bold text-gray-800 mb-2"><i class="fas fa-info-circle"></i> Resumo da Reunião</h4>
-                <div class="grid grid-cols-3 gap-4 text-sm">
-                    <div class="text-center">
-                        <p class="text-gray-600">Total de Processos</p>
-                        <p class="text-2xl font-bold text-gray-800" th:text="${meeting.processes.size()}"></p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-gray-600">Apregoados</p>
-                        <p class="text-2xl font-bold text-green-600" th:text="${#numbers.formatInteger(meeting.processes.size() - #collections.size(meeting.processes.?[status.name() == 'UNDER_ANALISYS']), 1, 'DEFAULT')}"></p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-gray-600">Pendentes</p>
-                        <p class="text-2xl font-bold text-yellow-600" th:text="${#collections.size(meeting.processes.?[status.name() == 'UNDER_ANALISYS'])}"></p>
-                    </div>
-                </div>
+            <div th:if="${meeting.processes == null or meeting.processes.isEmpty()}" class="card empty-state">
+                <i class="fas fa-inbox empty-state-icon" aria-hidden="true"></i>
+                <h3>Nenhum processo na pauta desta reunião</h3>
+                <p class="empty-state-text">Edite a reunião enquanto ela estiver disponível para incluir processos na pauta.</p>
             </div>
-        </div>
+        </section>
 
-        <div th:if="${meeting.processes == null or meeting.processes.isEmpty()}" class="text-center py-8 text-gray-500">
-            <p><i class="fas fa-inbox text-3xl mb-2"></i></p>
-            <p>Nenhum processo na pauta desta reunião</p>
-        </div>
-    </div>
-
-    <!-- Informações Adicionais -->
-    <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h4 class="font-semibold text-blue-900 mb-2"><i class="fas fa-lightbulb"></i> Fluxo de Apregoação</h4>
-        <ul class="text-sm text-blue-800 space-y-1">
-            <li>1️⃣ Membros votam em cada processo pelo deferimento ou indeferimento</li>
-            <li>2️⃣ Você apregoa cada processo um por um</li>
-            <li>3️⃣ O sistema calcula automaticamente o resultado (maioria/empate)</li>
-            <li>4️⃣ Status muda para APROVADO ou REJEITADO</li>
-            <li>5️⃣ Quando todos processos estiverem apregoados, finalize a sessão</li>
-        </ul>
+        <aside class="alert alert-info" aria-labelledby="flow-title">
+            <i class="fas fa-lightbulb" aria-hidden="true"></i>
+            <div class="alert-body">
+                <h2 id="flow-title" class="alert-title text-sm text-info">Fluxo de apregoação</h2>
+                <ol class="mt-1 list-decimal space-y-1 pl-4">
+                    <li>Membros votam em cada processo pelo deferimento ou indeferimento</li>
+                    <li>Você apregoa cada processo um por um</li>
+                    <li>O sistema calcula automaticamente o resultado (maioria/empate)</li>
+                    <li>Status muda para aprovado ou rejeitado</li>
+                    <li>Quando todos processos estiverem apregoados, finalize a sessão</li>
+                </ol>
+            </div>
+        </aside>
     </div>
 </div>
-
-

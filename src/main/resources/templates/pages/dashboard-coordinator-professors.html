@@ -1,68 +1,45 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <!-- Header com Botões de Navegação -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Professores do Colegiado</h1>
-        <div class="flex gap-3">
-            <a th:href="@{/dashboard}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-            <form th:action="@{/logout}" method="post" class="inline">
-                <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    Sair (Logout)
-                </button>
-            </form>
+<div th:fragment="content" class="page">
+    <div class="page-header">
+        <div>
+            <h1>Professores do colegiado</h1>
+            <p class="page-description">Consulte os professores cadastrados e seus contatos.</p>
         </div>
     </div>
 
-    <!-- Botões de Navegação Entre Páginas -->
-    <div class="mb-6 flex gap-3 flex-wrap">
-        <a th:href="@{/dashboard}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-            <i class="fas fa-file-alt"></i> Processos
-        </a>
-        <a th:href="@{/dashboard/professors}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-            <i class="fas fa-chalkboard-user"></i> Professores
-        </a>
-        <a th:href="@{/dashboard/meetings}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-            <i class="fas fa-calendar-check"></i> Reuniões
-        </a>
+    <div th:if="${professors != null and !professors.isEmpty()}" class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Login</th>
+                <th scope="col">Matrícula</th>
+                <th scope="col">Telefone</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="prof : ${professors}">
+                <td>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-medium" th:text="${prof.name}"></span>
+                        <span th:if="${prof.coordinator}" class="badge badge-primary">Coordenador</span>
+                    </div>
+                </td>
+                <td class="cell-muted" th:text="${prof.login}"></td>
+                <td class="nowrap" th:text="${prof.register}"></td>
+                <td class="nowrap cell-muted" th:text="${prof.phoneNumber}"></td>
+                <td>
+                    <span class="badge" th:classappend="${prof.isActive} ? 'badge-success' : 'badge-danger'"
+                          th:text="${prof.isActive ? 'Ativo' : 'Inativo'}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 
-    <!-- Conteúdo da Página -->
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <div th:if="${professors != null and !professors.isEmpty()}">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div th:each="prof : ${professors}" 
-                     class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-indigo-200 shadow hover:shadow-md transition">
-                    <div class="flex items-start justify-between mb-2">
-                        <h3 class="text-lg font-semibold text-gray-800" th:text="${prof.name}"></h3>
-                        <span th:if="${prof.coordinator}" 
-                              class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                            Coordenador
-                        </span>
-                    </div>
-                    
-                    <div class="space-y-2 text-sm text-gray-600">
-                        <p><strong>Login:</strong> <span th:text="${prof.login}"></span></p>
-                        <p><strong>Matrícula:</strong> <span th:text="${prof.register}"></span></p>
-                        <p><strong>Telefone:</strong> <span th:text="${prof.phoneNumber}"></span></p>
-                        <p><strong>Status:</strong> 
-                            <span th:class="'font-semibold ' + (${prof.isActive} ? 'text-green-600' : 'text-red-600')"
-                                  th:text="${prof.isActive ? 'Ativo' : 'Inativo'}"></span>
-                        </p>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-indigo-100 flex items-center gap-2">
-                        <span class="text-xs text-gray-500">
-                            <i class="fas fa-file-alt"></i> Membro ativo do colegiado
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div th:if="${professors == null or professors.isEmpty()}" class="text-center py-8 text-gray-500">
-            <p><i class="fas fa-user-slash text-3xl mb-2"></i></p>
-            <p>Nenhum professor encontrado</p>
-        </div>
+    <div th:if="${professors == null or professors.isEmpty()}" class="card empty-state">
+        <i class="fas fa-user-slash empty-state-icon" aria-hidden="true"></i>
+        <h2 class="text-base">Nenhum professor encontrado</h2>
+        <p class="empty-state-text">Os professores cadastrados pelo administrador aparecem aqui.</p>
     </div>
 </div>

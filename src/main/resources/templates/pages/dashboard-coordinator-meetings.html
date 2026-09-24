@@ -1,151 +1,99 @@
-<div th:fragment="content" class="container mx-auto p-6">
-    <!-- Header com Botões de Navegação -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Reuniões do Colegiado</h1>
-        <div class="flex gap-3">
-            <a th:href="@{/dashboard}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                <i class="fas fa-arrow-left"></i> Voltar
+<div th:fragment="content" class="page">
+    <div class="page-header">
+        <div>
+            <h1>Reuniões do colegiado</h1>
+            <p class="page-description">Programe, conduza e finalize as sessões de votação.</p>
+        </div>
+        <div class="page-actions">
+            <a th:href="@{/dashboard/meetings/new}" class="btn btn-primary">
+                <i class="fas fa-plus" aria-hidden="true"></i>Nova reunião
             </a>
-            <form th:action="@{/logout}" method="post" class="inline">
-                <button type="button" onclick="this.closest('form').submit()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    Sair (Logout)
-                </button>
-            </form>
         </div>
     </div>
 
-    <!-- Botões de Navegação Entre Páginas -->
-    <div class="mb-6 flex gap-3 flex-wrap">
-        <a th:href="@{/dashboard}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-            <i class="fas fa-file-alt"></i> Processos
-        </a>
-        <a th:href="@{/dashboard/professors}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-            <i class="fas fa-chalkboard-user"></i> Professores
-        </a>
-        <a th:href="@{/dashboard/meetings}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-            <i class="fas fa-calendar-check"></i> Reuniões
-        </a>
-    </div>
+    <div th:replace="~{fragments/flash :: messages}"></div>
 
-    <!-- Botão Criar Nova Reunião -->
-    <div class="mb-6">
-        <a th:href="@{/dashboard/meetings/new}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded inline-flex items-center gap-2">
-            <i class="fas fa-plus"></i> Nova Reunião
-        </a>
-    </div>
-
-    <!-- Conteúdo da Página -->
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <div th:if="${collegiateMeetings != null and !collegiateMeetings.isEmpty()}">
-            <div class="space-y-4">
-                <div th:each="meeting : ${collegiateMeetings}" 
-                     class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border border-purple-200 shadow hover:shadow-md transition">
-                    
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800" th:text="${meeting.description}"></h3>
-                            <div class="space-y-1 mt-2">
-                                <p class="text-sm text-gray-500" th:if="${meeting.createdAt}" th:text="${'Criada em: ' + #temporals.format(meeting.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
-                                <p class="text-sm text-green-600 font-semibold" th:if="${meeting.openedAt}" th:text="${'Aberta em: ' + #temporals.format(meeting.openedAt, 'dd/MM/yyyy HH:mm')}"></p>
-                                <p class="text-sm text-blue-600" th:if="${meeting.scheduledDate}" th:text="${'Agendada para: ' + #temporals.format(meeting.scheduledDate, 'dd/MM/yyyy HH:mm')}"></p>
-                            </div>
-                        </div>
-                        <!-- Status Badge com Indicador Visual -->
-                        <div class="flex flex-col items-end gap-2">
-                            <span th:class="${'px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 ' + (meeting.status.name() == 'DISPONIVEL' ? 'bg-green-200 text-green-800' : meeting.status.name() == 'EM_ANDAMENTO' ? 'bg-red-200 text-red-800' : 'bg-gray-200 text-gray-800')}"
-                                  >
-                                <i th:class="${'fas ' + (meeting.status.name() == 'DISPONIVEL' ? 'fa-check-circle' : meeting.status.name() == 'EM_ANDAMENTO' ? 'fa-spinner fa-spin' : 'fa-archive')}"></i>
-                                <span th:text="${meeting.status.name()}"></span>
-                            </span>
-                            <!-- Indicador: DISPONÍVEL ou EM ANDAMENTO -->
-                            <span th:if="${meeting.status.name() == 'EM_ANDAMENTO'}" class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded animate-pulse">
-                                <i class="fas fa-circle text-red-600"></i> Sessão Ativa
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded p-4 mb-4">
-                        <h4 class="font-semibold text-gray-700 mb-2">Processos na Agenda:</h4>
-                        <div th:if="${meeting.processes != null and !meeting.processes.isEmpty()}">
-                            <ul class="space-y-1">
-                                <li th:each="process : ${meeting.processes}" class="text-sm text-gray-600">
-                                    <i class="fas fa-check text-green-600"></i>
-                                    <span th:text="${process.title}"></span>
-                                    <span th:class="${'ml-2 text-xs ' + (process.status.name() == 'APPROVED' ? 'text-green-600 font-bold' : process.status.name() == 'REJECTED' ? 'text-red-600 font-bold' : 'text-yellow-600 font-bold')}"
-                                          th:text="${process.status.name()}">
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-                        <p th:if="${meeting.processes == null or meeting.processes.isEmpty()}" class="text-sm text-gray-400">
-                            Nenhum processo na agenda
-                        </p>
-                    </div>
-
-                    <!-- Seção de Ações com layout responsivo -->
-                    <div class="space-y-3">
-                        <!-- ESTADO: DISPONÍVEL -->
-                        <div th:if="${meeting.status.name() == 'DISPONIVEL'}" class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                            <p class="text-sm text-blue-700 font-semibold mb-3 flex items-center gap-2">
-                                <i class="fas fa-info-circle"></i> Reunião Programada - Clique para editar ou iniciar
-                            </p>
-                            <div class="flex gap-2 flex-wrap">
-                                <a th:href="@{/dashboard/meetings/{id}/edit(id=${meeting.id})}" 
-                                   class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition">
-                                    <i class="fas fa-edit"></i> Editar Reunião
-                                </a>
-                                <form method="POST" 
-                                      th:action="@{/dashboard/meetings/{id}/start(id=${meeting.id})}"
-                                      class="inline">
-                                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition"><i class="fas fa-play-circle"></i> Iniciar Sessão
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- ESTADO: EM_ANDAMENTO -->
-                        <div th:if="${meeting.status.name() == 'EM_ANDAMENTO'}" class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                            <p class="text-sm text-red-700 font-semibold mb-3 flex items-center gap-2 animate-pulse">
-                                <i class="fas fa-circle text-red-600"></i> Sessão em Andamento - Processos podem ser votados e apregoados
-                            </p>
-                            <div class="flex gap-2 flex-wrap">
-                                <a th:href="@{/dashboard/meetings/{id}/apregoar(id=${meeting.id})}" 
-                                   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition">
-                                    <i class="fas fa-eye"></i> Visualizar Processos
-                                </a>
-                                <a th:href="@{/dashboard/meetings/{id}/apregoar(id=${meeting.id})}" 
-                                   class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition">
-                                    <i class="fas fa-gavel"></i> Apregoar Processos
-                                </a>
-                                <form method="POST" 
-                                      th:action="@{/dashboard/meetings/{id}/finalize(id=${meeting.id})}"
-                                      class="inline"
-                                      onsubmit="return confirm('Todos os processos foram apregoados? Esta ação é irreversível!');">
-                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition"><i class="fas fa-stop-circle"></i> Finalizar Sessão
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- ESTADO: FINALIZADA -->
-                        <div th:if="${meeting.status.name() == 'FINALIZADA'}" class="bg-gray-50 border-l-4 border-gray-500 p-4 rounded">
-                            <p class="text-sm text-gray-700 font-semibold flex items-center gap-2">
-                                <i class="fas fa-archive"></i> Reunião Finalizada
-                            </p>
-                        </div>
+    <div th:if="${collegiateMeetings != null and !collegiateMeetings.isEmpty()}" class="space-y-4">
+        <article th:each="meeting : ${collegiateMeetings}" class="card">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <h2 th:text="${meeting.description}"></h2>
+                    <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-fg-secondary">
+                        <span th:if="${meeting.createdAt}" th:text="${'Criada em: ' + #temporals.format(meeting.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        <span th:if="${meeting.openedAt}" th:text="${'Aberta em: ' + #temporals.format(meeting.openedAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        <span th:if="${meeting.scheduledDate}" th:text="${'Agendada para: ' + #temporals.format(meeting.scheduledDate, 'dd/MM/yyyy HH:mm')}"></span>
                     </div>
                 </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span th:if="${meeting.status.name() == 'EM_ANDAMENTO'}" class="badge badge-danger">
+                        <i class="fas fa-circle" aria-hidden="true"></i>Sessão ativa
+                    </span>
+                    <span th:replace="~{fragments/status-badges :: meeting(${meeting.status})}"></span>
+                </div>
             </div>
-        </div>
-        
-        <div th:if="${collegiateMeetings == null or collegiateMeetings.isEmpty()}" class="text-center py-8 text-gray-500">
-            <p><i class="fas fa-calendar-times text-3xl mb-2"></i></p>
-            <p>Nenhuma reunião encontrada</p>
-            <a th:href="@{/dashboard/meetings/new}" class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded">
-                Criar primeira reunião
+
+            <div class="mt-4">
+                <h3 class="mb-2 text-sm">Processos na agenda</h3>
+                <ul th:if="${meeting.processes != null and !meeting.processes.isEmpty()}" class="divide-y divide-border rounded-md border border-border">
+                    <li th:each="process : ${meeting.processes}" class="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
+                        <span class="min-w-0" th:text="${process.title}"></span>
+                        <span th:replace="~{fragments/status-badges :: process(${process.status})}"></span>
+                    </li>
+                </ul>
+                <p th:if="${meeting.processes == null or meeting.processes.isEmpty()}" class="text-[13px] text-fg-secondary">
+                    Nenhum processo na agenda
+                </p>
+            </div>
+
+            <div class="card-footer flex flex-wrap items-center justify-between gap-3">
+                <th:block th:if="${meeting.status.name() == 'DISPONIVEL'}">
+                    <p class="text-[13px] text-fg-secondary">Reunião programada. Edite a pauta ou inicie a sessão.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <a th:href="@{/dashboard/meetings/{id}/edit(id=${meeting.id})}" class="btn btn-secondary">
+                            <i class="fas fa-pen" aria-hidden="true"></i>Editar reunião
+                        </a>
+                        <form method="POST" th:action="@{/dashboard/meetings/{id}/start(id=${meeting.id})}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-circle-play" aria-hidden="true"></i>Iniciar sessão
+                            </button>
+                        </form>
+                    </div>
+                </th:block>
+
+                <th:block th:if="${meeting.status.name() == 'EM_ANDAMENTO'}">
+                    <p class="text-[13px] text-fg-secondary">Sessão em andamento. Processos podem ser votados e apregoados.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <a th:href="@{/dashboard/meetings/{id}/apregoar(id=${meeting.id})}" class="btn btn-secondary">
+                            <i class="fas fa-eye" aria-hidden="true"></i>Visualizar processos
+                        </a>
+                        <a th:href="@{/dashboard/meetings/{id}/apregoar(id=${meeting.id})}" class="btn btn-primary">
+                            <i class="fas fa-gavel" aria-hidden="true"></i>Apregoar processos
+                        </a>
+                        <form method="POST"
+                              th:action="@{/dashboard/meetings/{id}/finalize(id=${meeting.id})}"
+                              onsubmit="return confirm('Todos os processos foram apregoados? Esta ação é irreversível!');">
+                            <button type="submit" class="btn btn-danger-soft">
+                                <i class="fas fa-circle-stop" aria-hidden="true"></i>Finalizar sessão
+                            </button>
+                        </form>
+                    </div>
+                </th:block>
+
+                <p th:if="${meeting.status.name() == 'FINALIZADA'}" class="flex items-center gap-2 text-[13px] text-fg-secondary">
+                    <i class="fas fa-box-archive" aria-hidden="true"></i>Reunião finalizada
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <div th:if="${collegiateMeetings == null or collegiateMeetings.isEmpty()}" class="card empty-state">
+        <i class="fas fa-calendar-xmark empty-state-icon" aria-hidden="true"></i>
+        <h2 class="text-base">Nenhuma reunião encontrada</h2>
+        <p class="empty-state-text">Crie uma reunião para colocar processos em pauta e conduzir a votação do colegiado.</p>
+        <div class="empty-state-actions">
+            <a th:href="@{/dashboard/meetings/new}" class="btn btn-primary">
+                <i class="fas fa-plus" aria-hidden="true"></i>Criar primeira reunião
             </a>
         </div>
     </div>
 </div>
-
-

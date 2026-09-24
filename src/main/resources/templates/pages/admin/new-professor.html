@@ -1,86 +1,73 @@
-<div th:fragment="content" class="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-12">
-    <div class="w-full max-w-lg">
-        <div class="mb-4">
-            <a th:href="@{/admin/professors}" class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>Voltar
-            </a>
-        </div>
-        <div class="bg-white rounded-lg shadow-xl p-8">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Cadastrar Novo Professor</h1>
-                <p class="text-gray-600">Preencha os dados abaixo para criar uma nova conta de professor.</p>
-            </div>
+<div th:fragment="content" class="page page-narrow">
+    <a th:href="@{/admin/professors}" class="back-link">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar
+    </a>
 
-            <form th:action="@{/admin/professors}" th:object="${professor}" method="POST" class="space-y-6">
-                <!-- Erros globais de validação -->
-                <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    <p class="font-semibold">Corrija os erros abaixo:</p>
-                    <ul class="list-disc list-inside mt-1">
+    <div class="page-header">
+        <div>
+            <h1>Cadastrar novo professor</h1>
+            <p class="page-description">Preencha os dados abaixo para criar uma nova conta de professor.</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/flash :: messages}"></div>
+
+    <div class="card">
+        <form th:action="@{/admin/professors}" th:object="${professor}" method="POST" class="space-y-4">
+            <div th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
+                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                <div class="alert-body">
+                    <p class="alert-title">Corrija os erros abaixo:</p>
+                    <ul class="mt-1 list-inside list-disc">
                         <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
                     </ul>
                 </div>
-                <!-- Nome Completo -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
-                    <input type="text" th:field="*{name}" id="name" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                           th:classappend="${#fields.hasErrors('name')} ? 'border-red-500' : ''"/>
-                    <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-600 text-sm mt-1"></p>
-                </div>
+            </div>
 
-                <!-- Numero para contato-->
-                <div>
-                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-2">Número para contato</label>
-                    <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
-                </div>
+            <div class="field">
+                <label for="name" class="label">Nome completo</label>
+                <input type="text" th:field="*{name}" id="name" required class="input"
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                       th:attr="aria-invalid=${#fields.hasErrors('name')}, aria-describedby=${#fields.hasErrors('name')} ? 'name-error'"/>
+                <p th:if="${#fields.hasErrors('name')}" id="name-error" th:errors="*{name}" class="field-error"></p>
+            </div>
 
-                
-                <!-- Email (Login) (Matrícula será gerada automaticamente) -->
-                <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4">
-                    <p class="text-sm"><strong>Matrícula:</strong> Será gerada automaticamente pelo sistema.</p>
-                </div>
+            <div class="field">
+                <label for="phoneNumber" class="label">Número para contato</label>
+                <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required class="input" autocomplete="tel"/>
+            </div>
 
-                <!-- Email (Login) -->
-                <div>
-                    <label for="login" class="block text-sm font-medium text-gray-700 mb-2">Email (Login)</label>
-                    <input type="email" th:field="*{login}" id="login" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                           th:classappend="${#fields.hasErrors('login')} ? 'border-red-500' : ''"/>
-                    <p th:if="${#fields.hasErrors('login')}" th:errors="*{login}" class="text-red-600 text-sm mt-1"></p>
-                </div>
-                
-                <!-- Senha -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Senha Provisória</label>
-                    <input type="password" th:field="*{password}" id="password" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                           placeholder="Mínimo 6 caracteres"
-                           th:classappend="${#fields.hasErrors('password')} ? 'border-red-500' : ''"/>
-                    <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-red-600 text-sm mt-1"></p>
-                </div>
+            <div class="alert alert-info">
+                <i class="fas fa-circle-info" aria-hidden="true"></i>
+                <p class="alert-body"><strong>Matrícula:</strong> será gerada automaticamente pelo sistema.</p>
+            </div>
 
-                <!-- É Coordenador? -->
-                <div class="flex items-center">
-                    <input type="checkbox" th:field="*{coordinator}" id="coordinator"
-                           class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"/>
-                    <label for="coordinator" class="ml-2 block text-sm text-gray-900">
-                        Marcar como Coordenador
-                    </label>
-                </div>
+            <div class="field">
+                <label for="login" class="label">E-mail (login)</label>
+                <input type="email" th:field="*{login}" id="login" required class="input" autocomplete="off"
+                       th:classappend="${#fields.hasErrors('login')} ? 'is-invalid' : ''"
+                       th:attr="aria-invalid=${#fields.hasErrors('login')}, aria-describedby=${#fields.hasErrors('login')} ? 'login-error'"/>
+                <p th:if="${#fields.hasErrors('login')}" id="login-error" th:errors="*{login}" class="field-error"></p>
+            </div>
 
-                <!-- Botões -->
-                <div class="flex items-center justify-between pt-4">
-                    <a th:href="@{/dashboard}"
-                       class="text-gray-600 hover:text-indigo-600 font-medium transition">
-                        Cancelar
-                    </a>
-                    <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                        Cadastrar Professor
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="field">
+                <label for="password" class="label">Senha provisória</label>
+                <input type="password" th:field="*{password}" id="password" required class="input" autocomplete="new-password"
+                       placeholder="Mínimo 6 caracteres"
+                       th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                       th:attr="aria-invalid=${#fields.hasErrors('password')}, aria-describedby=${#fields.hasErrors('password')} ? 'password-error'"/>
+                <p th:if="${#fields.hasErrors('password')}" id="password-error" th:errors="*{password}" class="field-error"></p>
+            </div>
+
+            <label for="coordinator" class="check">
+                <input type="checkbox" th:field="*{coordinator}" id="coordinator"/>
+                Marcar como coordenador
+            </label>
+
+            <div class="form-actions form-actions-bordered">
+                <button type="submit" class="btn btn-primary">Cadastrar professor</button>
+                <a th:href="@{/dashboard}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
     </div>
 </div>

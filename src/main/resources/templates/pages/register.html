@@ -1,141 +1,94 @@
-<div th:fragment="content" class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12">
-  <div class="w-full max-w-md">
-    <!-- Card Principal -->
-    <div class="bg-white rounded-lg shadow-lg p-8">
-      <!-- Header do Formulário -->
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Criar Conta</h1>
-        <p class="text-gray-600">Junte-se à Veritas</p>
-      </div>
+<div th:fragment="content" class="auth-page">
+  <section class="auth-panel" aria-labelledby="register-title">
+    <div class="mb-6 text-center">
+      <span class="brand-mark mx-auto mb-4 h-10 w-10 rounded-[10px] text-base" aria-hidden="true"><i class="fas fa-book-open"></i></span>
+      <h1 id="register-title">Criar conta</h1>
+      <p class="mt-1 text-fg-secondary">Junte-se ao Veritas</p>
+    </div>
 
-      <!-- Formulário de Registro -->
+    <div class="card">
       <form th:action="@{/register}" th:object="${registrationDTO}" method="POST" class="space-y-4">
 
-        <div th:if="${#fields.hasErrors()}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          <p class="font-semibold">Corrija os erros abaixo:</p>
-          <ul class="list-disc list-inside mt-1">
-            <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
-          </ul>
+        <div th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
+          <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+          <div class="alert-body">
+            <p class="alert-title">Corrija os erros abaixo:</p>
+            <ul class="mt-1 list-inside list-disc">
+              <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
+            </ul>
+          </div>
         </div>
 
-        <!-- Nome Completo -->
-        <div>
-          <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
-            Nome Completo
-          </label>
-          <input type="text" th:field="*{fullName}" id="fullName" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('fullName')} ? 'border-red-500' : ''"
+        <div class="field">
+          <label for="fullName" class="label">Nome completo</label>
+          <input type="text" th:field="*{fullName}" id="fullName" required class="input"
+                 th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid' : ''"
+                 th:attr="aria-invalid=${#fields.hasErrors('fullName')}, aria-describedby=${#fields.hasErrors('fullName')} ? 'fullName-error'"
                  placeholder="Seu nome completo"/>
-          <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-red-600 text-sm mt-1"></p>
+          <p th:if="${#fields.hasErrors('fullName')}" id="fullName-error" th:errors="*{fullName}" class="field-error"></p>
         </div>
 
-        <!-- Email -->
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-            Email
-          </label>
-          <input type="email" th:field="*{email}" id="email" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('email')} ? 'border-red-500' : ''"
+        <div class="field">
+          <label for="email" class="label">E-mail</label>
+          <input type="email" th:field="*{email}" id="email" required class="input"
+                 th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                 th:attr="aria-invalid=${#fields.hasErrors('email')}, aria-describedby=${#fields.hasErrors('email')} ? 'email-error'"
                  placeholder="seu@email.com"/>
-          <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-red-600 text-sm mt-1"></p>
+          <p th:if="${#fields.hasErrors('email')}" id="email-error" th:errors="*{email}" class="field-error"></p>
         </div>
 
-        <!-- Senha -->
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-            Senha
-          </label>
-          <input type="password" th:field="*{password}" id="password" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('password')} ? 'border-red-500' : ''"
+        <div class="field">
+          <label for="password" class="label">Senha</label>
+          <input type="password" th:field="*{password}" id="password" required class="input"
+                 th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                 th:attr="aria-invalid=${#fields.hasErrors('password')}, aria-describedby=${#fields.hasErrors('password')} ? 'password-error'"
                  placeholder="Mínimo 6 caracteres"/>
-          <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-red-600 text-sm mt-1"></p>
+          <p th:if="${#fields.hasErrors('password')}" id="password-error" th:errors="*{password}" class="field-error"></p>
         </div>
 
-        <!-- Confirmar Senha -->
-        <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
-            Confirmar Senha
-          </label>
-          <input type="password" th:field="*{confirmPassword}" id="confirmPassword" required
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                 th:classappend="${#fields.hasErrors('confirmPassword')} ? 'border-red-500' : ''"
+        <div class="field">
+          <label for="confirmPassword" class="label">Confirmar senha</label>
+          <input type="password" th:field="*{confirmPassword}" id="confirmPassword" required class="input"
+                 th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''"
+                 th:attr="aria-invalid=${#fields.hasErrors('confirmPassword')}, aria-describedby=${#fields.hasErrors('confirmPassword')} ? 'confirmPassword-error'"
                  placeholder="Confirme sua senha"/>
-          <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="text-red-600 text-sm mt-1"></p>
+          <p th:if="${#fields.hasErrors('confirmPassword')}" id="confirmPassword-error" th:errors="*{confirmPassword}" class="field-error"></p>
         </div>
 
-        <!-- Tipo de Usuário -->
-        <div>
-          <label for="userType" class="block text-sm font-medium text-gray-700 mb-2">
-            Tipo de Usuário
-          </label>
-          <select th:field="*{userType}" id="userType" required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                  th:classappend="${#fields.hasErrors('userType')} ? 'border-red-500' : ''">
+        <div class="field">
+          <label for="userType" class="label">Tipo de usuário</label>
+          <select th:field="*{userType}" id="userType" required class="input"
+                  th:classappend="${#fields.hasErrors('userType')} ? 'is-invalid' : ''"
+                  th:attr="aria-invalid=${#fields.hasErrors('userType')}, aria-describedby=${#fields.hasErrors('userType')} ? 'userType-error'">
             <option value="">Selecione um tipo</option>
             <option value="student">Estudante</option>
             <option value="professor">Professor</option>
           </select>
-          <p th:if="${#fields.hasErrors('userType')}" th:errors="*{userType}" class="text-red-600 text-sm mt-1"></p>
+          <p th:if="${#fields.hasErrors('userType')}" id="userType-error" th:errors="*{userType}" class="field-error"></p>
         </div>
 
-        <!-- Botão de Registro -->
-        <button
-          type="submit"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 mt-6"
-        >
-          Criar Conta
-        </button>
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Criar conta</button>
       </form>
 
-      <!-- Link para Login -->
-      <div class="text-center mt-6">
-        <p class="text-gray-600">
-          Já tem uma conta?
-          <a
-            th:href="@{/login}"
-            class="text-indigo-600 hover:text-indigo-700 font-medium transition"
-          >
-            Faça login
-          </a>
-        </p>
+      <div class="my-5 flex items-center gap-3 text-xs text-fg-secondary">
+        <span class="h-px flex-1 bg-border"></span>
+        Ou continue com
+        <span class="h-px flex-1 bg-border"></span>
       </div>
 
-      <!-- Divisor -->
-      <div class="relative my-6">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-300"></div>
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="px-2 bg-white text-gray-500">Ou continue com</span>
-        </div>
-      </div>
-
-      <!-- Botões Sociais -->
-      <div class="grid grid-cols-2 gap-4">
-        <button
-          type="button"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
-        >
-          <i class="fab fa-google"></i> Google
+      <div class="grid grid-cols-2 gap-3">
+        <button type="button" class="btn btn-secondary">
+          <i class="fab fa-google" aria-hidden="true"></i>Google
         </button>
-        <button
-          type="button"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
-        >
-          <i class="fab fa-github"></i> GitHub
+        <button type="button" class="btn btn-secondary">
+          <i class="fab fa-github" aria-hidden="true"></i>GitHub
         </button>
       </div>
     </div>
 
-    <!-- Botão para Voltar -->
-    <div class="text-center mt-6">
-      <a th:href="@{/login}"
-         class="inline-flex items-center px-6 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-        &larr; Voltar para o Login
-      </a>
-    </div>
-  </div>
+    <p class="mt-5 text-center text-fg-secondary">
+      Já tem uma conta?
+      <a th:href="@{/login}" class="link">Faça login</a>
+    </p>
+  </section>
 </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,97 +7,84 @@
 </head>
 <body>
 
-<div th:fragment="content" class="p-6 bg-gray-50 min-h-screen">
-    <div class="max-w-3xl mx-auto">
-        <!-- Cabeçalho -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Editar Colegiado</h1>
-            <p class="text-gray-600 mt-2" th:text="'ID: ' + ${collegiate.id}"></p>
+<div th:fragment="content" class="page page-narrow">
+    <a th:href="@{/dashboard/collegiates}" class="back-link">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>Voltar para colegiados
+    </a>
+
+    <div class="page-header">
+        <div>
+            <h1>Editar colegiado</h1>
+            <p class="page-description tabular-nums" th:text="'ID: ' + ${collegiate.id}"></p>
         </div>
+    </div>
 
-        <!-- Aviso sobre número ímpar -->
-        <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p class="text-sm text-yellow-800">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                <strong>Atenção:</strong> O colegiado deve ter um número ÍMPAR de membros. O sistema não permitirá salvar com número par.
-            </p>
-        </div>
+    <div th:replace="~{fragments/flash :: messages}"></div>
 
-        <!-- Formulário -->
-        <div class="bg-white rounded-lg shadow-md p-8">
-            <form th:action="@{/dashboard/collegiates/{id}(id=${collegiate.id})}" method="POST" class="space-y-6">
-                
-                <!-- Descrição -->
-                <div>
-                    <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-file-alt mr-2"></i> Descrição *
+    <div class="alert alert-warning mb-6">
+        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+        <p class="alert-body"><strong>Atenção:</strong> o colegiado deve ter um número ímpar de membros. O sistema não permitirá salvar com número par.</p>
+    </div>
+
+    <div class="card">
+        <form th:action="@{/dashboard/collegiates/{id}(id=${collegiate.id})}" method="POST" class="space-y-5">
+            <div class="field">
+                <label for="description" class="label">Descrição <span class="required-mark" aria-hidden="true">*</span></label>
+                <textarea id="description"
+                          name="description"
+                          rows="3"
+                          required
+                          th:value="${collegiate.description}"
+                          class="input"></textarea>
+            </div>
+
+            <fieldset class="field">
+                <legend class="label mb-1.5">
+                    Membros <span class="required-mark" aria-hidden="true">*</span>
+                    <span class="label-hint">(número ímpar para evitar empates)</span>
+                </legend>
+                <div class="choice-list">
+                    <label th:each="prof : ${professors}" class="choice-row">
+                        <input type="checkbox"
+                               name="collegiateMemberList"
+                               th:value="${prof.id}"
+                               th:checked="${collegiate.collegiateMemberList != null and collegiate.collegiateMemberList.![id].contains(prof.id)}">
+                        <span class="min-w-0 flex-1">
+                            <span class="block font-medium" th:text="${prof.name}"></span>
+                            <span class="block text-xs text-fg-secondary" th:text="${prof.login}"></span>
+                        </span>
+                        <span th:if="${prof.coordinator}" class="badge badge-primary">Coordenador</span>
                     </label>
-                    <textarea id="description" 
-                              name="description" 
-                              rows="3"
-                              required
-                              th:value="${collegiate.description}"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                </div>
-
-                <!-- Membros -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        <i class="fas fa-users mr-2"></i> Membros * 
-                        <span class="text-xs text-gray-500 ml-2">(Número ÍMPAR para evitar empates)</span>
-                    </label>
-                    <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 space-y-3 max-h-96 overflow-y-auto">
-                        <div th:each="prof : ${professors}">
-                            <label class="flex items-start space-x-3 hover:bg-white p-3 rounded cursor-pointer transition border border-transparent hover:border-indigo-300">
-                                <input type="checkbox" 
-                                       name="collegiateMemberList" 
-                                       th:value="${prof.id}"
-                                       th:checked="${collegiate.collegiateMemberList != null and collegiate.collegiateMemberList.![id].contains(prof.id)}"
-                                       class="mt-1 w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-900" th:text="${prof.name}"></p>
-                                    <p class="text-xs text-gray-500" th:text="${prof.login}"></p>
-                                </div>
-                                <span th:if="${prof.coordinator}" class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                                    Coordenador
-                                </span>
-                            </label>
-                        </div>
-                        <div th:if="${#lists.isEmpty(professors)}" class="text-center py-8 text-gray-500">
-                            <p>Nenhum professor disponível</p>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2">
-                        <i class="fas fa-info-circle mr-1"></i> Membros selecionados: <span id="memberCount" class="font-semibold">0</span> (deve ser ÍMPAR)
-                    </p>
-                </div>
-
-                <!-- Informações do Colegiado -->
-                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Informações do Colegiado</h3>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-600">Criado em:</p>
-                            <p class="font-medium" th:text="${#temporals.format(collegiate.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600">Reuniões associadas:</p>
-                            <p class="font-medium" th:text="${collegiate.meetings != null ? collegiate.meetings.size() : 0}"></p>
-                        </div>
+                    <div th:if="${#lists.isEmpty(professors)}" class="choice-empty">
+                        Nenhum professor disponível
                     </div>
                 </div>
+                <p class="help">
+                    Membros selecionados: <span id="memberCount" class="font-medium">0</span> (deve ser ímpar)
+                </p>
+            </fieldset>
 
-                <!-- Botões -->
-                <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                    <a th:href="@{/dashboard/collegiates}" class="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors duration-200">
-                        <i class="fas fa-times mr-2"></i> Cancelar
-                    </a>
-                    <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium flex items-center gap-2 transition-colors duration-200">
-                        <i class="fas fa-save"></i> Salvar Alterações
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="inset">
+                <h2 class="mb-3 text-sm">Informações do colegiado</h2>
+                <dl class="grid grid-cols-2 gap-4">
+                    <div>
+                        <dt class="meta-label">Criado em</dt>
+                        <dd class="meta-value tabular-nums" th:text="${#temporals.format(collegiate.createdAt, 'dd/MM/yyyy HH:mm')}"></dd>
+                    </div>
+                    <div>
+                        <dt class="meta-label">Reuniões associadas</dt>
+                        <dd class="meta-value tabular-nums" th:text="${collegiate.meetings != null ? collegiate.meetings.size() : 0}"></dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="form-actions form-actions-bordered">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-floppy-disk" aria-hidden="true"></i>Salvar alterações
+                </button>
+                <a th:href="@{/dashboard/collegiates}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
     </div>
 </div>
 

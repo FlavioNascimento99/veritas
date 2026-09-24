@@ -1,63 +1,116 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm" th:fragment="header">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <!-- Logo -->
-            <div class="flex items-center">
-                <i class="fas fa-book-open text-2xl text-indigo-600 mr-3"></i>
-                <h1 class="text-2xl font-bold text-gray-900">Veritas</h1>
-            </div>
+    <header class="app-header" th:fragment="header"
+            x-data="{ menuOpen: false, userOpen: false }"
+            @keydown.escape.window="menuOpen = false; userOpen = false">
+        <div class="container-app app-header-bar">
+            <a class="brand" th:href="@{/}">
+                <span class="brand-mark" aria-hidden="true"><i class="fas fa-book-open"></i></span>
+                <span>Veritas</span>
+            </a>
 
-            <!-- Menu Desktop -->
-            <nav class="hidden md:flex items-center space-x-1">
-                <a sec:authorize="isAuthenticated()" th:href="@{/dashboard}" class="px-4 py-2 text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200">
-                    <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
-                </a>
-                <p sec:authorize="!isAuthenticated()" class="px-4 py-2 text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200">
-                    Entre em contato para mais informações.
-                </p>
+            <nav class="hidden md:flex items-center gap-1 min-w-0" aria-label="Navegação principal">
+                <th:block th:replace="~{fragments/header :: navLinks}"></th:block>
             </nav>
 
+            <div class="ml-auto flex items-center gap-2">
+                <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-primary btn-sm hidden md:inline-flex">Entrar</a>
 
-            <!-- Menu Usuario -->
-            <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex items-center space-x-3">
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-gray-900" sec:authentication="name"></p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('ADMIN')">
-                            <i class="fas fa-crown text-xs mr-1"></i>Administrador
-                        </p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('COORDINATOR')">
-                            <i class="fas fa-briefcase text-xs mr-1"></i>Coordenador
-                        </p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('PROFESSOR')">
-                            <i class="fas fa-chalkboard text-xs mr-1"></i>Professor
-                        </p>
-                        <p class="text-xs text-indigo-600 font-medium" sec:authorize="hasRole('STUDENT')">
-                            <i class="fas fa-graduation-cap text-xs mr-1"></i>Estudante
-                        </p>
-                    </div>
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-bold">
-                        <i class="fas fa-user"></i>
-                    </div>
-                </div>
-                
-                <!-- Dropdown Logout -->
-                <div class="relative group" sec:authorize="isAuthenticated()">
-                    <button class="inline-flex items-center px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                        <i class="fas fa-chevron-down"></i>
+                <div class="relative hidden md:block" sec:authorize="isAuthenticated()"
+                     @click.outside="userOpen = false">
+                    <button type="button" class="user-trigger" aria-controls="user-menu"
+                            :aria-expanded="userOpen.toString()" aria-expanded="false"
+                            @click="userOpen = !userOpen">
+                        <span class="avatar" aria-hidden="true"
+                              th:text="${#strings.toUpperCase(#strings.substring(#authentication.name, 0, 1))}">U</span>
+                        <span class="sr-only">Abrir menu do usuário</span>
+                        <i class="fas fa-chevron-down text-xs" aria-hidden="true"></i>
                     </button>
-                    <div class="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                        <form th:action="@{/logout}" method="post" class="logout-form">
-                            <button type="button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 font-medium" onclick="this.closest('form').submit()">
-                                <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    <div id="user-menu" class="menu" x-cloak x-show="userOpen"
+                         x-transition:enter="menu-enter" x-transition:enter-start="menu-hidden" x-transition:enter-end="menu-shown"
+                         x-transition:leave="menu-leave" x-transition:leave-start="menu-shown" x-transition:leave-end="menu-hidden">
+                        <th:block th:replace="~{fragments/header :: userSummary}"></th:block>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="menu-item menu-item-danger">
+                                <i class="fas fa-sign-out-alt w-4 text-center" aria-hidden="true"></i>Sair
                             </button>
                         </form>
                     </div>
                 </div>
+
+                <button type="button" class="nav-toggle md:hidden" aria-controls="mobile-nav"
+                        :aria-expanded="menuOpen.toString()" aria-expanded="false"
+                        @click="menuOpen = !menuOpen">
+                    <i class="fas fa-bars" x-show="!menuOpen" aria-hidden="true"></i>
+                    <i class="fas fa-xmark" x-cloak x-show="menuOpen" aria-hidden="true"></i>
+                    <span class="sr-only">Abrir menu de navegação</span>
+                </button>
             </div>
         </div>
+
+        <div id="mobile-nav" class="mobile-nav md:hidden" x-cloak x-show="menuOpen">
+            <nav class="container-app flex flex-col gap-1" aria-label="Navegação principal (celular)">
+                <th:block th:replace="~{fragments/header :: navLinks}"></th:block>
+
+                <div class="mobile-nav-section" sec:authorize="isAuthenticated()">
+                    <th:block th:replace="~{fragments/header :: userSummary}"></th:block>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="nav-link w-full text-danger">
+                            <i class="fas fa-sign-out-alt w-4 text-center" aria-hidden="true"></i>Sair
+                        </button>
+                    </form>
+                </div>
+                <div class="mobile-nav-section" sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="btn btn-primary btn-block">Entrar</a>
+                </div>
+            </nav>
+        </div>
+        <script>
+            // Thymeleaf 3.1 blocks request access in templates, so the active link is resolved client-side.
+            // A trailing "*" in data-nav-match means prefix match.
+            document.querySelectorAll('[data-nav-match]').forEach((link) => {
+                const path = window.location.pathname;
+                const isCurrent = link.dataset.navMatch.split(' ').some((pattern) =>
+                    pattern.endsWith('*') ? path.startsWith(pattern.slice(0, -1)) : path === pattern);
+                if (isCurrent) link.setAttribute('aria-current', 'page');
+            });
+        </script>
     </header>
+
+    <th:block th:fragment="navLinks">
+        <th:block sec:authorize="isAuthenticated()">
+            <a class="nav-link" th:href="@{/dashboard}" data-nav-match="/dashboard">Dashboard</a>
+        </th:block>
+
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <a class="nav-link" th:href="@{/admin/users}" data-nav-match="/admin/users* /admin/students* /admin/professors*">Usuários</a>
+            <a class="nav-link" th:href="@{/admin/processes}" data-nav-match="/admin/processes*">Processos</a>
+            <a class="nav-link" th:href="@{/admin/subjects}" data-nav-match="/admin/subjects*">Assuntos</a>
+            <a class="nav-link" th:href="@{/admin/collegiates}" data-nav-match="/admin/collegiates*">Colegiados</a>
+        </th:block>
+
+        <th:block sec:authorize="hasRole('COORDINATOR')">
+            <a class="nav-link" th:href="@{/dashboard/professors}" data-nav-match="/dashboard/professors*">Professores</a>
+            <a class="nav-link" th:href="@{/dashboard/meetings}" data-nav-match="/dashboard/meetings*">Reuniões</a>
+            <a class="nav-link" th:href="@{/dashboard/collegiates}" data-nav-match="/dashboard/collegiates*">Colegiados</a>
+        </th:block>
+
+        <th:block sec:authorize="!isAuthenticated()">
+            <a class="nav-link" th:href="@{/}" data-nav-match="/">Início</a>
+            <a class="nav-link" th:href="@{/about}" data-nav-match="/about">Sobre</a>
+            <a class="nav-link" th:href="@{/contact}" data-nav-match="/contact">Contato</a>
+        </th:block>
+    </th:block>
+
+    <div class="menu-header" th:fragment="userSummary">
+        <p class="truncate font-medium text-fg" sec:authentication="name">usuario@exemplo.com</p>
+        <p class="text-xs text-fg-secondary">
+            <span sec:authorize="hasRole('ADMIN')">Administrador</span>
+            <span sec:authorize="hasRole('COORDINATOR')">Coordenador</span>
+            <span sec:authorize="hasRole('PROFESSOR') and !hasRole('COORDINATOR')">Professor</span>
+            <span sec:authorize="hasRole('STUDENT')">Estudante</span>
+        </p>
+    </div>
 </body>
 </html>
